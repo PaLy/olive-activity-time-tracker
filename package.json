@@ -13,7 +13,11 @@
     "@testing-library/react": "^14.1.2",
     "@testing-library/user-event": "^14.5.1",
     "@tsconfig/create-react-app": "^2.0.1",
-    "@types/jest": "^29.5.10"
+    "@types/jest": "^29.5.10",
+    "eslint-config-prettier": "^9.0.0",
+    "husky": "^8.0.3",
+    "lint-staged": "^15.1.0",
+    "prettier": "^3.1.0"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -21,12 +25,21 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "check-updates": "npx npm-check-updates",
-    "upgrade": "npx npm-check-updates -u"
+    "upgrade": "npx npm-check-updates -u",
+    "all-prettier": "npx prettier . --write",
+    "prepare": "husky install"
   },
   "eslintConfig": {
     "extends": [
       "react-app",
-      "react-app/jest"
+      "react-app/jest",
+      "prettier"
+    ]
+  },
+  "lint-staged": {
+    "**/*.{ts,tsx}": [
+      "npx eslint --fix",
+      "npx prettier --write"
     ]
   },
   "browserslist": {
