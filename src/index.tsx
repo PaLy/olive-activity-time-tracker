@@ -6,11 +6,41 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { TodayRoute } from "./routes/TodayRoute";
+import { ThisMonthRoute } from "./routes/ThisMonthRoute";
+import { AllTimeRoute } from "./routes/AllTimeRoute";
+
+const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <App />,
+    errorElement: <>Not Found</>,
+    children: [
+      {
+        index: true,
+        element: <TodayRoute />,
+      },
+      {
+        path: "today",
+        element: <TodayRoute />,
+      },
+      {
+        path: "month",
+        element: <ThisMonthRoute />,
+      },
+      {
+        path: "all",
+        element: <AllTimeRoute />,
+      },
+    ],
+  },
+]);
 
 const root = ReactDOM.createRoot(document.getElementById("root")!);
 root.render(
   <React.StrictMode>
-    <App />
+    <RouterProvider router={router} />
   </React.StrictMode>,
 );
 
