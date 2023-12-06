@@ -1,5 +1,6 @@
 import {
   batch,
+  computed,
   effect,
   signal,
   Signal,
@@ -14,26 +15,26 @@ export type Interval = {
   end: number;
 };
 
-const isInProgress = (activity: Signal<Activity>) => {
-  const { intervals } = activity.value;
+const isInProgress = (activity: Activity) => {
+  const { intervals } = activity;
   return (
     intervals.value.length > 0 &&
     !intervals.value[intervals.value.length - 1].value.end
   );
 };
 
-const isStopped = (activity: Signal<Activity>) => !isInProgress(activity);
+const isStopped = (activity: Activity) => !isInProgress(activity);
 
 export const useInProgress = (activity: Signal<Activity>) =>
-  useComputed(() => isInProgress(activity));
+  useComputed(() => isInProgress(activity.value));
 
 export const useDepth = (activity: Signal<Activity>) =>
   useComputed(() => {
-    let cur = activity;
+    let cur = activity.value;
     let depth = -1;
     while (cur !== rootActivity) {
       depth++;
-      cur = activities.value.get(cur.value.parentActivityID)!;
+      cur = activities.value.get(cur.parentActivityID.value)!.value;
     }
     return depth;
   });
@@ -77,7 +78,7 @@ export const useDuration = (
 
 export const useParentActivity = (activity: Signal<Activity>) =>
   useComputed(
-    () => activities.value.get(activity.value.parentActivityID)!.value,
+    () => activities.value.get(activity.value.parentActivityID.value)!.value,
   );
 
 export const useDurationPercentage = (
@@ -94,10 +95,10 @@ export const useDurationPercentage = (
 
 export const stopActivity = (activity: Signal<Activity>) => {
   batch(() => {
-    [activity, ...getDescendants(activity)]
+    [activity.value, ...getDescendants(activity.value)]
       .filter(isInProgress)
       .forEach((activity) => {
-        const intervals = activity.value.intervals.value;
+        const intervals = activity.intervals.value;
         const lastInterval = intervals[intervals.length - 1];
         lastInterval.value = { ...lastInterval.value, end: moment() };
       });
@@ -106,22 +107,25 @@ export const stopActivity = (activity: Signal<Activity>) => {
 
 export const startActivity = (activity: Signal<Activity>) => {
   batch(() => {
-    [activity, ...getAncestors(activity)]
+    [activity.value, ...getAncestors(activity.value)]
       .filter(isStopped)
       .forEach((activity) => {
-        const { intervals } = activity.value;
+        const { intervals } = activity;
         intervals.value = [...intervals.value, signal({ start: moment() })];
       });
   });
 };
 
-const getDescendants = (activity: Signal<Activity>): Signal<Activity>[] =>
-  activity.value.childActivityIDs.value
-    .map((childID) => activities.value.get(childID)!)
+const getDescendants = (activity: Activity): Activity[] =>
+  activity.childActivityIDs.value
+    .map((childID) => activities.value.get(childID)!.value)
     .flatMap((child) => [child, ...getDescendants(child)]) ?? [];
 
-const getAncestors = (activity: Signal<Activity>): Signal<Activity>[] => {
-  const parent = activities.value.get(activity.value.parentActivityID)!;
+const getAncestorsWithoutRoot = (activity: Activity): Activity[] =>
+  getAncestors(activity).slice(0, -1);
+
+const getAncestors = (activity: Activity): Activity[] => {
+  const parent = activities.value.get(activity.parentActivityID.value)!.value;
   return parent === rootActivity
     ? [rootActivity]
     : [parent, ...getAncestors(parent)];
@@ -155,12 +159,30 @@ export const useChildActivities = (
   interval: Signal<Interval>,
 ) => useComputed(() => getChildActivities(activity, interval));
 
-export const rootActivity = activities.value.get("root")!;
+export const rootActivity = activities.value.get("root")!.value;
+
+export const nonRootActivities = computed(() =>
+  [...activities.value.values()]
+    .map((activity) => activity.value)
+    .filter((activity) => activity !== rootActivity),
+);
 
 export const useInProgressActivitiesCount = () =>
-  useComputed(
-    () =>
-      [...activities.value.values()]
-        .filter((a) => a !== rootActivity)
-        .filter(isInProgress).length,
-  );
+  useComputed(() => nonRootActivities.value.filter(isInProgress).length);
+
+export const activityFullNames = computed(
+  () =>
+    new Map(
+      [...activities.value.entries()].map(([id, activity]) => [
+        id,
+        activityFullName(activity.value),
+      ]),
+    ),
+);
+
+const activityFullName = (activity: Activity) =>
+  getAncestorsWithoutRoot(activity)
+    .reverse()
+    .concat(activity)
+    .map((activity) => activity.name.value)
+    .join(" / ");

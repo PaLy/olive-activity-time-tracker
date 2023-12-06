@@ -1,9 +1,6 @@
-import { Signal, signal, useComputed, useSignal } from "@preact/signals-react";
-import { Activity } from "../data/Model";
-import { useInitials } from "../utils/Strings";
+import { useInitials } from "../../utils/Strings";
 import {
   Interval,
-  rootActivity,
   startActivity,
   stopActivity,
   useChildActivities,
@@ -11,7 +8,7 @@ import {
   useDuration,
   useDurationPercentage,
   useInProgress,
-} from "../data/Activity";
+} from "../../data/Activity";
 import {
   Avatar,
   Box,
@@ -23,48 +20,22 @@ import {
   ListItemButton,
   ListItemIcon,
   ListItemText,
-  ListSubheader,
-  Paper,
 } from "@mui/material";
-import StopIcon from "@mui/icons-material/Stop";
-import PlayArrowIcon from "@mui/icons-material/PlayArrow";
+import { signal, Signal, useComputed, useSignal } from "@preact/signals-react";
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
-import humanizeDuration from "humanize-duration";
-import { duration } from "moment/moment";
-
-type ActivityListProps = {
-  interval: Signal<Interval>;
-  subHeader: string;
-};
-
-export const ActivityList = (props: ActivityListProps) => {
-  const { interval, subHeader } = props;
-  const childActivities = useChildActivities(rootActivity, interval);
-  return (
-    <Paper square sx={{ pb: "50px" }}>
-      <List sx={{ mb: 2, pt: 0 }}>
-        <ListSubheader sx={{ bgcolor: "background.paper", top: "64px" }}>
-          {subHeader}
-        </ListSubheader>
-        {childActivities.value.map((activity) => (
-          <ActivityItem
-            key={activity.value.id}
-            activity={activity}
-            interval={interval}
-          />
-        ))}
-      </List>
-    </Paper>
-  );
-};
+import { Activity } from "../../data/Model";
+import StopIcon from "@mui/icons-material/Stop";
+import PlayArrowIcon from "@mui/icons-material/PlayArrow";
+import { useHumanizedDuration } from "../../data/Duration";
+import { duration } from "moment";
 
 type ActivityItemProps = {
   activity: Signal<Activity>;
   interval: Signal<Interval>;
 };
 
-const ActivityItem = (props: ActivityItemProps) => {
+export const ActivityItem = (props: ActivityItemProps) => {
   const { activity, interval } = props;
   const childActivities = useChildActivities(activity, interval);
   const Item = useComputed(() =>
@@ -76,20 +47,17 @@ const ActivityItem = (props: ActivityItemProps) => {
 const ParentActivityItem = (props: ActivityItemProps) => {
   const { activity, interval } = props;
   const { name } = activity.value;
-  const initials = useInitials(name);
-  const depth = useDepth(activity);
+  const activityPL = useActivityPL(activity);
   const open = useSignal(true);
   const childActivities = useChildActivities(activity, interval);
 
   return (
     <>
       <ListItemButton
-        sx={{ pl: 2 + 3 * depth.value }}
+        sx={{ pl: activityPL }}
         onClick={() => (open.value = !open.value)}
       >
-        <ListItemAvatar>
-          <Avatar>{initials}</Avatar>
-        </ListItemAvatar>
+        <ActivityAvatar activity={activity} />
         <ListItemText
           primary={
             name.value +
@@ -122,15 +90,12 @@ const ParentActivityItem = (props: ActivityItemProps) => {
 const LeafActivityItem = (props: ActivityItemProps) => {
   const { activity, interval } = props;
   const { name } = activity.value;
-  const initials = useInitials(name);
-  const depth = useDepth(activity);
+  const activityPL = useActivityPL(activity);
 
   return (
     <>
-      <ListItem sx={{ pl: 2 + 3 * depth.value }}>
-        <ListItemAvatar>
-          <Avatar>{initials}</Avatar>
-        </ListItemAvatar>
+      <ListItem sx={{ pl: activityPL }}>
+        <ActivityAvatar activity={activity} />
         <ListItemText
           primary={name}
           secondary={<ActivityRow2 activity={activity} interval={interval} />}
@@ -141,6 +106,22 @@ const LeafActivityItem = (props: ActivityItemProps) => {
         </ListItemIcon>
       </ListItem>
     </>
+  );
+};
+
+const useActivityPL = (activity: Signal<Activity>) =>
+  2 + 3 * useDepth(activity).value;
+
+type ActivityAvatarProps = {
+  activity: Signal<Activity>;
+};
+
+const ActivityAvatar = (props: ActivityAvatarProps) => {
+  const initials = useInitials(props.activity.value.name);
+  return (
+    <ListItemAvatar>
+      <Avatar>{initials}</Avatar>
+    </ListItemAvatar>
   );
 };
 
@@ -178,7 +159,8 @@ const ActivityRow2 = (props: ActivityRow2Props) => {
   const { activity, interval } = props;
   const durationPercentage = useDurationPercentage(activity, interval);
   const duration = useDuration(activity, interval);
-  const humanizedDuration = useHumanizedDuration(duration, activity);
+  const inProgress = useInProgress(activity);
+  const humanizedDuration = useHumanizedDuration(duration, inProgress);
   const wage = useWage(duration);
   return (
     <>
@@ -198,24 +180,6 @@ const ActivityRow2 = (props: ActivityRow2Props) => {
     </>
   );
 };
-
-const useHumanizedDuration = (
-  duration: Signal<number>,
-  activity: Signal<Activity>,
-) => {
-  const inProgress = useInProgress(activity);
-  return useComputed(() => humanize(duration, inProgress));
-};
-
-const humanize = (duration: Signal<number>, inProgress: Signal<boolean>) =>
-  humanizeDuration(duration.value, {
-    delimiter: " ",
-    largest: inProgress.value ? Infinity : 2,
-    round: true,
-    units: inProgress.value
-      ? ["y", "mo", "w", "d", "h", "m", "s"]
-      : ["y", "mo", "w", "d", "h", "m"],
-  });
 
 const hourlyEuroWage = signal(10);
 

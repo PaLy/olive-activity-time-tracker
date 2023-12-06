@@ -7,9 +7,9 @@ import ReactDOM from "react-dom/client";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import { TodayRoute } from "./routes/TodayRoute";
-import { ThisMonthRoute } from "./routes/ThisMonthRoute";
-import { AllTimeRoute } from "./routes/AllTimeRoute";
+import { TodayRoute } from "./routes/activitylists/TodayRoute";
+import { ThisMonthRoute } from "./routes/activitylists/ThisMonthRoute";
+import { AllTimeRoute } from "./routes/activitylists/AllTimeRoute";
 
 const router = createBrowserRouter([
   {
@@ -22,7 +22,7 @@ const router = createBrowserRouter([
         element: <TodayRoute />,
       },
       {
-        path: "today",
+        path: "today/*",
         element: <TodayRoute />,
       },
       {

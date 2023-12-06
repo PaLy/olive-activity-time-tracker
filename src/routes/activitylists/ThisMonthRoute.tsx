@@ -1,6 +1,6 @@
 import { ActivityList } from "./ActivityList";
 import { computed } from "@preact/signals-react";
-import { durationRefreshTime } from "../data/Activity";
+import { durationRefreshTime } from "../../data/Activity";
 import moment from "moment";
 
 export const ThisMonthRoute = () => (
