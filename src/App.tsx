@@ -5,15 +5,22 @@ import {
   ThemeProvider,
   useMediaQuery,
 } from "@mui/material";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { AppBottomNavigation } from "./BottomNavigation";
 import { AppAppBar } from "./AppBar";
 import { Outlet } from "react-router-dom";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterMoment } from "@mui/x-date-pickers/AdapterMoment";
+import { signal } from "@preact/signals-react";
+import { loadDB } from "./data/Storage";
 
 function App() {
   const theme = useTheme();
+
+  useLoadDB();
+  if (!dbLoaded.value) {
+    return "Loading";
+  }
 
   return (
     <LocalizationProvider dateAdapter={AdapterMoment}>
@@ -31,6 +38,14 @@ function App() {
     </LocalizationProvider>
   );
 }
+
+const dbLoaded = signal(false);
+
+const useLoadDB = () => {
+  useEffect(() => {
+    loadDB().then(() => (dbLoaded.value = true));
+  }, []);
+};
 
 const useTheme = () => {
   const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");

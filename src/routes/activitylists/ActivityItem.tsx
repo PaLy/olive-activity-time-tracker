@@ -1,14 +1,5 @@
 import { useInitials } from "../../utils/Strings";
-import {
-  Interval,
-  startActivity,
-  stopActivity,
-  useChildActivities,
-  useDepth,
-  useDuration,
-  useDurationPercentage,
-  useInProgress,
-} from "../../data/Activity";
+import { Activity } from "../../data/Activity";
 import {
   Avatar,
   Box,
@@ -24,15 +15,24 @@ import {
 import { signal, Signal, useComputed, useSignal } from "@preact/signals-react";
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
-import { Activity } from "../../data/Model";
 import StopIcon from "@mui/icons-material/Stop";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import { useHumanizedDuration } from "../../data/Duration";
 import { duration } from "moment";
+import { ClosedInterval } from "../../data/Interval";
+import {
+  startActivity,
+  stopActivity,
+  useChildActivities,
+  useDepth,
+  useDuration,
+  useDurationPercentage,
+  useInProgress,
+} from "../../data/signals/Activity";
 
 type ActivityItemProps = {
   activity: Signal<Activity>;
-  interval: Signal<Interval>;
+  interval: Signal<ClosedInterval>;
 };
 
 export const ActivityItem = (props: ActivityItemProps) => {
@@ -76,8 +76,8 @@ const ParentActivityItem = (props: ActivityItemProps) => {
         <List component="div" disablePadding>
           {childActivities.value.map((activity) => (
             <ActivityItem
-              key={activity.value.id}
-              activity={activity}
+              key={activity.id}
+              activity={signal(activity)}
               interval={interval}
             />
           ))}
@@ -140,7 +140,9 @@ const StartStopButton = (props: StartStopActivityProps) => {
       onClick={(event) => {
         // stops ListItemButton click
         event.stopPropagation();
-        inProgress.value ? stopActivity(activity) : startActivity(activity);
+        inProgress.value
+          ? stopActivity(activity.value)
+          : startActivity(activity.value);
       }}
       // stops ListItemButton click effect
       onMouseDown={(event) => event.stopPropagation()}
@@ -152,7 +154,7 @@ const StartStopButton = (props: StartStopActivityProps) => {
 
 type ActivityRow2Props = {
   activity: Signal<Activity>;
-  interval: Signal<Interval>;
+  interval: Signal<ClosedInterval>;
 };
 
 const ActivityRow2 = (props: ActivityRow2Props) => {

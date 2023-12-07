@@ -1,21 +1,18 @@
-import { Signal, useSignal } from "@preact/signals-react";
-import {
-  Interval,
-  rootActivity,
-  useChildActivities,
-} from "../../data/Activity";
+import { Signal, signal } from "@preact/signals-react";
 import { List, ListSubheader, Paper } from "@mui/material";
 import { AppBarActions } from "./AppBarActions";
 import { ActivityItem } from "./ActivityItem";
+import { ClosedInterval } from "../../data/Interval";
+import { rootActivity, useChildActivities } from "../../data/signals/Activity";
 
 type Props = {
-  interval: Signal<Interval>;
+  interval: Signal<ClosedInterval>;
   subHeader: string;
 };
 
 export const ActivityList = (props: Props) => {
   const { interval, subHeader } = props;
-  const childActivities = useChildActivities(useSignal(rootActivity), interval);
+  const childActivities = useChildActivities(rootActivity, interval);
   return (
     <>
       <AppBarActions />
@@ -27,8 +24,8 @@ export const ActivityList = (props: Props) => {
           </ListSubheader>
           {childActivities.value.map((activity) => (
             <ActivityItem
-              key={activity.value.id}
-              activity={activity}
+              key={activity.id}
+              activity={signal(activity)}
               interval={interval}
             />
           ))}

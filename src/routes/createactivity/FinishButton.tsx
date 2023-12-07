@@ -3,10 +3,11 @@ import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import SaveIcon from "@mui/icons-material/Save";
 import { CreateActivityState } from "./CreateActivityDialog";
 import { useNavigate } from "react-router-dom";
-import { activities, Activity } from "../../data/Model";
 import { batch, signal } from "@preact/signals-react";
 import { nanoid } from "nanoid";
-import { rootActivity } from "../../data/Activity";
+import { activities, Activity, addActivity } from "../../data/Activity";
+import { addInterval, Interval } from "../../data/Interval";
+import { rootActivity } from "../../data/signals/Activity";
 
 type Props = {
   state: CreateActivityState;
@@ -79,34 +80,35 @@ const createActivity = (state: CreateActivityState) => {
 
   const start =
     intervalToggle.value === "now" ? dialogOpenedTime.value : startTime.value;
-  const end = intervalToggle.value === "finished" ? endTime.value : undefined;
-  const parentActivity = state.parentActivity.value ?? rootActivity;
-  const newInterval = signal({ start, end });
+  const end = intervalToggle.value === "finished" ? endTime.value : null;
+  const parentActivity = state.parentActivity.value ?? rootActivity.value;
+  const newInterval: Interval = {
+    id: nanoid(),
+    start: signal(start),
+    end: signal(end),
+  };
 
-  if (nameToggle.value === "new") {
-    const id = nanoid();
-    const newActivity = signal<Activity>({
-      id,
-      parentActivityID: signal(parentActivity.id),
-      name: signal(name.value),
-      intervals: signal([newInterval]),
-      childActivityIDs: signal([]),
-    });
+  batch(() => {
+    addInterval(newInterval);
 
-    batch(() => {
-      parentActivity.childActivityIDs.value = [
-        ...parentActivity.childActivityIDs.value,
+    if (nameToggle.value === "new") {
+      const id = nanoid();
+      const newActivity: Activity = {
         id,
-      ];
-      activities.value = new Map([
-        ...activities.value.entries(),
-        [id, newActivity],
-      ]);
-    });
-  } else {
-    if (existingActivity.value) {
-      const activity = activities.value.get(existingActivity.value.id)!.value;
-      activity.intervals.value = [...activity.intervals.value, newInterval];
+        parentActivityID: signal(parentActivity.id),
+        name: signal(name.value),
+        intervalIds: signal([newInterval.id]),
+        childActivityIDs: signal([]),
+      };
+      addActivity(newActivity);
+    } else {
+      if (existingActivity.value) {
+        const activity = activities.value.get(existingActivity.value.id)!;
+        activity.intervalIds.value = [
+          ...activity.intervalIds.value,
+          newInterval.id,
+        ];
+      }
     }
-  }
+  });
 };

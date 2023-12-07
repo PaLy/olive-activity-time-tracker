@@ -1,12 +1,11 @@
-import * as React from "react";
 import BottomNavigation from "@mui/material/BottomNavigation";
 import BottomNavigationAction from "@mui/material/BottomNavigationAction";
 import TodayIcon from "@mui/icons-material/Today";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import ArchiveIcon from "@mui/icons-material/Archive";
 import { Badge, Paper } from "@mui/material";
-import { useInProgressActivitiesCount } from "./data/Activity";
 import { useLocation, useNavigate } from "react-router-dom";
+import { useInProgressActivitiesCount } from "./data/signals/Activity";
 
 export const AppBottomNavigation = () => {
   const navigate = useNavigate();

@@ -1,7 +1,10 @@
-import { activityFullNames, nonRootActivities } from "../../data/Activity";
+import { Activity } from "../../data/Activity";
 import { Autocomplete, createFilterOptions, TextField } from "@mui/material";
-import { Activity } from "../../data/Model";
 import { Signal } from "@preact/signals-react";
+import {
+  activityFullNames,
+  nonRootActivities,
+} from "../../data/signals/Activity";
 
 type Props = {
   activity: Signal<Activity | null>;

@@ -6,7 +6,7 @@ export const AllTimeRoute = () => (
 );
 
 const interval = signal({
-  start: 0,
+  start: signal(0),
   // maximum valid time: Sat Sep 13 275760 02:00:00 GMT+0200 (Central European Summer Time)
-  end: 8640000000000000,
+  end: signal(8640000000000000),
 });

@@ -2,15 +2,15 @@ import { Container, Dialog, IconButton, Paper, Slide } from "@mui/material";
 import { useLocation, useNavigate } from "react-router-dom";
 import CloseIcon from "@mui/icons-material/Close";
 import { computed, signal, useSignal } from "@preact/signals-react";
-import { Activity } from "../../data/Model";
 import moment from "moment";
 import { IntervalSettings } from "./IntervalSettings";
 import { FinishButton } from "./FinishButton";
 import { Name } from "./Name";
-import { durationRefreshTime } from "../../data/Activity";
+import { Activity } from "../../data/Activity";
 import { duration } from "moment/moment";
 import { humanize } from "../../data/Duration";
 import { forwardRef } from "react";
+import { durationRefreshTime } from "../../data/signals/Activity";
 
 export const createCreateActivityState = () => {
   const dialogOpenedTime = signal(moment());
