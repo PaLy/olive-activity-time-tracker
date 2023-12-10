@@ -22,7 +22,11 @@ export const AppBottomNavigation = () => {
         value={pathname}
         onChange={(event, destination) => {
           if (pathname !== destination) {
-            navigate(`${destination}`);
+            if (destination === "/today") {
+              navigate(-1);
+            } else {
+              navigate(`${destination}`, { replace: pathname !== "/today" });
+            }
           }
         }}
       >
