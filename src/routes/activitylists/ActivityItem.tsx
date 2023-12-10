@@ -53,23 +53,33 @@ const ParentActivityItem = (props: ActivityItemProps) => {
   return (
     <>
       <ListItemButton
-        sx={{ pl: activityPL }}
+        sx={{ pl: activityPL, pr: 0 }}
         onClick={() => (open.value = !open.value)}
       >
         <ActivityAvatar activity={activity} />
         <ListItemText
           primary={
-            name.value +
-            (open.value || childActivities.value.length === 0
-              ? ""
-              : ` (${childActivities.value.length})`)
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                flexWrap: "wrap",
+              }}
+            >
+              {open.value ? <ExpandLess /> : <ExpandMore />}
+              <span>
+                {name.value +
+                  (open.value || childActivities.value.length === 0
+                    ? ""
+                    : ` (${childActivities.value.length})`)}
+              </span>
+            </div>
           }
           secondary={<ActivityRow2 activity={activity} interval={interval} />}
         />
         <ListItemIcon>
           <StartStopButton activity={activity} />
         </ListItemIcon>
-        {open.value ? <ExpandLess /> : <ExpandMore />}
       </ListItemButton>
       <Collapse in={open.value} timeout="auto" unmountOnExit>
         <List component="div" disablePadding>
@@ -93,14 +103,13 @@ const LeafActivityItem = (props: ActivityItemProps) => {
 
   return (
     <>
-      <ListItem sx={{ pl: activityPL }}>
+      <ListItem sx={{ pl: activityPL, pr: 0 }}>
         <ActivityAvatar activity={activity} />
         <ListItemText
           primary={name}
           secondary={<ActivityRow2 activity={activity} interval={interval} />}
         />
-        {/* align with the parent button */}
-        <ListItemIcon sx={{ mr: 3 }}>
+        <ListItemIcon>
           <StartStopButton activity={activity} />
         </ListItemIcon>
       </ListItem>
@@ -109,7 +118,7 @@ const LeafActivityItem = (props: ActivityItemProps) => {
 };
 
 const useActivityPL = (activity: Signal<Activity>) =>
-  2 + 3 * useDepth(activity).value;
+  2 + 2 * useDepth(activity).value;
 
 type ActivityAvatarProps = {
   activity: Signal<Activity>;
