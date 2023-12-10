@@ -2,7 +2,7 @@ import { ActivityList } from "./ActivityList";
 import { signal } from "@preact/signals-react";
 
 export const AllTimeRoute = () => (
-  <ActivityList interval={interval} subHeader={"All Time"} />
+  <ActivityList interval={interval} header={"All Time"} />
 );
 
 const interval = signal({

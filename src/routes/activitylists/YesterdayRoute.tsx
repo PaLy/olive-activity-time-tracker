@@ -7,7 +7,7 @@ import { durationRefreshTime } from "../../data/interval/Signals";
  * TODO don't display play buttons? (if activity has started today, it will still have a play button)
  */
 export const YesterdayRoute = () => (
-  <ActivityList interval={interval} subHeader={"Yesterday"} />
+  <ActivityList interval={interval} header={"Yesterday"} />
 );
 
 const interval = computed(() => ({

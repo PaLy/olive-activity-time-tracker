@@ -10,7 +10,7 @@ import { durationRefreshTime } from "../../data/interval/Signals";
 export const TodayRoute = () => {
   return (
     <>
-      <ActivityList interval={interval} subHeader={"Today"} />
+      <ActivityList interval={interval} header={"Today"} />
       <CreateActivityDialogOpener />
       <CreateActivityDialog />
     </>

@@ -4,7 +4,7 @@ import moment from "moment";
 import { durationRefreshTime } from "../../data/interval/Signals";
 
 export const ThisMonthRoute = () => (
-  <ActivityList interval={interval} subHeader={"This Month"} />
+  <ActivityList interval={interval} header={"This Month"} />
 );
 
 const interval = computed(() => ({
