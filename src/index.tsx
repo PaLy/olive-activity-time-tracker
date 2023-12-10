@@ -6,13 +6,13 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { createHashRouter, RouterProvider } from "react-router-dom";
 import { TodayRoute } from "./routes/activitylists/TodayRoute";
 import { ThisMonthRoute } from "./routes/activitylists/ThisMonthRoute";
 import { AllTimeRoute } from "./routes/activitylists/AllTimeRoute";
 import { YesterdayRoute } from "./routes/activitylists/YesterdayRoute";
 
-const router = createBrowserRouter([
+const router = createHashRouter([
   {
     path: "/",
     element: <App />,

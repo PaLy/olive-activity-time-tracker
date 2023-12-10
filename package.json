@@ -2,6 +2,7 @@
   "name": "olive-activity-time-tracker",
   "version": "0.1.0",
   "private": true,
+  "homepage": "./",
   "dependencies": {
     "@emotion/react": "^11.11.1",
     "@emotion/styled": "^11.11.0",
@@ -39,6 +40,7 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
+    "build-for-android": "react-scripts build && rm -rf android/app/src/main/assets/www && mv build android/app/src/main/assets/www",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "check-updates": "npx npm-check-updates",
