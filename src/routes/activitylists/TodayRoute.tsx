@@ -22,6 +22,7 @@ const CreateActivityDialogOpener = () => {
   return (
     <Fab
       color="primary"
+      variant={"extended"}
       aria-label="start new activity"
       sx={{
         position: "sticky",
@@ -31,7 +32,8 @@ const CreateActivityDialogOpener = () => {
       }}
       onClick={() => navigate("/today/create")}
     >
-      <AddIcon />
+      <AddIcon sx={{ mr: 1 }} />
+      Add
     </Fab>
   );
 };
