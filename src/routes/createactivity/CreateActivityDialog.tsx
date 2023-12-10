@@ -65,11 +65,15 @@ export const CreateActivityDialog = () => {
     <Dialog
       PaperComponent={Container}
       PaperProps={{
-        sx: { position: "fixed", bottom: 0, m: 0 },
+        sx: { position: "fixed", bottom: 0, m: 0, overflow: "hidden" },
         maxWidth: "sm",
+        disableGutters: true,
       }}
       open={pathname.endsWith("create")}
       onClose={() => navigate(-1)}
+      // this helps to focus the name text field when dialog is opened:
+      // https://github.com/mui/material-ui/issues/33004#issuecomment-1473299089
+      disableRestoreFocus
     >
       <Slide direction="up" in={true} mountOnEnter unmountOnExit>
         <Content />
@@ -83,7 +87,7 @@ const Content = forwardRef<HTMLDivElement>((props, ref) => {
   const navigate = useNavigate();
 
   return (
-    <Paper square sx={{ p: 1 }} ref={ref}>
+    <Paper square sx={{ p: 1, borderRadius: "16px 16px 0 0" }} ref={ref}>
       <IconButton
         aria-label={"back"}
         onClick={() => navigate(-1)}

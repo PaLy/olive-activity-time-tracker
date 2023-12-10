@@ -1,7 +1,7 @@
 import { ActivityList } from "./ActivityList";
 import { computed } from "@preact/signals-react";
 import moment from "moment";
-import { Fab } from "@mui/material";
+import { Box, Fab } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import { useNavigate } from "react-router-dom";
 import { CreateActivityDialog } from "../createactivity/CreateActivityDialog";
@@ -20,21 +20,25 @@ export const TodayRoute = () => {
 const CreateActivityDialogOpener = () => {
   const navigate = useNavigate();
   return (
-    <Fab
-      color="primary"
-      variant={"extended"}
-      aria-label="start new activity"
+    <Box
       sx={{
-        position: "sticky",
-        bottom: "72px",
-        float: "right",
-        mr: 2,
+        position: "absolute",
+        bottom: 0,
+        right: 0,
+        mr: 3,
+        mb: 3,
       }}
-      onClick={() => navigate("/today/create")}
     >
-      <AddIcon sx={{ mr: 1 }} />
-      Add
-    </Fab>
+      <Fab
+        color="primary"
+        variant={"extended"}
+        aria-label="start new activity"
+        onClick={() => navigate("/today/create")}
+      >
+        <AddIcon sx={{ mr: 1 }} />
+        Add
+      </Fab>
+    </Box>
   );
 };
 

@@ -7,8 +7,8 @@ export const AppBarActions = () => {
     <IconButton
       sx={{
         position: "absolute",
-        top: "8px",
-        right: "46px",
+        top: "-56px",
+        right: "24px",
         zIndex: "1101", // AppBar has 1100
       }}
       id={"app-menu-actions"}

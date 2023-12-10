@@ -17,9 +17,9 @@ export const ActivityList = (props: Props) => {
     <>
       <AppBarActions />
       {/* pb because of the fab button */}
-      <Paper square sx={{ pb: "48px" }}>
-        <List sx={{ mb: 2, pt: 0 }}>
-          <ListSubheader sx={{ bgcolor: "background.paper", top: "64px" }}>
+      <Paper square sx={{ overflowY: "auto", height: "100%" }}>
+        <List sx={{ mb: 9, pt: 0 }}>
+          <ListSubheader sx={{ bgcolor: "background.paper" }}>
             {subHeader}
           </ListSubheader>
           {childActivities.value.map((activity) => (

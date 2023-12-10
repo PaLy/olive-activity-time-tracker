@@ -1,4 +1,5 @@
 import {
+  Box,
   Container,
   createTheme,
   CssBaseline,
@@ -26,14 +27,29 @@ function App() {
     <LocalizationProvider dateAdapter={AdapterMoment}>
       <ThemeProvider theme={theme}>
         <CssBaseline />
-        <Container
-          maxWidth={"sm"}
-          style={{ height: "100%", position: "relative" }}
+        <Box
+          sx={{ position: "absolute", top: 0, bottom: 0, left: 0, right: 0 }}
         >
-          <AppAppBar />
-          <Outlet />
-          <AppBottomNavigation />
-        </Container>
+          <Container
+            maxWidth={"sm"}
+            style={{ height: "100%", position: "relative" }}
+            disableGutters
+          >
+            <AppAppBar />
+            <Box
+              sx={{
+                position: "absolute",
+                left: 0,
+                right: 0,
+                top: "64px",
+                bottom: "56px",
+              }}
+            >
+              <Outlet />
+            </Box>
+            <AppBottomNavigation />
+          </Container>
+        </Box>
       </ThemeProvider>
     </LocalizationProvider>
   );
