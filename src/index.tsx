@@ -10,6 +10,7 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { TodayRoute } from "./routes/activitylists/TodayRoute";
 import { ThisMonthRoute } from "./routes/activitylists/ThisMonthRoute";
 import { AllTimeRoute } from "./routes/activitylists/AllTimeRoute";
+import { YesterdayRoute } from "./routes/activitylists/YesterdayRoute";
 
 const router = createBrowserRouter([
   {
@@ -24,6 +25,10 @@ const router = createBrowserRouter([
       {
         path: "today/*",
         element: <TodayRoute />,
+      },
+      {
+        path: "yesterday",
+        element: <YesterdayRoute />,
       },
       {
         path: "month",

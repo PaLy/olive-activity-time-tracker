@@ -39,6 +39,12 @@ export const AppBottomNavigation = () => {
             </Badge>
           }
         />
+        {/* TODO yesterday icon */}
+        <BottomNavigationAction
+          label="Yesterday"
+          value={"/yesterday"}
+          icon={<TodayIcon />}
+        />
         <BottomNavigationAction
           label="This Month"
           value={"/month"}
