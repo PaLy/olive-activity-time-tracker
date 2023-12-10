@@ -4,20 +4,18 @@ import moment from "moment";
 import { Box, Fab } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import { useNavigate } from "react-router-dom";
-import { CreateActivityDialog } from "../createactivity/CreateActivityDialog";
 import { durationRefreshTime } from "../../data/interval/Signals";
 
 export const TodayRoute = () => {
   return (
     <>
       <ActivityList interval={interval} header={"Today"} />
-      <CreateActivityDialogOpener />
-      <CreateActivityDialog />
+      <AddActivityOpener />
     </>
   );
 };
 
-const CreateActivityDialogOpener = () => {
+const AddActivityOpener = () => {
   const navigate = useNavigate();
   return (
     <Box
@@ -26,14 +24,14 @@ const CreateActivityDialogOpener = () => {
         bottom: 0,
         right: 0,
         mr: 3,
-        mb: 3,
+        mb: 10,
       }}
     >
       <Fab
         color="primary"
         variant={"extended"}
         aria-label="start new activity"
-        onClick={() => navigate("/today/create")}
+        onClick={() => navigate("/activity/add")}
       >
         <AddIcon sx={{ mr: 1 }} />
         Add

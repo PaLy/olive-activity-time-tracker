@@ -1,7 +1,7 @@
-import { Button, Grid } from "@mui/material";
+import { Button } from "@mui/material";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import SaveIcon from "@mui/icons-material/Save";
-import { CreateActivityState } from "./CreateActivityDialog";
+import { CreateActivityState } from "./AddActivityRoute";
 import { useNavigate } from "react-router-dom";
 import { batch, signal } from "@preact/signals-react";
 import { nanoid } from "nanoid";
@@ -21,27 +21,20 @@ export const FinishButton = (props: Props) => {
   const navigate = useNavigate();
 
   return (
-    <Grid
-      container
-      direction={"column"}
-      alignItems={"center"}
-      sx={{ m: 1, mt: 3 }}
-    >
-      <Button
-        variant="contained"
-        startIcon={
-          intervalToggle.value !== "finished" ? <PlayArrowIcon /> : <SaveIcon />
+    <Button
+      variant="text"
+      startIcon={
+        intervalToggle.value !== "finished" ? <PlayArrowIcon /> : <SaveIcon />
+      }
+      onClick={() => {
+        if (checkValid(state)) {
+          createActivity(state);
+          navigate(-1);
         }
-        onClick={() => {
-          if (checkValid(state)) {
-            createActivity(state);
-            navigate(-1);
-          }
-        }}
-      >
-        {intervalToggle.value === "finished" ? "Save" : "Start"}
-      </Button>
-    </Grid>
+      }}
+    >
+      {intervalToggle.value === "finished" ? "Save" : "Start"}
+    </Button>
   );
 };
 

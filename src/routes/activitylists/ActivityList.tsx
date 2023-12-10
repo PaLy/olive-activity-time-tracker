@@ -5,6 +5,7 @@ import { ActivityItem } from "./ActivityItem";
 import { rootActivity, useChildActivities } from "../../data/activity/Signals";
 import { ClosedInterval } from "../../data/interval/ClosedInterval";
 import { AppAppBar } from "../../AppBar";
+import { AppBottomNavigation } from "./BottomNavigation";
 
 type Props = {
   interval: Signal<ClosedInterval>;
@@ -17,8 +18,8 @@ export const ActivityList = (props: Props) => {
   return (
     <>
       <AppAppBar header={header} actions={<AppBarActions />} />
-      <Paper square sx={{ overflowY: "auto", height: "calc(100% - 64px);" }}>
-        <List sx={{ mb: 9, pt: 0 }}>
+      <Paper square sx={{ overflowY: "auto", height: "calc(100% - 120px);" }}>
+        <List sx={{ mb: 8, pt: 0 }}>
           {childActivities.value.map((activity) => (
             <ActivityItem
               key={activity.id}
@@ -28,6 +29,7 @@ export const ActivityList = (props: Props) => {
           ))}
         </List>
       </Paper>
+      <AppBottomNavigation />
     </>
   );
 };

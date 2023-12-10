@@ -11,6 +11,7 @@ import { TodayRoute } from "./routes/activitylists/TodayRoute";
 import { ThisMonthRoute } from "./routes/activitylists/ThisMonthRoute";
 import { AllTimeRoute } from "./routes/activitylists/AllTimeRoute";
 import { YesterdayRoute } from "./routes/activitylists/YesterdayRoute";
+import { AddActivityRoute } from "./routes/addactivity/AddActivityRoute";
 
 const router = createHashRouter([
   {
@@ -23,7 +24,7 @@ const router = createHashRouter([
         element: <TodayRoute />,
       },
       {
-        path: "today/*",
+        path: "today",
         element: <TodayRoute />,
       },
       {
@@ -37,6 +38,10 @@ const router = createHashRouter([
       {
         path: "all",
         element: <AllTimeRoute />,
+      },
+      {
+        path: "activity/add",
+        element: <AddActivityRoute />,
       },
     ],
   },

@@ -1,6 +1,6 @@
-import { Container, Dialog, IconButton, Paper, Slide } from "@mui/material";
-import { useLocation, useNavigate } from "react-router-dom";
-import CloseIcon from "@mui/icons-material/Close";
+import { Grid, IconButton, Paper, Slide } from "@mui/material";
+import { useNavigate } from "react-router-dom";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { computed, signal, useSignal } from "@preact/signals-react";
 import moment from "moment";
 import { IntervalSettings } from "./IntervalSettings";
@@ -57,28 +57,11 @@ export const createCreateActivityState = () => {
 
 export type CreateActivityState = ReturnType<typeof createCreateActivityState>;
 
-export const CreateActivityDialog = () => {
-  const { pathname } = useLocation();
-  const navigate = useNavigate();
-
+export const AddActivityRoute = () => {
   return (
-    <Dialog
-      PaperComponent={Container}
-      PaperProps={{
-        sx: { position: "fixed", bottom: 0, m: 0, overflow: "hidden" },
-        maxWidth: "sm",
-        disableGutters: true,
-      }}
-      open={pathname.endsWith("create")}
-      onClose={() => navigate(-1)}
-      // this helps to focus the name text field when dialog is opened:
-      // https://github.com/mui/material-ui/issues/33004#issuecomment-1473299089
-      disableRestoreFocus
-    >
-      <Slide direction="up" in={true} mountOnEnter unmountOnExit>
-        <Content />
-      </Slide>
-    </Dialog>
+    <Slide direction="left" in={true} mountOnEnter unmountOnExit>
+      <Content />
+    </Slide>
   );
 };
 
@@ -87,17 +70,20 @@ const Content = forwardRef<HTMLDivElement>((props, ref) => {
   const navigate = useNavigate();
 
   return (
-    <Paper square sx={{ p: 1, borderRadius: "16px 16px 0 0" }} ref={ref}>
-      <IconButton
-        aria-label={"back"}
-        onClick={() => navigate(-1)}
-        sx={{ mb: 1 }}
+    <Paper square ref={ref} sx={{ p: 1, height: "100%" }}>
+      <Grid
+        container
+        justifyContent={"space-between"}
+        direction="row"
+        sx={{ mb: 1, mt: 1 }}
       >
-        <CloseIcon />
-      </IconButton>
+        <IconButton aria-label={"back"} onClick={() => navigate(-1)}>
+          <ArrowBackIcon />
+        </IconButton>
+        <FinishButton state={state} />
+      </Grid>
       <IntervalSettings state={state} />
       <Name state={state} />
-      <FinishButton state={state} />
     </Paper>
   );
 });

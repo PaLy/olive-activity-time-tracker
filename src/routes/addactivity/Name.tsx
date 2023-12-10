@@ -1,4 +1,4 @@
-import { CreateActivityState } from "./CreateActivityDialog";
+import { CreateActivityState } from "./AddActivityRoute";
 import { Box, TextField, ToggleButton, ToggleButtonGroup } from "@mui/material";
 import { SelectActivity } from "./SelectActivity";
 

@@ -7,7 +7,6 @@ import {
   useMediaQuery,
 } from "@mui/material";
 import { useEffect, useMemo } from "react";
-import { AppBottomNavigation } from "./BottomNavigation";
 import { Outlet } from "react-router-dom";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterMoment } from "@mui/x-date-pickers/AdapterMoment";
@@ -27,7 +26,14 @@ function App() {
       <ThemeProvider theme={theme}>
         <CssBaseline />
         <Box
-          sx={{ position: "absolute", top: 0, bottom: 0, left: 0, right: 0 }}
+          sx={{
+            position: "absolute",
+            top: 0,
+            bottom: 0,
+            left: 0,
+            right: 0,
+            overflow: "hidden",
+          }}
         >
           <Container
             maxWidth={"sm"}
@@ -40,12 +46,11 @@ function App() {
                 left: 0,
                 right: 0,
                 top: 0,
-                bottom: "56px",
+                bottom: 0,
               }}
             >
               <Outlet />
             </Box>
-            <AppBottomNavigation />
           </Container>
         </Box>
       </ThemeProvider>
