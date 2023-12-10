@@ -6,11 +6,11 @@ import moment from "moment";
 import { IntervalSettings } from "./IntervalSettings";
 import { FinishButton } from "./FinishButton";
 import { Name } from "./Name";
-import { Activity } from "../../data/Activity";
 import { duration } from "moment/moment";
-import { humanize } from "../../data/Duration";
 import { forwardRef } from "react";
-import { durationRefreshTime } from "../../data/signals/Activity";
+import { durationRefreshTime } from "../../data/interval/Signals";
+import { Activity } from "../../data/activity/Storage";
+import { humanize } from "../../data/interval/Algorithms";
 
 export const createCreateActivityState = () => {
   const dialogOpenedTime = signal(moment());

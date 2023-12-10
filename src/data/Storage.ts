@@ -1,4 +1,4 @@
-import { effect, signal } from "@preact/signals-react";
+import { batch, effect, signal } from "@preact/signals-react";
 import localforage from "localforage";
 
 const valueUpdaterDisposes = new Map<string, () => void>();
@@ -47,8 +47,10 @@ export class SignalStore<StoredValue, Value> {
       valueUpdaterDisposes.set(key, dispose);
     });
 
-    this.collection.value = new Map(keyValues);
-    this.afterLoaded?.();
+    batch(() => {
+      this.collection.value = new Map(keyValues);
+      this.afterLoaded?.();
+    });
   };
 
   set = (key: string, value: Value) => {
@@ -60,11 +62,11 @@ export class SignalStore<StoredValue, Value> {
     valueUpdaterDisposes.get(key)?.();
     valueUpdaterDisposes.delete(key);
 
-    const dispose = effect(() =>
+    const updaterDispose = effect(() =>
       this.store.setItem(key, this.asStoredValue(value)).catch(() => {
-        // TODO display error - activities are not saving
+        // TODO display error - activities are not saving,...
       }),
     );
-    valueUpdaterDisposes.set(key, dispose);
+    valueUpdaterDisposes.set(key, updaterDispose);
   };
 }

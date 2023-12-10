@@ -2,8 +2,8 @@ import { Signal, signal } from "@preact/signals-react";
 import { List, ListSubheader, Paper } from "@mui/material";
 import { AppBarActions } from "./AppBarActions";
 import { ActivityItem } from "./ActivityItem";
-import { ClosedInterval } from "../../data/Interval";
-import { rootActivity, useChildActivities } from "../../data/signals/Activity";
+import { rootActivity, useChildActivities } from "../../data/activity/Signals";
+import { ClosedInterval } from "../../data/interval/ClosedInterval";
 
 type Props = {
   interval: Signal<ClosedInterval>;

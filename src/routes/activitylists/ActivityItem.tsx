@@ -1,5 +1,4 @@
 import { useInitials } from "../../utils/Strings";
-import { Activity } from "../../data/Activity";
 import {
   Avatar,
   Box,
@@ -17,18 +16,18 @@ import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
 import StopIcon from "@mui/icons-material/Stop";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
-import { useHumanizedDuration } from "../../data/Duration";
 import { duration } from "moment";
-import { ClosedInterval } from "../../data/Interval";
+import { useHumanizedDuration } from "../../data/interval/Signals";
+import { Activity } from "../../data/activity/Storage";
 import {
-  startActivity,
-  stopActivity,
   useChildActivities,
   useDepth,
   useDuration,
   useDurationPercentage,
   useInProgress,
-} from "../../data/signals/Activity";
+} from "../../data/activity/Signals";
+import { startActivity, stopActivity } from "../../data/activity/Update";
+import { ClosedInterval } from "../../data/interval/ClosedInterval";
 
 type ActivityItemProps = {
   activity: Signal<Activity>;

@@ -5,9 +5,11 @@ import { CreateActivityState } from "./CreateActivityDialog";
 import { useNavigate } from "react-router-dom";
 import { batch, signal } from "@preact/signals-react";
 import { nanoid } from "nanoid";
-import { activities, Activity, addActivity } from "../../data/Activity";
-import { addInterval, Interval } from "../../data/Interval";
-import { rootActivity } from "../../data/signals/Activity";
+import { addInterval } from "../../data/interval/Update";
+import { Activity } from "../../data/activity/Storage";
+import { activities, rootActivity } from "../../data/activity/Signals";
+import { addActivity } from "../../data/activity/Update";
+import { Interval } from "../../data/interval/Interval";
 
 type Props = {
   state: CreateActivityState;
@@ -95,17 +97,17 @@ const createActivity = (state: CreateActivityState) => {
       const id = nanoid();
       const newActivity: Activity = {
         id,
-        parentActivityID: signal(parentActivity.id),
+        parentID: signal(parentActivity.id),
         name: signal(name.value),
-        intervalIds: signal([newInterval.id]),
-        childActivityIDs: signal([]),
+        intervalIDs: signal([newInterval.id]),
+        childIDs: signal([]),
       };
       addActivity(newActivity);
     } else {
       if (existingActivity.value) {
         const activity = activities.value.get(existingActivity.value.id)!;
-        activity.intervalIds.value = [
-          ...activity.intervalIds.value,
+        activity.intervalIDs.value = [
+          ...activity.intervalIDs.value,
           newInterval.id,
         ];
       }

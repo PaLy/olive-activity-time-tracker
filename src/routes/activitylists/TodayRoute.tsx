@@ -5,7 +5,7 @@ import { Fab } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import { useNavigate } from "react-router-dom";
 import { CreateActivityDialog } from "../createactivity/CreateActivityDialog";
-import { durationRefreshTime } from "../../data/signals/Activity";
+import { durationRefreshTime } from "../../data/interval/Signals";
 
 export const TodayRoute = () => {
   return (

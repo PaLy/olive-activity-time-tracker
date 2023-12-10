@@ -1,7 +1,7 @@
 import { ActivityList } from "./ActivityList";
 import { computed } from "@preact/signals-react";
 import moment from "moment";
-import { durationRefreshTime } from "../../data/signals/Activity";
+import { durationRefreshTime } from "../../data/interval/Signals";
 
 export const ThisMonthRoute = () => (
   <ActivityList interval={interval} subHeader={"This Month"} />
