@@ -40,13 +40,14 @@ export const getDuration = (
   activity: Signal<Activity>,
   filter: Signal<ClosedInterval>,
 ) => {
-  const allIntervalIds = [
-    activity.value,
-    ...getDescendants(activity.value),
-  ].flatMap((activity) => activity.intervalIDs.value);
-
+  const allIntervalIds = getAllIntervalIds(activity.value);
   return getIntervalsDuration(allIntervalIds, filter.value);
 };
+
+const getAllIntervalIds = (activity: Activity) =>
+  [activity, ...getDescendants(activity)].flatMap(
+    (activity) => activity.intervalIDs.value,
+  );
 
 export const getChildActivities = (
   activity: Activity,
@@ -55,5 +56,7 @@ export const getChildActivities = (
   activity.childIDs.value
     .map((childID) => activities.value.get(childID)!)
     .filter((child) =>
-      getOwnIntervals(child).some((interval) => overlaps(filter, interval)),
+      getAllIntervalIds(child)
+        .map((id) => intervals.value.get(id)!)
+        .some((interval) => overlaps(filter, interval)),
     );
