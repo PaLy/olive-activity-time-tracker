@@ -6,8 +6,20 @@ const valueUpdaterDisposes = new Map<string, () => void>();
 // When loading, activities should not be rendered.
 // All stores must be imported
 export const loadDB = () => {
-  return Promise.all([...stores.values()].map((store) => store.load()));
+  dbLoading.value = "in-progress";
+  return Promise.all([...stores.values()].map((store) => store.load())).then(
+    (updateStoreSignals) => {
+      batch(() => {
+        updateStoreSignals.forEach((update) => update());
+        dbLoading.value = "finished";
+      });
+    },
+  );
 };
+
+export const dbLoading = signal<"not-started" | "in-progress" | "finished">(
+  "not-started",
+);
 
 const stores = new Map<string, SignalStore<any, any>>();
 
@@ -47,10 +59,10 @@ export class SignalStore<StoredValue, Value> {
       valueUpdaterDisposes.set(key, dispose);
     });
 
-    batch(() => {
+    return () => {
       this.collection.value = new Map(keyValues);
       this.afterLoaded?.();
-    });
+    };
   };
 
   set = (key: string, value: Value) => {

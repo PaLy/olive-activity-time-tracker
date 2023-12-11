@@ -10,16 +10,12 @@ import { useEffect, useMemo } from "react";
 import { Outlet } from "react-router-dom";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterMoment } from "@mui/x-date-pickers/AdapterMoment";
-import { signal } from "@preact/signals-react";
-import { loadDB } from "./data/Storage";
+import { loadDB, dbLoading } from "./data/Storage";
 
 function App() {
   const theme = useTheme();
 
   useLoadDB();
-  if (!dbLoaded.value) {
-    return "Loading";
-  }
 
   return (
     <LocalizationProvider dateAdapter={AdapterMoment}>
@@ -49,7 +45,8 @@ function App() {
                 bottom: 0,
               }}
             >
-              <Outlet />
+              {/* TODO better loading indicator */}
+              {dbLoading.value === "finished" ? <Outlet /> : "Loading"}
             </Box>
           </Container>
         </Box>
@@ -58,11 +55,11 @@ function App() {
   );
 }
 
-const dbLoaded = signal(false);
-
 const useLoadDB = () => {
   useEffect(() => {
-    loadDB().then(() => (dbLoaded.value = true));
+    if (dbLoading.value === "not-started") {
+      loadDB();
+    }
   }, []);
 };
 
