@@ -4,13 +4,13 @@ import TodayIcon from "@mui/icons-material/Today";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import ArchiveIcon from "@mui/icons-material/Archive";
 import { Badge, Paper } from "@mui/material";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { inProgressActivitiesCount } from "../../data/activity/Signals";
+import { useLocation } from "../Router";
 
 export const AppBottomNavigation = () => {
   const navigate = useNavigate();
-  const location = useLocation();
-  const pathname = location.pathname === "/" ? "/today" : location.pathname;
+  const { pathname } = useLocation();
 
   return (
     <Paper
