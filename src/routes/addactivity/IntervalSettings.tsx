@@ -5,7 +5,7 @@ import {
   Typography,
 } from "@mui/material";
 import { DateTimePicker, renderTimeViewClock } from "@mui/x-date-pickers";
-import { CreateActivityState } from "./AddActivityRoute";
+import { CreateActivityState } from "./AddActivityModal";
 
 type Props = {
   state: CreateActivityState;
