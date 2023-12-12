@@ -13,10 +13,9 @@ import {
 } from "@mui/material";
 import { ReactNode } from "react";
 import MenuIcon from "@mui/icons-material/Menu";
-import { signal } from "@preact/signals-react";
 import SettingsIcon from "@mui/icons-material/Settings";
-
-const drawerOpen = signal(false);
+import { useNavigate } from "react-router-dom";
+import { useLocation } from "./routes/Router";
 
 type AppAppBarProps = {
   header?: string;
@@ -25,6 +24,9 @@ type AppAppBarProps = {
 
 export const AppAppBar = (props: AppAppBarProps) => {
   const { actions, header } = props;
+  const navigate = useNavigate();
+  const { pathname } = useLocation();
+
   return (
     <AppBar position="sticky" enableColorOnDark>
       <AppDrawer />
@@ -35,7 +37,7 @@ export const AppAppBar = (props: AppAppBarProps) => {
           color="inherit"
           aria-label="menu"
           sx={{ mr: 2 }}
-          onClick={() => (drawerOpen.value = true)}
+          onClick={() => navigate(`${pathname}/drawer`)}
         >
           <MenuIcon />
         </IconButton>
@@ -49,17 +51,19 @@ export const AppAppBar = (props: AppAppBarProps) => {
 };
 
 const AppDrawer = () => {
+  const navigate = useNavigate();
+  const { pathname } = useLocation();
   return (
     <Drawer
       anchor={"left"}
-      open={drawerOpen.value}
-      onClose={() => (drawerOpen.value = false)}
+      open={pathname.endsWith("/drawer")}
+      onClose={() => navigate(-1)}
     >
       <Box
         sx={{ width: 250 }}
         role="presentation"
-        onClick={() => (drawerOpen.value = false)}
-        onKeyDown={() => (drawerOpen.value = false)}
+        onClick={() => navigate(-1)}
+        onKeyDown={() => navigate(-1)}
       >
         <Typography variant="h6" component="div" sx={{ m: 2 }}>
           Olive

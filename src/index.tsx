@@ -24,19 +24,19 @@ const router = createHashRouter([
         element: <TodayRoute />,
       },
       {
-        path: "today",
+        path: "today/*",
         element: <TodayRoute />,
       },
       {
-        path: "yesterday",
+        path: "yesterday/*",
         element: <YesterdayRoute />,
       },
       {
-        path: "month",
+        path: "month/*",
         element: <ThisMonthRoute />,
       },
       {
-        path: "all",
+        path: "all/*",
         element: <AllTimeRoute />,
       },
       {
