@@ -1,14 +1,34 @@
 import { Signal, signal } from "@preact/signals-react";
-import { SignalStore } from "../Storage";
-import { activities } from "./Signals";
+import { SignalStore } from "../SignalStore";
 
-export const store = new SignalStore({
-  name: "activity",
-  asStoredValue,
-  asValue,
-  afterLoaded: () => {
-    if (!activities.value.get("root")) {
-      store.set("root", {
+class ActivityStore extends SignalStore<StoredActivity, Activity> {
+  constructor() {
+    super({ name: "activity" });
+  }
+
+  asValue = (activity: StoredActivity): Activity => {
+    return {
+      id: activity.id,
+      name: signal(activity.name),
+      intervalIDs: signal(activity.intervalIDs),
+      parentID: signal(activity.parentID),
+      childIDs: signal(activity.childIDs),
+    };
+  };
+
+  asStoredValue = (activity: Activity): StoredActivity => {
+    return {
+      id: activity.id,
+      name: activity.name.value,
+      intervalIDs: activity.intervalIDs.value,
+      parentID: activity.parentID.value,
+      childIDs: activity.childIDs.value,
+    };
+  };
+
+  override afterLoaded = () => {
+    if (!this.collection.value.get("root")) {
+      this.set("root", {
         id: "root",
         name: signal(""),
         parentID: signal("root"),
@@ -16,8 +36,14 @@ export const store = new SignalStore({
         intervalIDs: signal([]),
       });
     }
-  },
-});
+  };
+
+  override asExportedValue = (activity: StoredActivity) => {
+    return activity.id === "root" ? null : activity;
+  };
+}
+
+export const activityStore = new ActivityStore();
 
 export type Activity = {
   id: string;
@@ -34,23 +60,3 @@ type StoredActivity = {
   parentID: string;
   childIDs: string[];
 };
-
-function asValue(activity: StoredActivity): Activity {
-  return {
-    id: activity.id,
-    name: signal(activity.name),
-    intervalIDs: signal(activity.intervalIDs),
-    parentID: signal(activity.parentID),
-    childIDs: signal(activity.childIDs),
-  };
-}
-
-function asStoredValue(activity: Activity): StoredActivity {
-  return {
-    id: activity.id,
-    name: activity.name.value,
-    intervalIDs: activity.intervalIDs.value,
-    parentID: activity.parentID.value,
-    childIDs: activity.childIDs.value,
-  };
-}

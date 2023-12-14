@@ -1,5 +1,5 @@
 import { computed, Signal, useComputed } from "@preact/signals-react";
-import { Activity, store } from "./Storage";
+import { Activity, activityStore } from "./Storage";
 import {
   activityFullName,
   getChildActivities,
@@ -10,7 +10,7 @@ import {
 
 import { ClosedInterval } from "../interval/ClosedInterval";
 
-export const activities = computed(() => store.collection.value);
+export const activities = computed(() => activityStore.collection.value);
 
 export const rootActivity = computed(() => activities.value.get("root")!);
 
