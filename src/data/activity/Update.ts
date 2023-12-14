@@ -1,4 +1,4 @@
-import { Activity, store } from "./Storage";
+import { Activity, activityStore } from "./Storage";
 import { activities, inProgressActivities, rootActivity } from "./Signals";
 import { batch, signal } from "@preact/signals-react";
 import {
@@ -16,7 +16,7 @@ export const addActivity = (activity: Activity) => {
   const parentID = activity.parentID.value;
   const parent = activities.value.get(parentID)!;
   parent.childIDs.value = [...parent.childIDs.value, id];
-  store.set(id, activity);
+  activityStore.set(id, activity);
 };
 
 export const stopActivity = (activity: Activity) => {
