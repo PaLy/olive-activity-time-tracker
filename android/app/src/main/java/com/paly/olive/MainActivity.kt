@@ -1,5 +1,7 @@
 package com.paly.olive
 
+import android.annotation.SuppressLint
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.KeyEvent
@@ -14,7 +16,17 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        myWebView = WebView(applicationContext)
+        val context = peekAvailableContext()
+        if (context != null) {
+            createWebView(context)
+        } else {
+            addOnContextAvailableListener { createWebView(it) }
+        }
+    }
+
+    @SuppressLint("SetJavaScriptEnabled")
+    private fun createWebView(context: Context) {
+        myWebView = WebView(context)
         setContentView(myWebView)
 
         myWebView.settings.javaScriptEnabled = true
