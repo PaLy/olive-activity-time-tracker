@@ -61,7 +61,8 @@ const useTheme = () => {
         palette: {
           mode: prefersDarkMode ? "dark" : "light",
           primary: {
-            main: "#556B2F",
+            // 800 from dark olive green #556B2F
+            main: "#778d3e",
           },
         },
       }),

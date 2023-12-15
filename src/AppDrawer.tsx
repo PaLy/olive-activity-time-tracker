@@ -37,7 +37,7 @@ export const AppDrawer = () => {
           </Typography>
           <List>
             <DrawerItem
-              text={"Settigs"}
+              text={"Settings"}
               routePath={"/settings"}
               icon={<SettingsIcon />}
             />

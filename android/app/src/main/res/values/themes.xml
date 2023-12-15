@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="Theme.Olive" parent="Theme.AppCompat.DayNight" />
+    <style name="Theme.Olive" parent="Theme.AppCompat.DayNight">
+        <item name="android:colorPrimary">#778d3e</item>
+        <item name="android:colorPrimaryDark">#778d3e</item>
+    </style>
 </resources>

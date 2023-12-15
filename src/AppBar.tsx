@@ -16,7 +16,12 @@ export const AppAppBar = (props: AppAppBarProps) => {
   const { pathname } = useLocation();
 
   return (
-    <AppBar position="sticky" enableColorOnDark>
+    <AppBar
+      position="sticky"
+      enableColorOnDark
+      // removes lightening
+      sx={{ backgroundImage: "initial" }}
+    >
       <AppDrawer />
       <Toolbar>
         <IconButton
