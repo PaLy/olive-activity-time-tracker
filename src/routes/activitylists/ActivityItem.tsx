@@ -50,6 +50,8 @@ const ParentActivityItem = (props: ActivityItemProps) => {
   const open = useSignal(true);
   const childActivities = useChildActivities(activity, interval);
 
+  const Expander = open.value ? ExpandLess : ExpandMore;
+
   return (
     <>
       <ListItemButton
@@ -66,7 +68,10 @@ const ParentActivityItem = (props: ActivityItemProps) => {
                 flexWrap: "wrap",
               }}
             >
-              {open.value ? <ExpandLess /> : <ExpandMore />}
+              <Expander
+                viewBox={"5 0 13 24"}
+                sx={{ width: "initial", mr: 1 }}
+              />
               <span>
                 {name.value +
                   (open.value || childActivities.value.length === 0
