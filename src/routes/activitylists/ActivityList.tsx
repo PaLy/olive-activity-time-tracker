@@ -2,10 +2,15 @@ import { Signal, signal } from "@preact/signals-react";
 import { Grid, List, Paper } from "@mui/material";
 import { AppBarActions } from "./AppBarActions";
 import { ActivityItem } from "./ActivityItem";
-import { rootActivity, useChildActivities } from "../../data/activity/Signals";
+import {
+  rootActivity,
+  useActivitiesOrderKey,
+  useChildActivitiesByDuration,
+} from "../../data/activity/Signals";
 import { ClosedInterval } from "../../data/interval/ClosedInterval";
 import { AppAppBar } from "../../AppBar";
 import { AppBottomNavigation } from "./BottomNavigation";
+import { Flipper } from "react-flip-toolkit";
 
 type Props = {
   interval: Signal<ClosedInterval>;
@@ -14,7 +19,9 @@ type Props = {
 
 export const ActivityList = (props: Props) => {
   const { interval, header } = props;
-  const childActivities = useChildActivities(rootActivity, interval);
+  const childActivities = useChildActivitiesByDuration(rootActivity, interval);
+  const flipKey = useActivitiesOrderKey(interval);
+
   return (
     <Grid container direction={"column"} height={"100%"}>
       <AppAppBar header={header} actions={<AppBarActions />} />
@@ -27,15 +34,17 @@ export const ActivityList = (props: Props) => {
           minHeight: 0,
         }}
       >
-        <List sx={{ mb: 8, pt: 0 }}>
-          {childActivities.value.map((activity) => (
-            <ActivityItem
-              key={activity.id}
-              activity={signal(activity)}
-              interval={interval}
-            />
-          ))}
-        </List>
+        <Flipper flipKey={flipKey.value}>
+          <List sx={{ mb: 8, pt: 0 }}>
+            {childActivities.value.map((activity) => (
+              <ActivityItem
+                key={activity.id}
+                activity={signal(activity)}
+                interval={interval}
+              />
+            ))}
+          </List>
+        </Flipper>
       </Paper>
       <AppBottomNavigation />
     </Grid>

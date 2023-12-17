@@ -20,7 +20,7 @@ import { duration } from "moment";
 import { useHumanizedDuration } from "../../data/interval/Signals";
 import { Activity } from "../../data/activity/Storage";
 import {
-  useChildActivities,
+  useChildActivitiesByDuration,
   useDepth,
   useDuration,
   useDurationPercentage,
@@ -28,6 +28,7 @@ import {
 } from "../../data/activity/Signals";
 import { startActivity, stopActivity } from "../../data/activity/Update";
 import { ClosedInterval } from "../../data/interval/ClosedInterval";
+import { Flipped } from "react-flip-toolkit";
 
 type ActivityItemProps = {
   activity: Signal<Activity>;
@@ -36,7 +37,7 @@ type ActivityItemProps = {
 
 export const ActivityItem = (props: ActivityItemProps) => {
   const { activity, interval } = props;
-  const childActivities = useChildActivities(activity, interval);
+  const childActivities = useChildActivitiesByDuration(activity, interval);
   const Item = useComputed(() =>
     childActivities.value.length > 0 ? ParentActivityItem : LeafActivityItem,
   ).value;
@@ -45,47 +46,53 @@ export const ActivityItem = (props: ActivityItemProps) => {
 
 const ParentActivityItem = (props: ActivityItemProps) => {
   const { activity, interval } = props;
-  const { name } = activity.value;
+  const { name, id } = activity.value;
   const activityPL = useActivityPL(activity);
   const open = useSignal(true);
-  const childActivities = useChildActivities(activity, interval);
+  const childActivities = useChildActivitiesByDuration(activity, interval);
 
   const Expander = open.value ? ExpandLess : ExpandMore;
 
   return (
     <>
-      <ListItemButton
-        sx={{ pl: activityPL, pr: 0 }}
-        onClick={() => (open.value = !open.value)}
-      >
-        <ActivityAvatar activity={activity} />
-        <ListItemText
-          primary={
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                flexWrap: "wrap",
-              }}
-            >
-              <Expander
-                viewBox={"5 0 13 24"}
-                sx={{ width: "initial", mr: 1 }}
-              />
-              <span>
-                {name.value +
-                  (open.value || childActivities.value.length === 0
-                    ? ""
-                    : ` (${childActivities.value.length})`)}
-              </span>
-            </div>
-          }
-          secondary={<ActivityRow2 activity={activity} interval={interval} />}
-        />
-        <ListItemIcon>
-          <StartStopButton activity={activity} />
-        </ListItemIcon>
-      </ListItemButton>
+      <Flipped flipId={id}>
+        <div>
+          <ListItemButton
+            sx={{ pl: activityPL, pr: 0 }}
+            onClick={() => (open.value = !open.value)}
+          >
+            <ActivityAvatar activity={activity} />
+            <ListItemText
+              primary={
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    flexWrap: "wrap",
+                  }}
+                >
+                  <Expander
+                    viewBox={"5 0 13 24"}
+                    sx={{ width: "initial", mr: 1 }}
+                  />
+                  <span>
+                    {name.value +
+                      (open.value || childActivities.value.length === 0
+                        ? ""
+                        : ` (${childActivities.value.length})`)}
+                  </span>
+                </div>
+              }
+              secondary={
+                <ActivityRow2 activity={activity} interval={interval} />
+              }
+            />
+            <ListItemIcon>
+              <StartStopButton activity={activity} />
+            </ListItemIcon>
+          </ListItemButton>
+        </div>
+      </Flipped>
       <Collapse in={open.value} timeout="auto" unmountOnExit>
         <List component="div" disablePadding>
           {childActivities.value.map((activity) => (
@@ -103,22 +110,24 @@ const ParentActivityItem = (props: ActivityItemProps) => {
 
 const LeafActivityItem = (props: ActivityItemProps) => {
   const { activity, interval } = props;
-  const { name } = activity.value;
+  const { name, id } = activity.value;
   const activityPL = useActivityPL(activity);
 
   return (
-    <>
-      <ListItem sx={{ pl: activityPL, pr: 0 }}>
-        <ActivityAvatar activity={activity} />
-        <ListItemText
-          primary={name}
-          secondary={<ActivityRow2 activity={activity} interval={interval} />}
-        />
-        <ListItemIcon>
-          <StartStopButton activity={activity} />
-        </ListItemIcon>
-      </ListItem>
-    </>
+    <Flipped flipId={id}>
+      <div>
+        <ListItem sx={{ pl: activityPL, pr: 0 }}>
+          <ActivityAvatar activity={activity} />
+          <ListItemText
+            primary={name}
+            secondary={<ActivityRow2 activity={activity} interval={interval} />}
+          />
+          <ListItemIcon>
+            <StartStopButton activity={activity} />
+          </ListItemIcon>
+        </ListItem>
+      </div>
+    </Flipped>
   );
 };
 
