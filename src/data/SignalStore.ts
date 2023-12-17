@@ -15,6 +15,7 @@ export abstract class SignalStore<StoredValue, Value> {
 
   abstract asValue: (storedValue: StoredValue) => Value;
   abstract asStoredValue: (value: Value) => StoredValue;
+  abstract valueJsonSchema: unknown;
 
   asExportedValue = (value: StoredValue): StoredValue | null => value;
   afterLoaded = () => {};
@@ -26,15 +27,16 @@ export abstract class SignalStore<StoredValue, Value> {
     await this.store.iterate((storedValue: StoredValue, key) => {
       const value = this.asValue(storedValue);
       keyValues.push([key, value]);
-
-      const dispose = effect(() =>
-        this.store.setItem(key, this.asStoredValue(value)),
-      );
-      this.valueUpdaterDisposes.set(key, dispose);
     });
 
     return () => {
       this.collection.value = new Map(keyValues);
+      keyValues.forEach(([key, value]) => {
+        const dispose = effect(() =>
+          this.store.setItem(key, this.asStoredValue(value)),
+        );
+        this.valueUpdaterDisposes.set(key, dispose);
+      });
       this.afterLoaded?.();
     };
   };
@@ -86,4 +88,30 @@ export abstract class SignalStore<StoredValue, Value> {
 
     return result;
   };
+
+  import = async (data: { key: string; value: StoredValue }[]) => {
+    const clearSignals = await this.clear();
+
+    await Promise.all(
+      data.map(({ key, value }) => this.store.setItem(key, value)),
+    ).catch(() => {
+      // TODO clean so far imported?
+    });
+
+    const loadSignals = await this.load();
+
+    return () => {
+      clearSignals();
+      loadSignals();
+    };
+  };
+
+  jsonSchema = () => ({
+    type: "object",
+    properties: {
+      storeName: { type: "string", pattern: `^${this.name}$` },
+      data: { type: "array", items: this.valueJsonSchema },
+    },
+    required: ["storeName", "data"],
+  });
 }

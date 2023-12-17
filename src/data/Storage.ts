@@ -1,6 +1,7 @@
 import { batch, effect, signal } from "@preact/signals-react";
 import { activityStore } from "./activity/Storage";
 import { intervalStore } from "./interval/Storage";
+import { Validator } from "jsonschema";
 
 const stores = [intervalStore, activityStore];
 
@@ -35,4 +36,45 @@ export function clearDB() {
 
 export async function exportDB() {
   return { stores: await Promise.all(stores.map((store) => store.export())) };
+}
+
+const jsonSchema = {
+  type: "object",
+  properties: {
+    stores: {
+      type: "array",
+      prefixItems: stores.map((store) => store.jsonSchema()),
+    },
+  },
+};
+
+export async function importDB(jsonFile: File) {
+  const json = await parseJSON(jsonFile);
+  if (json) {
+    const validator = new Validator();
+    const { instance, errors, valid } = validator.validate(json, jsonSchema);
+    if (valid) {
+      await Promise.all(
+        stores.map((store, i) => store.import(instance.stores[i].data)),
+      ).then((updateStoreSignals) => {
+        batch(() => {
+          updateStoreSignals.forEach((update) => update());
+        });
+      });
+      return { valid: true };
+    } else {
+      return { errors, valid };
+    }
+  } else {
+    return { valid: false };
+  }
+}
+
+async function parseJSON(jsonFile: File) {
+  const text = await jsonFile.text();
+  try {
+    return JSON.parse(text);
+  } catch (e) {
+    return null;
+  }
 }
