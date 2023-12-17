@@ -1,5 +1,6 @@
 import { Signal, signal } from "@preact/signals-react";
 import { SignalStore } from "../SignalStore";
+import { stringArray } from "../JsonSchema";
 
 class ActivityStore extends SignalStore<StoredActivity, Activity> {
   constructor() {
@@ -26,13 +27,29 @@ class ActivityStore extends SignalStore<StoredActivity, Activity> {
     };
   };
 
+  valueJsonSchema = {
+    type: "object",
+    properties: {
+      id: { type: "string" },
+      name: { type: "string" },
+      intervalIDs: stringArray,
+      parentID: { type: "string" },
+      childIDs: stringArray,
+    },
+    required: ["id", "name", "intervalIDs", "parentID", "childIDs"],
+  };
+
   override afterLoaded = () => {
     if (!this.collection.value.get("root")) {
       this.set("root", {
         id: "root",
         name: signal(""),
         parentID: signal("root"),
-        childIDs: signal([]),
+        childIDs: signal(
+          [...this.collection.value.values()]
+            .filter((activity) => activity.parentID.value === "root")
+            .map((activity) => activity.id),
+        ),
         intervalIDs: signal([]),
       });
     }

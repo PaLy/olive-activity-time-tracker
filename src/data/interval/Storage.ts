@@ -2,6 +2,7 @@ import { signal } from "@preact/signals-react";
 import moment from "moment";
 import { Interval } from "./Interval";
 import { SignalStore } from "../SignalStore";
+import { dateSchema } from "../JsonSchema";
 
 class IntervalStore extends SignalStore<StoredInterval, Interval> {
   constructor() {
@@ -14,6 +15,16 @@ class IntervalStore extends SignalStore<StoredInterval, Interval> {
       start: signal(moment(interval.start)),
       end: signal(interval.end === null ? null : moment(interval.end)),
     };
+  };
+
+  valueJsonSchema = {
+    type: "object",
+    properties: {
+      id: { type: "string" },
+      start: dateSchema,
+      end: dateSchema,
+    },
+    required: ["id", "start"],
   };
 
   asStoredValue = (interval: Interval): StoredInterval => {

@@ -31,11 +31,11 @@ const Content = () => {
           <Typography variant={"body1"}>
             It is recommended to regularly back up your data.
           </Typography>
+          <Grid container justifyContent={"space-evenly"} sx={{ mt: 4 }}>
+            <ExportButton />
+            <ImportButton />
+          </Grid>
         </Box>
-        <Grid container justifyContent={"space-evenly"}>
-          <ExportButton />
-          <ImportButton />
-        </Grid>
         <Grid container justifyContent={"center"}>
           <DeleteDataButton />
         </Grid>

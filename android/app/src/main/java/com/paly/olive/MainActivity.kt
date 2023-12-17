@@ -3,10 +3,7 @@ package com.paly.olive
 import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import android.view.KeyEvent
-import android.webkit.ConsoleMessage
-import android.webkit.WebChromeClient
 import android.webkit.WebView
 import androidx.activity.ComponentActivity
 
@@ -31,17 +28,9 @@ class MainActivity : ComponentActivity() {
 
         myWebView.settings.javaScriptEnabled = true
 
-        myWebView.webChromeClient = object : WebChromeClient() {
-            override fun onConsoleMessage(message: ConsoleMessage): Boolean {
-                Log.e(
-                    "Olive:web", "${message.message()} -- From line " +
-                        "${message.lineNumber()} of ${message.sourceId()}"
-                )
-                return true
-            }
-        }
+        myWebView.webChromeClient = MyWebChromeClient(this)
 
-        myWebView.addJavascriptInterface(WebAppInterface(context), "Android");
+        myWebView.addJavascriptInterface(WebAppInterface(context), "Android")
 
         myWebView.loadUrl("file:///android_asset/www/index.html")
     }
