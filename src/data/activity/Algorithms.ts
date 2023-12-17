@@ -1,9 +1,9 @@
 import { Activity } from "./Storage";
 import { intervals } from "../interval/Signals";
 import { activities, rootActivity } from "./Signals";
-import { Signal } from "@preact/signals-react";
 import { getIntervalsDuration } from "../interval/Algorithms";
-import { ClosedInterval, overlaps } from "../interval/ClosedInterval";
+import { ClosedInterval } from "../interval/ClosedInterval";
+import { chain } from "lodash";
 
 export const isSelfInProgress = (activity: Activity) => {
   const { intervalIDs } = activity;
@@ -36,12 +36,9 @@ export const activityFullName = (activity: Activity) =>
 export const getOwnIntervals = (activity: Activity) =>
   activity.intervalIDs.value.map((id) => intervals.value.get(id)!);
 
-export const getDuration = (
-  activity: Signal<Activity>,
-  filter: Signal<ClosedInterval>,
-) => {
-  const allIntervalIds = getAllIntervalIds(activity.value);
-  return getIntervalsDuration(allIntervalIds, filter.value);
+export const getDuration = (activity: Activity, filter: ClosedInterval) => {
+  const allIntervalIds = getAllIntervalIds(activity);
+  return getIntervalsDuration(allIntervalIds, filter);
 };
 
 const getAllIntervalIds = (activity: Activity) =>
@@ -49,14 +46,25 @@ const getAllIntervalIds = (activity: Activity) =>
     (activity) => activity.intervalIDs.value,
   );
 
-export const getChildActivities = (
+export const getChildActivitiesByDuration = (
   activity: Activity,
   filter: ClosedInterval,
 ) =>
-  activity.childIDs.value
+  chain(activity.childIDs.value)
     .map((childID) => activities.value.get(childID)!)
-    .filter((child) =>
-      getAllIntervalIds(child)
-        .map((id) => intervals.value.get(id)!)
-        .some((interval) => overlaps(filter, interval)),
-    );
+    .map((child) => [child, getDuration(child, filter)] as const)
+    .filter(([, duration]) => duration > 0)
+    .sortBy(([, duration]) => duration)
+    .reverse()
+    .map(([child]) => child)
+    .value();
+
+export const getSubtreeActivityIDsByDuration = (
+  subtreeRoot: Activity,
+  filter: ClosedInterval,
+): string[] =>
+  [subtreeRoot.id].concat(
+    getChildActivitiesByDuration(subtreeRoot, filter).flatMap((child) =>
+      getSubtreeActivityIDsByDuration(child, filter),
+    ),
+  );

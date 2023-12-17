@@ -2,7 +2,8 @@ import { computed, Signal, useComputed } from "@preact/signals-react";
 import { Activity, activityStore } from "./Storage";
 import {
   activityFullName,
-  getChildActivities,
+  getSubtreeActivityIDsByDuration,
+  getChildActivitiesByDuration,
   getDuration,
   getNonRootAncestors,
   isSelfInProgress,
@@ -58,7 +59,7 @@ export const useDepth = (activity: Signal<Activity>) =>
 export const useDuration = (
   activity: Signal<Activity>,
   filter: Signal<ClosedInterval>,
-) => useComputed(() => getDuration(activity, filter));
+) => useComputed(() => getDuration(activity.value, filter.value));
 
 export const useDurationPercentage = (
   activity: Signal<Activity>,
@@ -72,7 +73,14 @@ export const useDurationPercentage = (
   );
 };
 
-export const useChildActivities = (
+export const useChildActivitiesByDuration = (
   activity: Signal<Activity>,
   filter: Signal<ClosedInterval>,
-) => useComputed(() => getChildActivities(activity.value, filter.value));
+) =>
+  useComputed(() => getChildActivitiesByDuration(activity.value, filter.value));
+
+export const useActivitiesOrderKey = (filter: Signal<ClosedInterval>) =>
+  useComputed(() =>
+    // should be joined by a character which is not used in any ID
+    getSubtreeActivityIDsByDuration(rootActivity.value, filter.value).join("$"),
+  );
