@@ -12,7 +12,7 @@ import { useNavigate } from "react-router-dom";
 type Props = {
   headline?: string;
   finishButtonProps?: ButtonProps;
-  children: ReactNode;
+  children?: ReactNode;
 };
 
 export const FullScreenModalContent = (props: Props) => {
@@ -24,7 +24,7 @@ export const FullScreenModalContent = (props: Props) => {
         container
         justifyContent={"space-between"}
         direction="row"
-        sx={{ mb: 1, mt: 1 }}
+        sx={{ pb: 1, pt: 1, pl: 0.5, pr: 1 }}
       >
         <Grid container alignItems={"center"} width={"fit-content"}>
           <IconButton aria-label={"back"} onClick={() => navigate(-1)}>

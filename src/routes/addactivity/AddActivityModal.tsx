@@ -17,6 +17,7 @@ import { addInterval } from "../../data/interval/Update";
 import { addActivity } from "../../data/activity/Update";
 import { useLocation } from "../Router";
 import { FullScreenModal } from "../../components/FullScreenModal";
+import { Box } from "@mui/material";
 
 export const createCreateActivityState = () => {
   const dialogOpenedTime = signal(moment());
@@ -94,8 +95,10 @@ const Content = () => {
         children: intervalToggle.value === "finished" ? "Save" : "Start",
       }}
     >
-      <IntervalSettings state={state} />
-      <Name state={state} />
+      <Box sx={{ ml: 1, mr: 1 }}>
+        <IntervalSettings state={state} />
+        <Name state={state} />
+      </Box>
     </FullScreenModalContent>
   );
 };

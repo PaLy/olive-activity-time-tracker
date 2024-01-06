@@ -29,6 +29,7 @@ import {
 import { startActivity, stopActivity } from "../../data/activity/Update";
 import { ClosedInterval } from "../../data/interval/ClosedInterval";
 import { Flipped } from "react-flip-toolkit";
+import { Link } from "react-router-dom";
 
 type ActivityItemProps = {
   activity: Signal<Activity>;
@@ -139,10 +140,17 @@ type ActivityAvatarProps = {
 };
 
 const ActivityAvatar = (props: ActivityAvatarProps) => {
-  const initials = useInitials(props.activity.value.name);
+  const { name, id } = props.activity.value;
+  const initials = useInitials(name);
   return (
     <ListItemAvatar>
-      <Avatar>{initials}</Avatar>
+      <Avatar
+        component={Link}
+        to={`/activities/${id}`}
+        sx={{ textDecoration: "none" }}
+      >
+        {initials}
+      </Avatar>
     </ListItemAvatar>
   );
 };
