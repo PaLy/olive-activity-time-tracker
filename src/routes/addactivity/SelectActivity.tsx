@@ -1,10 +1,11 @@
 import { Autocomplete, createFilterOptions, TextField } from "@mui/material";
-import { Signal } from "@preact/signals-react";
+import { computed, Signal } from "@preact/signals-react";
 import { Activity } from "../../data/activity/Storage";
 import {
   activityFullNames,
   nonRootActivities,
 } from "../../data/activity/Signals";
+import { sortBy } from "lodash";
 
 type Props = {
   activity: Signal<Activity | null>;
@@ -27,7 +28,7 @@ export const SelectActivity = (props: Props) => {
       }}
       filterOptions={filter}
       handleHomeEndKeys
-      options={nonRootActivities.value}
+      options={options.value}
       getOptionLabel={(option) => activityFullNames.value.get(option.id)!}
       renderOption={(props, option) => (
         <li {...props}>{activityFullNames.value.get(option.id)}</li>
@@ -46,3 +47,9 @@ export const SelectActivity = (props: Props) => {
 };
 
 const filter = createFilterOptions<Activity>();
+
+const options = computed(() =>
+  sortBy(nonRootActivities.value, (activity) =>
+    activityFullNames.value.get(activity.id),
+  ),
+);
