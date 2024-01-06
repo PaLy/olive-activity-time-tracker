@@ -13,6 +13,16 @@ import { AllTimeRoute } from "./routes/activitylists/AllTimeRoute";
 import { YesterdayRoute } from "./routes/activitylists/YesterdayRoute";
 import { ActivityRoute } from "./routes/activity/ActivityRoute";
 import { activities } from "./data/activity/Signals";
+import {
+  EditInterval,
+  EditIntervalLoaderData,
+} from "./routes/activity/EditInterval";
+import { intervals } from "./data/interval/Signals";
+import { getActivityByInterval } from "./data/activity/Algorithms";
+import { signal } from "@preact/signals-react";
+import { enableMapSet } from "immer";
+
+enableMapSet();
 
 const router = createHashRouter([
   {
@@ -41,18 +51,43 @@ const router = createHashRouter([
         element: <AllTimeRoute />,
       },
       {
-        path: "activities/:id",
+        path: "activities/:activityID",
         element: <ActivityRoute />,
         loader: ({ params }) => {
-          const { id } = params;
-          if (id) {
-            const activity = activities.value.get(id);
+          const { activityID } = params;
+          if (activityID) {
+            const activity = activities.value.get(activityID);
             if (activity) {
               return activity;
             }
           }
           throw new Error("Activity does not exist.");
         },
+        children: [
+          {
+            path: "interval/:intervalID",
+            element: <EditInterval />,
+            loader: ({ params }) => {
+              const { intervalID } = params;
+              if (intervalID) {
+                const interval = intervals.value.get(intervalID);
+                const activity = getActivityByInterval(intervalID);
+                if (interval && activity) {
+                  const data: EditIntervalLoaderData = {
+                    activity,
+                    interval,
+                    edit: {
+                      start: signal(interval.start.value),
+                      end: signal(interval.end.value),
+                    },
+                  };
+                  return data;
+                }
+              }
+              throw new Error("Interval does not exist.");
+            },
+          },
+        ],
       },
     ],
   },
