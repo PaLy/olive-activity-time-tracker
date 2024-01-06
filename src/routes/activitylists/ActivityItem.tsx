@@ -1,7 +1,6 @@
 import { useInitials } from "../../utils/Strings";
 import {
   Avatar,
-  Box,
   Collapse,
   IconButton,
   List,
@@ -196,19 +195,7 @@ const ActivityRow2 = (props: ActivityRow2Props) => {
   const wage = useWage(duration);
   return (
     <>
-      {durationPercentage} %
-      <Box sx={{ ml: 1 }} component={"span"}>
-        |
-      </Box>
-      <Box sx={{ ml: 1 }} component={"span"}>
-        {wage} €
-      </Box>
-      <Box sx={{ ml: 1 }} component={"span"}>
-        |
-      </Box>
-      <Box sx={{ ml: 1 }} component={"span"}>
-        {humanizedDuration}
-      </Box>
+      {durationPercentage} % • {wage} € • {humanizedDuration}
     </>
   );
 };
