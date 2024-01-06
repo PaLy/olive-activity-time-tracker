@@ -17,6 +17,8 @@ export const addActivity = (activity: Activity) => {
   const parent = activities.value.get(parentID)!;
   parent.childIDs.value = [...parent.childIDs.value, id];
   activityStore.set(id, activity);
+  // TODO clear ancestors intervals which overlaps this activity interval + confirmation modal?
+  // TODO forbid overlap with own intervals
 };
 
 export const stopActivity = (activity: Activity) => {

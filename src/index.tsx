@@ -11,6 +11,8 @@ import { TodayRoute } from "./routes/activitylists/TodayRoute";
 import { ThisMonthRoute } from "./routes/activitylists/ThisMonthRoute";
 import { AllTimeRoute } from "./routes/activitylists/AllTimeRoute";
 import { YesterdayRoute } from "./routes/activitylists/YesterdayRoute";
+import { ActivityRoute } from "./routes/activity/ActivityRoute";
+import { activities } from "./data/activity/Signals";
 
 const router = createHashRouter([
   {
@@ -37,6 +39,20 @@ const router = createHashRouter([
       {
         path: "all/*",
         element: <AllTimeRoute />,
+      },
+      {
+        path: "activities/:id",
+        element: <ActivityRoute />,
+        loader: ({ params }) => {
+          const { id } = params;
+          if (id) {
+            const activity = activities.value.get(id);
+            if (activity) {
+              return activity;
+            }
+          }
+          throw new Error("Activity does not exist.");
+        },
       },
     ],
   },

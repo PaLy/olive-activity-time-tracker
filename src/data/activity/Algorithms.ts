@@ -31,7 +31,9 @@ export const activityFullName = (activity: Activity) =>
     .reverse()
     .concat(activity)
     .map((activity) => activity.name.value)
-    .join(" / ");
+    .join(ACTIVITY_FULL_NAME_SEPARATOR);
+
+export const ACTIVITY_FULL_NAME_SEPARATOR = " / ";
 
 export const getOwnIntervals = (activity: Activity) =>
   activity.intervalIDs.value.map((id) => intervals.value.get(id)!);

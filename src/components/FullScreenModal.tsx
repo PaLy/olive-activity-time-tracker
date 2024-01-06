@@ -22,7 +22,7 @@ export const FullScreenModal = (props: Props) => {
           }}
         >
           <Container maxWidth={"sm"} style={{ height: "100%" }} disableGutters>
-            <Paper square sx={{ p: 1, height: "100%" }}>
+            <Paper square sx={{ pt: 1, pb: 1, height: "100%" }}>
               {children}
             </Paper>
           </Container>

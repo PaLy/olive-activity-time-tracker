@@ -41,6 +41,7 @@ function App() {
                 right: 0,
                 top: 0,
                 bottom: 0,
+                overflowY: "auto",
               }}
             >
               {/* TODO better loading indicator */}

@@ -7,6 +7,7 @@ import {
   getDuration,
   getNonRootAncestors,
   isSelfInProgress,
+  ACTIVITY_FULL_NAME_SEPARATOR,
 } from "./Algorithms";
 
 import { ClosedInterval } from "../interval/ClosedInterval";
@@ -84,3 +85,14 @@ export const useActivitiesOrderKey = (filter: Signal<ClosedInterval>) =>
     // should be joined by a character which is not used in any ID
     getSubtreeActivityIDsByDuration(rootActivity.value, filter.value).join("$"),
   );
+
+export const useActivityPath = (ancestor: Activity, activity: Activity) =>
+  useComputed(() => {
+    const ancestorFullname = activityFullNames.value.get(ancestor.id)!;
+    const activityFullname = activityFullNames.value.get(activity.id)!;
+    const separatorLength =
+      ancestor !== rootActivity.value ? ACTIVITY_FULL_NAME_SEPARATOR.length : 0;
+    return activityFullname.substring(
+      ancestorFullname.length + separatorLength,
+    );
+  });

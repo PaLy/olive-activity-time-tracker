@@ -24,7 +24,7 @@ const Content = () => {
         direction={"column"}
         justifyContent={"space-between"}
       >
-        <Box>
+        <Box sx={{ ml: 1, mr: 1 }}>
           <Typography variant={"body1"}>
             All the data is stored only on your device.
           </Typography>
