@@ -1,5 +1,6 @@
 import { effect, signal } from "@preact/signals-react";
 import localforage from "localforage";
+import { produce } from "immer";
 
 export abstract class SignalStore<StoredValue, Value> {
   private store;
@@ -56,6 +57,14 @@ export abstract class SignalStore<StoredValue, Value> {
       }),
     );
     this.valueUpdaterDisposes.set(key, updaterDispose);
+  };
+
+  remove = (key: string) => {
+    this.collection.value = produce(this.collection.value, (draft) => {
+      draft.delete(key);
+    });
+    this.valueUpdaterDisposes.get(key)?.();
+    this.valueUpdaterDisposes.delete(key);
   };
 
   clear = async () => {

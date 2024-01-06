@@ -1,12 +1,14 @@
 import {
+  IconButton,
   List,
   ListItem,
+  ListItemIcon,
   ListItemText,
   ListSubheader,
   Paper,
   Typography,
 } from "@mui/material";
-import { useLoaderData } from "react-router-dom";
+import { Link, Outlet, useLoaderData } from "react-router-dom";
 import { Activity } from "../../data/activity/Storage";
 import { FullScreenModalContent } from "../../components/FullScreenModalContent";
 import {
@@ -16,16 +18,24 @@ import {
 import { IntervalWithActivity } from "../../data/interval/Algorithms";
 import { useActivityPath } from "../../data/activity/Signals";
 import { Fragment } from "react";
+import EditIcon from "@mui/icons-material/Edit";
+import { SuccessSnackbar } from "./SuccessSnackbar";
+import { DeleteIntervalConfirmation } from "./DeleteIntervalConfirmation";
 
 export const ActivityRoute = () => {
   const activity = useLoaderData() as Activity;
   const { name } = activity;
   return (
-    <Paper square sx={{ pt: 1, minHeight: "100%" }}>
-      <FullScreenModalContent headline={name.value}>
-        <Intervals activity={activity} />
-      </FullScreenModalContent>
-    </Paper>
+    <>
+      <Paper square sx={{ pt: 1, minHeight: "100%" }}>
+        <FullScreenModalContent headline={name.value}>
+          <Intervals activity={activity} />
+        </FullScreenModalContent>
+      </Paper>
+      <Outlet />
+      <DeleteIntervalConfirmation />
+      <SuccessSnackbar />
+    </>
   );
 };
 
@@ -80,7 +90,7 @@ const IntervalItem = (props: IntervalProps) => {
   const { start, end } = interval;
   const duration = useIntervalDuration(interval);
 
-  const subActivityPath = useActivityPath(activity, subActivity);
+  const subActivityPath = useActivityPath(subActivity, activity);
   const subActivitySuffix =
     activity.id !== subActivity.id ? ` (${subActivityPath.value})` : "";
 
@@ -98,6 +108,15 @@ const IntervalItem = (props: IntervalProps) => {
         }
         secondary={<>{duration}</>}
       />
+      <ListItemIcon sx={{ minWidth: "initial" }}>
+        <IconButton
+          aria-label={"edit interval"}
+          component={Link}
+          to={`interval/${interval.id}`}
+        >
+          <EditIcon />
+        </IconButton>
+      </ListItemIcon>
     </ListItem>
   );
 };

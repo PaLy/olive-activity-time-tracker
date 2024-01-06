@@ -70,3 +70,8 @@ export const getSubtreeActivityIDsByDuration = (
       getSubtreeActivityIDsByDuration(child, filter),
     ),
   );
+
+export const getActivityByInterval = (intervalID: string) =>
+  [...activities.value.values()].find((activity) =>
+    activity.intervalIDs.value.find((id) => id === intervalID),
+  );

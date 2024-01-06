@@ -86,12 +86,15 @@ export const useActivitiesOrderKey = (filter: Signal<ClosedInterval>) =>
     getSubtreeActivityIDsByDuration(rootActivity.value, filter.value).join("$"),
   );
 
-export const useActivityPath = (ancestor: Activity, activity: Activity) =>
+export const useActivityPath = (activity: Activity, ancestor?: Activity) =>
   useComputed(() => {
-    const ancestorFullname = activityFullNames.value.get(ancestor.id)!;
+    const finalAncestor = ancestor ?? rootActivity.value;
+    const ancestorFullname = activityFullNames.value.get(finalAncestor.id)!;
     const activityFullname = activityFullNames.value.get(activity.id)!;
     const separatorLength =
-      ancestor !== rootActivity.value ? ACTIVITY_FULL_NAME_SEPARATOR.length : 0;
+      finalAncestor !== rootActivity.value
+        ? ACTIVITY_FULL_NAME_SEPARATOR.length
+        : 0;
     return activityFullname.substring(
       ancestorFullname.length + separatorLength,
     );

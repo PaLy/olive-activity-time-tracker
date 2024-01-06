@@ -37,14 +37,19 @@ export const getIntervalsDuration = (
   return durationMs;
 };
 
-export const humanize = (duration: number, inProgress: boolean) =>
+export const humanize = (
+  duration: number,
+  inProgress: boolean,
+  full?: boolean,
+) =>
   humanizeDuration(duration, {
     delimiter: " ",
-    largest: inProgress ? Infinity : 2,
+    largest: inProgress || full ? Infinity : 2,
     round: true,
-    units: inProgress
-      ? ["y", "mo", "w", "d", "h", "m", "s"]
-      : ["y", "mo", "w", "d", "h", "m"],
+    units:
+      inProgress || full || duration < 59.5 * 1000
+        ? ["y", "mo", "w", "d", "h", "m", "s"]
+        : ["y", "mo", "w", "d", "h", "m"],
   });
 
 export const intervalsGroupedByDay = (activity: Activity) =>
