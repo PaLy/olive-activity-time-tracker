@@ -195,7 +195,7 @@ const ActivityRow2 = (props: ActivityRow2Props) => {
   const wage = useWage(duration);
   return (
     <>
-      {durationPercentage} % • {wage} € • {humanizedDuration}
+      {durationPercentage} % • {wage} € <br /> {humanizedDuration}
     </>
   );
 };
