@@ -22,9 +22,10 @@ import EditIcon from "@mui/icons-material/Edit";
 import { SuccessSnackbar } from "./SuccessSnackbar";
 import { DeleteIntervalConfirmation } from "./DeleteIntervalConfirmation";
 import { Interval } from "../../data/interval/Interval";
+import { Signal } from "@preact/signals-react";
 
 export const ActivityRoute = () => {
-  const activity = useLoaderData() as Activity;
+  const activity = useLoaderData() as Signal<Activity>;
   const path = useActivityPath(activity);
   return (
     <>
@@ -41,7 +42,7 @@ export const ActivityRoute = () => {
 };
 
 type IntervalsProps = {
-  activity: Activity;
+  activity: Signal<Activity>;
 };
 
 const Intervals = (props: IntervalsProps) => {
@@ -55,16 +56,16 @@ const Intervals = (props: IntervalsProps) => {
       <List>
         {Object.values(groupedIntervals.value).map((intervalsWithActivity) => (
           <Fragment
-            key={intervalsWithActivity[0].interval.start.value.valueOf()}
+            key={intervalsWithActivity[0].interval.value.start.value.valueOf()}
           >
             <ListSubheader>
-              {intervalsWithActivity[0].interval.start.value.format(
+              {intervalsWithActivity[0].interval.value.start.value.format(
                 "ddd, MMM D, YYYY",
               )}
             </ListSubheader>
             {intervalsWithActivity.map((intervalWithActivity) => (
               <IntervalItem
-                key={intervalWithActivity.interval.id}
+                key={intervalWithActivity.interval.value.id}
                 activity={activity}
                 intervalWithActivity={intervalWithActivity}
               />
@@ -77,19 +78,21 @@ const Intervals = (props: IntervalsProps) => {
 };
 
 type IntervalProps = {
-  activity: Activity;
+  activity: Signal<Activity>;
   intervalWithActivity: IntervalWithActivity;
 };
 
 const IntervalItem = (props: IntervalProps) => {
   const { activity, intervalWithActivity } = props;
   const { interval, activity: subActivity } = intervalWithActivity;
-  const { start } = interval;
+  const { start } = interval.value;
   const duration = useIntervalDuration(interval);
 
   const subActivityPath = useActivityPath(subActivity, activity);
   const subActivitySuffix =
-    activity.id !== subActivity.id ? ` (${subActivityPath.value})` : "";
+    activity.value.id !== subActivity.value.id
+      ? ` (${subActivityPath.value})`
+      : "";
 
   const startValue = start.value.format(INTERVAL_FORMAT);
   const endValue = formatIntervalEnd(interval);
@@ -109,7 +112,7 @@ const IntervalItem = (props: IntervalProps) => {
         <IconButton
           aria-label={"edit interval"}
           component={Link}
-          to={`interval/${interval.id}`}
+          to={`interval/${interval.value.id}`}
         >
           <EditIcon />
         </IconButton>
@@ -120,8 +123,8 @@ const IntervalItem = (props: IntervalProps) => {
 
 const INTERVAL_FORMAT = "HH:mm:ss";
 
-const formatIntervalEnd = (interval: Interval) => {
-  const { start, end } = interval;
+const formatIntervalEnd = (interval: Signal<Interval>) => {
+  const { start, end } = interval.value;
   if (!end.value) {
     return "now";
   } else if (start.value.isSame(end.value, "day")) {

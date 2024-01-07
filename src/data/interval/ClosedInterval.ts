@@ -13,7 +13,10 @@ export type ClosedInterval = {
   end: Signal<number>;
 };
 
-export const overlaps = (interval1: ClosedInterval, interval2: Interval) =>
+export const overlaps = (
+  interval1: ClosedInterval,
+  interval2: Signal<Interval>,
+) =>
   simpleOverlaps(
     toSimpleClosedInterval(interval1),
     intervalToSimpleClosed(interval2),

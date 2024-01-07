@@ -1,4 +1,4 @@
-import { Signal, signal } from "@preact/signals-react";
+import { Signal } from "@preact/signals-react";
 import { Grid, List, Paper } from "@mui/material";
 import { AppBarActions } from "./AppBarActions";
 import { ActivityItem } from "./ActivityItem";
@@ -45,8 +45,8 @@ export const ActivityList = (props: Props) => {
           <List sx={{ mb: 8, pt: 0 }}>
             {childActivities.value.map((activity) => (
               <ActivityItem
-                key={activity.id}
-                activity={signal(activity)}
+                key={activity.value.id}
+                activity={activity}
                 interval={interval}
               />
             ))}

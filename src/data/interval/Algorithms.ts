@@ -7,6 +7,7 @@ import { chain, orderBy } from "lodash";
 import { Activity } from "../activity/Storage";
 import { getDescendants } from "../activity/Algorithms";
 import { MAX_DATE_MS } from "../../utils/Date";
+import { Signal } from "@preact/signals-react";
 
 export const getIntervalsDuration = (
   intervalIds: string[],
@@ -53,16 +54,16 @@ export const humanize = (
         : ["y", "mo", "w", "d", "h", "m"],
   });
 
-export const intervalsGroupedByDay = (activity: Activity) =>
+export const intervalsGroupedByDay = (activity: Signal<Activity>) =>
   chain([activity, ...getDescendants(activity)])
     .flatMap((activity) =>
-      activity.intervalIDs.value.map((id) => ({
+      activity.value.intervalIDs.value.map((id) => ({
         activity,
         interval: intervals.value.get(id)!,
       })),
     )
     .groupBy(({ interval }) =>
-      interval.start.value.clone().startOf("day").valueOf(),
+      interval.value.start.value.clone().startOf("day").valueOf(),
     )
     .toPairs()
     .orderBy(([key]) => key, "desc")
@@ -71,12 +72,15 @@ export const intervalsGroupedByDay = (activity: Activity) =>
       orderBy(
         group,
         [
-          ({ interval }) => interval.start.value.valueOf(),
-          ({ interval }) => interval.end.value?.valueOf() ?? MAX_DATE_MS,
+          ({ interval }) => interval.value.start.value.valueOf(),
+          ({ interval }) => interval.value.end.value?.valueOf() ?? MAX_DATE_MS,
         ],
         ["desc", "desc"],
       ),
     )
     .value();
 
-export type IntervalWithActivity = { activity: Activity; interval: Interval };
+export type IntervalWithActivity = {
+  activity: Signal<Activity>;
+  interval: Signal<Interval>;
+};

@@ -1,4 +1,4 @@
-import { computed, Signal, useComputed } from "@preact/signals-react";
+import { computed, signal, Signal, useComputed } from "@preact/signals-react";
 import { Activity, activityStore } from "./Storage";
 import {
   activityFullName,
@@ -14,11 +14,11 @@ import { ClosedInterval } from "../interval/ClosedInterval";
 
 export const activities = computed(() => activityStore.collection.value);
 
-export const rootActivity = computed(() => activities.value.get("root")!);
+export const rootActivity = computed(() => activities.value.get("root")!.value);
 
 export const nonRootActivities = computed(() =>
   [...activities.value.values()].filter(
-    (activity) => activity !== rootActivity.value,
+    (activity) => activity.value !== rootActivity.value,
   ),
 );
 
@@ -49,18 +49,22 @@ export const inProgressActivitiesCount = computed(
 );
 
 export const useInProgress = (activity: Signal<Activity>) =>
-  useComputed(() => inProgressActivities.value.has(activity.value));
+  useComputed(() =>
+    [...inProgressActivities.value.values()].some(
+      (a) => a.value === activity.value,
+    ),
+  );
 
 export const useParentActivity = (activity: Signal<Activity>) =>
-  useComputed(() => activities.value.get(activity.value.parentID.value)!);
+  useComputed(() => activities.value.get(activity.value.parentID.value)!.value);
 
 export const useDepth = (activity: Signal<Activity>) =>
-  useComputed(() => getNonRootAncestors(activity.value).length);
+  useComputed(() => getNonRootAncestors(activity).length);
 
 export const useDuration = (
   activity: Signal<Activity>,
   filter: Signal<ClosedInterval>,
-) => useComputed(() => getDuration(activity.value, filter.value));
+) => useComputed(() => getDuration(activity, filter.value));
 
 export const useDurationPercentage = (
   activity: Signal<Activity>,
@@ -77,20 +81,22 @@ export const useDurationPercentage = (
 export const useChildActivitiesByDuration = (
   activity: Signal<Activity>,
   filter: Signal<ClosedInterval>,
-) =>
-  useComputed(() => getChildActivitiesByDuration(activity.value, filter.value));
+) => useComputed(() => getChildActivitiesByDuration(activity, filter.value));
 
 export const useActivitiesOrderKey = (filter: Signal<ClosedInterval>) =>
   useComputed(() =>
     // should be joined by a character which is not used in any ID
-    getSubtreeActivityIDsByDuration(rootActivity.value, filter.value).join("$"),
+    getSubtreeActivityIDsByDuration(rootActivity, filter.value).join("$"),
   );
 
-export const useActivityPath = (activity: Activity, ancestor?: Activity) =>
+export const useActivityPath = (
+  activity: Signal<Activity>,
+  ancestor: Signal<Activity | null> = defaultActivityPathAncestor,
+) =>
   useComputed(() => {
-    const finalAncestor = ancestor ?? rootActivity.value;
+    const finalAncestor = ancestor?.value ?? rootActivity.value;
     const ancestorFullname = activityFullNames.value.get(finalAncestor.id)!;
-    const activityFullname = activityFullNames.value.get(activity.id)!;
+    const activityFullname = activityFullNames.value.get(activity.value.id)!;
     const separatorLength =
       finalAncestor !== rootActivity.value
         ? ACTIVITY_FULL_NAME_SEPARATOR.length
@@ -99,3 +105,5 @@ export const useActivityPath = (activity: Activity, ancestor?: Activity) =>
       ancestorFullname.length + separatorLength,
     );
   });
+
+const defaultActivityPathAncestor = signal(null);
