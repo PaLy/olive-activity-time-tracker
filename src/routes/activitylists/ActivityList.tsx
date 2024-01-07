@@ -11,14 +11,16 @@ import { ClosedInterval } from "../../data/interval/ClosedInterval";
 import { AppAppBar } from "../../AppBar";
 import { AppBottomNavigation } from "./BottomNavigation";
 import { Flipper } from "react-flip-toolkit";
+import { ReactNode } from "react";
 
 type Props = {
   interval: Signal<ClosedInterval>;
   header: string;
+  filterComponent?: ReactNode;
 };
 
 export const ActivityList = (props: Props) => {
-  const { interval, header } = props;
+  const { interval, header, filterComponent } = props;
   const childActivities = useChildActivitiesByDuration(rootActivity, interval);
   const flipKey = useActivitiesOrderKey(interval);
 
@@ -34,6 +36,11 @@ export const ActivityList = (props: Props) => {
           minHeight: 0,
         }}
       >
+        {filterComponent && (
+          <Grid container sx={{ p: 2, pb: 0 }} justifyContent={"center"}>
+            {filterComponent}
+          </Grid>
+        )}
         <Flipper flipKey={flipKey.value}>
           <List sx={{ mb: 8, pt: 0 }}>
             {childActivities.value.map((activity) => (
