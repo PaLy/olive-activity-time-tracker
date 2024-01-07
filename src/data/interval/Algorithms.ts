@@ -43,16 +43,19 @@ export const humanize = (
   duration: number,
   inProgress: boolean,
   full?: boolean,
-) =>
-  humanizeDuration(duration, {
+) => {
+  const positiveDuration = Math.max(0, duration);
+
+  return humanizeDuration(positiveDuration, {
     delimiter: " ",
     largest: inProgress || full ? Infinity : 2,
     round: true,
     units:
-      inProgress || full || duration < 59.5 * 1000
+      inProgress || full || positiveDuration < 59.5 * 1000
         ? ["y", "mo", "w", "d", "h", "m", "s"]
         : ["y", "mo", "w", "d", "h", "m"],
   });
+};
 
 export const intervalsGroupedByDay = (activity: Signal<Activity>) =>
   chain([activity, ...getDescendants(activity)])

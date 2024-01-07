@@ -34,10 +34,11 @@ export const useIntervalDuration = (
   full?: boolean,
 ) =>
   useComputed(() => {
-    const inProgress = interval.value.end.value === null;
+    const { start, end } = interval.value;
+    const inProgress = end.value === null;
     const duration = (
-      interval.value.end.value ?? durationRefreshTime.value
-    ).diff(interval.value.start.value);
+      end.value ?? moment.max(durationRefreshTime.value, start.value)
+    ).diff(start.value);
     return humanize(duration, inProgress, full);
   });
 
