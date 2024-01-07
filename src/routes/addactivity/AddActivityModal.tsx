@@ -3,7 +3,6 @@ import { batch, computed, signal, useSignal } from "@preact/signals-react";
 import moment from "moment";
 import { IntervalSettings } from "./IntervalSettings";
 import { Name } from "./Name";
-import { duration } from "moment/moment";
 import { durationRefreshTime } from "../../data/interval/Signals";
 import { Activity } from "../../data/activity/Storage";
 import { humanize } from "../../data/interval/Algorithms";
@@ -37,16 +36,15 @@ export const createCreateActivityState = () => {
 
   const durationMs = computed(() => {
     const inProgress = intervalToggle.value !== "finished";
-    const finalEndTime = inProgress ? durationRefreshTime : endTime;
 
-    let diff = 0;
-    if (intervalToggle.value === "now") {
-      diff = finalEndTime.value.diff(dialogOpenedTime.value);
-    } else if (finalEndTime.value.isAfter(startTime.value)) {
-      diff = finalEndTime.value.diff(startTime.value);
-    }
+    const finalStartTime =
+      intervalToggle.value === "now" ? dialogOpenedTime.value : startTime.value;
 
-    return humanize(duration(diff).asMilliseconds(), inProgress);
+    const finalEndTime = inProgress
+      ? moment.max(durationRefreshTime.value, finalStartTime)
+      : endTime.value;
+
+    return humanize(finalEndTime.diff(finalStartTime), inProgress);
   });
 
   return {
