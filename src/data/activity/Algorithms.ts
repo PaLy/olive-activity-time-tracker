@@ -54,11 +54,13 @@ export const getChildActivitiesByDuration = (
 ) =>
   chain(activity.childIDs.value)
     .map((childID) => activities.value.get(childID)!)
-    .map((child) => [child, getDuration(child, filter)] as const)
-    .filter(([, duration]) => duration > 0)
-    .sortBy(([, duration]) => duration)
-    .reverse()
-    .map(([child]) => child)
+    .map((child) => ({ child, duration: getDuration(child, filter) }))
+    .filter(({ duration }) => duration > 0)
+    .orderBy(
+      [({ duration }) => duration, ({ child }) => child.name.value],
+      ["desc", "asc"],
+    )
+    .map(({ child }) => child)
     .value();
 
 export const getSubtreeActivityIDsByDuration = (
