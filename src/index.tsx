@@ -21,6 +21,7 @@ import { intervals } from "./data/interval/Signals";
 import { getActivityByInterval } from "./data/activity/Algorithms";
 import { signal } from "@preact/signals-react";
 import { enableMapSet } from "immer";
+import { afterDBLoaded } from "./data/Storage";
 
 enableMapSet();
 
@@ -53,39 +54,41 @@ const router = createHashRouter([
       {
         path: "activities/:activityID",
         element: <ActivityRoute />,
-        loader: ({ params }) => {
-          const { activityID } = params;
-          if (activityID) {
-            const activity = activities.value.get(activityID);
-            if (activity) {
-              return activity;
+        loader: ({ params }) =>
+          afterDBLoaded(async () => {
+            const { activityID } = params;
+            if (activityID) {
+              const activity = activities.value.get(activityID);
+              if (activity) {
+                return activity;
+              }
             }
-          }
-          throw new Error("Activity does not exist.");
-        },
+            throw new Error("Activity does not exist.");
+          }),
         children: [
           {
             path: "interval/:intervalID",
             element: <EditInterval />,
-            loader: ({ params }) => {
-              const { intervalID } = params;
-              if (intervalID) {
-                const interval = intervals.value.get(intervalID);
-                const activity = getActivityByInterval(intervalID);
-                if (interval && activity) {
-                  const data: EditIntervalLoaderData = {
-                    activity,
-                    interval,
-                    edit: {
-                      start: signal(interval.start.value),
-                      end: signal(interval.end.value),
-                    },
-                  };
-                  return data;
+            loader: ({ params }) =>
+              afterDBLoaded(async () => {
+                const { intervalID } = params;
+                if (intervalID) {
+                  const interval = intervals.value.get(intervalID);
+                  const activity = getActivityByInterval(intervalID);
+                  if (interval && activity) {
+                    const data: EditIntervalLoaderData = {
+                      activity,
+                      interval,
+                      edit: {
+                        start: signal(interval.start.value),
+                        end: signal(interval.end.value),
+                      },
+                    };
+                    return data;
+                  }
                 }
-              }
-              throw new Error("Interval does not exist.");
-            },
+                throw new Error("Interval does not exist.");
+              }),
           },
         ],
       },
