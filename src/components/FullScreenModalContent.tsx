@@ -26,12 +26,17 @@ export const FullScreenModalContent = (props: Props) => {
         direction="row"
         sx={{ pb: 1, pt: 1, pl: 0.5, pr: 1 }}
       >
-        <Grid container alignItems={"center"} width={"fit-content"}>
+        <Grid
+          container
+          alignItems={"start"}
+          width={"fit-content"}
+          flexWrap={"nowrap"}
+        >
           <IconButton aria-label={"back"} onClick={() => navigate(-1)}>
             <ArrowBackIcon />
           </IconButton>
           {headline && (
-            <Typography variant="h6" component="span" sx={{ ml: 1 }}>
+            <Typography variant="h6" component="span" sx={{ ml: 1, mt: 0.5 }}>
               {headline}
             </Typography>
           )}

@@ -25,11 +25,11 @@ import { Interval } from "../../data/interval/Interval";
 
 export const ActivityRoute = () => {
   const activity = useLoaderData() as Activity;
-  const { name } = activity;
+  const path = useActivityPath(activity);
   return (
     <>
       <Paper square sx={{ pt: 1, minHeight: "100%" }}>
-        <FullScreenModalContent headline={name.value}>
+        <FullScreenModalContent headline={path.value}>
           <Intervals activity={activity} />
         </FullScreenModalContent>
       </Paper>
