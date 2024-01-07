@@ -8,9 +8,9 @@ import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 import { createHashRouter, RouterProvider } from "react-router-dom";
 import { TodayRoute } from "./routes/activitylists/TodayRoute";
-import { ThisMonthRoute } from "./routes/activitylists/ThisMonthRoute";
-import { AllTimeRoute } from "./routes/activitylists/AllTimeRoute";
-import { YesterdayRoute } from "./routes/activitylists/YesterdayRoute";
+import { MonthRoute } from "./routes/activitylists/MonthRoute";
+import { DateRangeRoute } from "./routes/activitylists/DateRangeRoute";
+import { DayRoute } from "./routes/activitylists/DayRoute";
 import { ActivityRoute } from "./routes/activity/ActivityRoute";
 import { activities } from "./data/activity/Signals";
 import {
@@ -40,16 +40,16 @@ const router = createHashRouter([
         element: <TodayRoute />,
       },
       {
-        path: "yesterday/*",
-        element: <YesterdayRoute />,
+        path: "day/*",
+        element: <DayRoute />,
       },
       {
         path: "month/*",
-        element: <ThisMonthRoute />,
+        element: <MonthRoute />,
       },
       {
-        path: "all/*",
-        element: <AllTimeRoute />,
+        path: "range/*",
+        element: <DateRangeRoute />,
       },
       {
         path: "activities/:activityID",

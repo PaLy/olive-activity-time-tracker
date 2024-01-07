@@ -2,7 +2,7 @@ import BottomNavigation from "@mui/material/BottomNavigation";
 import BottomNavigationAction from "@mui/material/BottomNavigationAction";
 import TodayIcon from "@mui/icons-material/Today";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
-import ArchiveIcon from "@mui/icons-material/Archive";
+import DateRangeIcon from "@mui/icons-material/DateRange";
 import { Badge, Paper } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { inProgressActivitiesCount } from "../../data/activity/Signals";
@@ -40,21 +40,20 @@ export const AppBottomNavigation = () => {
             </Badge>
           }
         />
-        {/* TODO yesterday icon */}
         <BottomNavigationAction
-          label="Yesterday"
-          value={"/yesterday"}
+          label="Day"
+          value={"/day"}
           icon={<TodayIcon />}
         />
         <BottomNavigationAction
-          label="This Month"
+          label="Month"
           value={"/month"}
           icon={<CalendarMonthIcon />}
         />
         <BottomNavigationAction
-          label="All Time"
-          value={"/all"}
-          icon={<ArchiveIcon />}
+          label="Date Range"
+          value={"/range"}
+          icon={<DateRangeIcon />}
         />
       </BottomNavigation>
     </Paper>
