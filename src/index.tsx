@@ -81,7 +81,9 @@ const router = createHashRouter([
                       interval,
                       edit: {
                         start: signal(interval.start.value),
+                        startError: signal(""),
                         end: signal(interval.end.value),
+                        endError: signal(""),
                       },
                     };
                     return data;

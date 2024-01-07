@@ -4,8 +4,9 @@ import {
   ToggleButtonGroup,
   Typography,
 } from "@mui/material";
-import { DateTimePicker, renderTimeViewClock } from "@mui/x-date-pickers";
 import { CreateActivityState } from "./AddActivityModal";
+import { DateTimeRangePicker } from "../../components/DateTimeRangePicker";
+import { useComputed } from "@preact/signals-react";
 
 type Props = {
   state: CreateActivityState;
@@ -13,7 +14,16 @@ type Props = {
 
 export const IntervalSettings = (props: Props) => {
   const { state } = props;
-  const { startTime, endTime, intervalToggle: toggle, durationMs } = state;
+  const {
+    startTime,
+    startTimeError,
+    endTime,
+    endTimeError,
+    intervalToggle: toggle,
+    durationMs,
+  } = state;
+
+  const omitEndTimePicker = useComputed(() => toggle.value !== "finished");
 
   return (
     <>
@@ -36,49 +46,15 @@ export const IntervalSettings = (props: Props) => {
         </ToggleButtonGroup>
       </Box>
       {toggle.value !== "now" && (
-        // TODO separate data and time picker? Useful for today activities
-        <DateTimePicker
-          sx={{ m: 1 }}
-          label="Start"
-          value={startTime.value}
-          onChange={(value) => {
-            if (value) {
-              startTime.value = value;
-            }
-          }}
-          maxDate={endTime.value}
-          disableFuture
-          ampm={false}
-          viewRenderers={{
-            hours: renderTimeViewClock,
-            minutes: renderTimeViewClock,
-          }}
-          format={DATE_TIME_PICKER_FORMAT}
-        />
-      )}
-      {toggle.value === "finished" && (
-        <DateTimePicker
-          sx={{ m: 1 }}
-          label="End"
-          value={endTime.value}
-          onChange={(value) => {
-            if (value) {
-              endTime.value = value;
-            }
-          }}
-          minDate={startTime.value}
-          disableFuture
-          ampm={false}
-          viewRenderers={{
-            hours: renderTimeViewClock,
-            minutes: renderTimeViewClock,
-          }}
-          format={DATE_TIME_PICKER_FORMAT}
+        <DateTimeRangePicker
+          startTime={startTime}
+          startTimeError={startTimeError}
+          endTime={endTime}
+          endTimeError={endTimeError}
+          omitEndTimePicker={omitEndTimePicker}
         />
       )}
       <Typography sx={{ m: 1 }}>{durationMs}</Typography>
     </>
   );
 };
-
-const DATE_TIME_PICKER_FORMAT = "ddd, MMM D, YYYY HH:mm";

@@ -14,21 +14,23 @@ import SaveIcon from "@mui/icons-material/Save";
 import { Interval } from "../../data/interval/Interval";
 import { Activity } from "../../data/activity/Storage";
 import { useActivityPath } from "../../data/activity/Signals";
-import { DateTimePicker, renderTimeViewClock } from "@mui/x-date-pickers";
 import { useIntervalDuration } from "../../data/interval/Signals";
 import { Moment } from "moment/moment";
-import { batch, Signal } from "@preact/signals-react";
+import { batch, Signal, useComputed } from "@preact/signals-react";
 import { editInterval } from "../../data/interval/Update";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { successSnackbarMessage, successSnackbarOpen } from "./SuccessSnackbar";
 import { deleteIntervalConfirmationData } from "./DeleteIntervalConfirmation";
+import { DateTimeRangePicker } from "../../components/DateTimeRangePicker";
 
 export type EditIntervalLoaderData = {
   activity: Activity;
   interval: Interval;
   edit: {
     start: Signal<Moment>;
+    startError: Signal<string>;
     end: Signal<Moment | null>;
+    endError: Signal<string>;
   };
 };
 
@@ -38,6 +40,8 @@ export const EditInterval = () => {
   const activityPath = useActivityPath(activity);
   const duration = useIntervalDuration(edit, true);
   const navigate = useNavigate();
+
+  const omitEndTimePicker = useComputed(() => !edit.end.value);
 
   return (
     <>
@@ -56,44 +60,14 @@ export const EditInterval = () => {
                 <Typography variant="h6" sx={{ m: 1 }}>
                   {activityPath}
                 </Typography>
-                <DateTimePicker
-                  sx={{ m: 1 }}
-                  label="Start"
-                  value={edit.start.value}
-                  onChange={(value) => {
-                    if (value) {
-                      edit.start.value = value;
-                    }
-                  }}
+                <DateTimeRangePicker
                   // TODO limit by own and descendant intervals
-                  maxDate={edit.end.value}
-                  disableFuture
-                  ampm={false}
-                  viewRenderers={{
-                    hours: renderTimeViewClock,
-                    minutes: renderTimeViewClock,
-                  }}
-                  format={DATE_TIME_PICKER_FORMAT}
+                  startTime={edit.start}
+                  startTimeError={edit.startError}
+                  endTime={edit.end}
+                  endTimeError={edit.endError}
+                  omitEndTimePicker={omitEndTimePicker}
                 />
-                {edit.end.value !== null && (
-                  <DateTimePicker
-                    sx={{ m: 1 }}
-                    label="End"
-                    value={edit.end.value}
-                    onChange={(value) => {
-                      if (value) {
-                        edit.end.value = value;
-                      }
-                    }}
-                    disableFuture
-                    ampm={false}
-                    viewRenderers={{
-                      hours: renderTimeViewClock,
-                      minutes: renderTimeViewClock,
-                    }}
-                    format={DATE_TIME_PICKER_FORMAT}
-                  />
-                )}
                 <Typography sx={{ m: 1 }}>{duration}</Typography>
                 <Grid container justifyContent={"space-between"}>
                   <IconButton
@@ -121,15 +95,15 @@ export const EditInterval = () => {
   );
 };
 
-const DATE_TIME_PICKER_FORMAT = "ddd, MMM D, YYYY HH:mm";
-
 const onSave = (args: EditIntervalLoaderData, navigate: NavigateFunction) => {
   const { interval, edit } = args;
-  // TODO validate intervals + update ancestors
-  batch(() => {
-    editInterval(interval, edit);
-    successSnackbarOpen.value = true;
-    successSnackbarMessage.value = "Interval successfully changed";
-  });
-  navigate(-1);
+  if (!edit.startError.value && !edit.endError.value) {
+    // TODO validate intervals + update ancestors
+    batch(() => {
+      editInterval(interval, edit);
+      successSnackbarOpen.value = true;
+      successSnackbarMessage.value = "Interval successfully changed";
+    });
+    navigate(-1);
+  }
 };
