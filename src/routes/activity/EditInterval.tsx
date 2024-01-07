@@ -73,6 +73,7 @@ export const EditInterval = () => {
                     hours: renderTimeViewClock,
                     minutes: renderTimeViewClock,
                   }}
+                  format={DATE_TIME_PICKER_FORMAT}
                 />
                 {edit.end.value !== null && (
                   <DateTimePicker
@@ -90,6 +91,7 @@ export const EditInterval = () => {
                       hours: renderTimeViewClock,
                       minutes: renderTimeViewClock,
                     }}
+                    format={DATE_TIME_PICKER_FORMAT}
                   />
                 )}
                 <Typography sx={{ m: 1 }}>{duration}</Typography>
@@ -118,6 +120,8 @@ export const EditInterval = () => {
     </>
   );
 };
+
+const DATE_TIME_PICKER_FORMAT = "ddd, MMM D, YYYY HH:mm";
 
 const onSave = (args: EditIntervalLoaderData, navigate: NavigateFunction) => {
   const { interval, edit } = args;

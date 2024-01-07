@@ -21,6 +21,7 @@ import { Fragment } from "react";
 import EditIcon from "@mui/icons-material/Edit";
 import { SuccessSnackbar } from "./SuccessSnackbar";
 import { DeleteIntervalConfirmation } from "./DeleteIntervalConfirmation";
+import { Interval } from "../../data/interval/Interval";
 
 export const ActivityRoute = () => {
   const activity = useLoaderData() as Activity;
@@ -60,7 +61,7 @@ const Intervals = (props: IntervalsProps) => {
             >
               <ListSubheader>
                 {intervalsWithActivity[0].interval.start.value.format(
-                  "MMMM D, YYYY",
+                  "ddd, MMM D, YYYY",
                 )}
               </ListSubheader>
               {intervalsWithActivity
@@ -87,7 +88,7 @@ type IntervalProps = {
 const IntervalItem = (props: IntervalProps) => {
   const { activity, intervalWithActivity } = props;
   const { interval, activity: subActivity } = intervalWithActivity;
-  const { start, end } = interval;
+  const { start } = interval;
   const duration = useIntervalDuration(interval);
 
   const subActivityPath = useActivityPath(subActivity, activity);
@@ -95,7 +96,7 @@ const IntervalItem = (props: IntervalProps) => {
     activity.id !== subActivity.id ? ` (${subActivityPath.value})` : "";
 
   const startValue = start.value.format(INTERVAL_FORMAT);
-  const endValue = end.value?.format(INTERVAL_FORMAT) ?? "now";
+  const endValue = formatIntervalEnd(interval);
 
   return (
     <ListItem dense={true}>
@@ -122,3 +123,14 @@ const IntervalItem = (props: IntervalProps) => {
 };
 
 const INTERVAL_FORMAT = "HH:mm:ss";
+
+const formatIntervalEnd = (interval: Interval) => {
+  const { start, end } = interval;
+  if (!end.value) {
+    return "now";
+  } else if (start.value.isSame(end.value, "day")) {
+    return end.value.format(INTERVAL_FORMAT);
+  } else {
+    return end.value.format("ddd, MMM D, YYYY HH:mm");
+  }
+};

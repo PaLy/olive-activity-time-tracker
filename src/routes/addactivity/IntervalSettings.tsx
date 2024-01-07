@@ -53,6 +53,7 @@ export const IntervalSettings = (props: Props) => {
             hours: renderTimeViewClock,
             minutes: renderTimeViewClock,
           }}
+          format={DATE_TIME_PICKER_FORMAT}
         />
       )}
       {toggle.value === "finished" && (
@@ -72,9 +73,12 @@ export const IntervalSettings = (props: Props) => {
             hours: renderTimeViewClock,
             minutes: renderTimeViewClock,
           }}
+          format={DATE_TIME_PICKER_FORMAT}
         />
       )}
       <Typography sx={{ m: 1 }}>{durationMs}</Typography>
     </>
   );
 };
+
+const DATE_TIME_PICKER_FORMAT = "ddd, MMM D, YYYY HH:mm";
