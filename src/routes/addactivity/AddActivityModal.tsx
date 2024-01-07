@@ -169,7 +169,7 @@ const createActivity = (state: CreateActivityState) => {
       addActivity(newActivity);
     } else {
       if (existingActivity.value) {
-        const activity = activities.value.get(existingActivity.value.id)!;
+        const activity = activities.value.get(existingActivity.value.id)!.value;
         activity.intervalIDs.value = [
           ...activity.intervalIDs.value,
           newInterval.id,

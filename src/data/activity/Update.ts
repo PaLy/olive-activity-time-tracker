@@ -1,6 +1,6 @@
 import { Activity, activityStore } from "./Storage";
 import { activities, inProgressActivities, rootActivity } from "./Signals";
-import { batch, signal } from "@preact/signals-react";
+import { batch, Signal, signal } from "@preact/signals-react";
 import {
   getDescendants,
   getNonRootAncestors,
@@ -16,19 +16,19 @@ export const addActivity = (activity: Activity) => {
   const { id } = activity;
   const parentID = activity.parentID.value;
   const parent = activities.value.get(parentID)!;
-  parent.childIDs.value = [...parent.childIDs.value, id];
+  parent.value.childIDs.value = [...parent.value.childIDs.value, id];
   activityStore.set(id, activity);
   // TODO clear ancestors intervals which overlaps this activity interval + confirmation modal?
   // TODO forbid overlap with own intervals
 };
 
-export const stopActivity = (activity: Activity) => {
+export const stopActivity = (activity: Signal<Activity>) => {
   batch(() => {
     [activity, ...getDescendants(activity)]
       .filter(isSelfInProgress)
       .forEach(stopSelfActivity);
 
-    const parentID = activity.parentID.value;
+    const parentID = activity.value.parentID.value;
     if (parentID !== rootActivity.value.id) {
       const parent = activities.value.get(parentID)!;
       if (!inProgressActivities.value.has(parent)) {
@@ -38,11 +38,11 @@ export const stopActivity = (activity: Activity) => {
   });
 };
 
-const stopSelfActivity = (activity: Activity) => {
-  getOwnIntervals(activity).slice(-1)[0].end.value = moment();
+const stopSelfActivity = (activity: Signal<Activity>) => {
+  getOwnIntervals(activity).slice(-1)[0].value.end.value = moment();
 };
 
-export const startActivity = (activity: Activity) => {
+export const startActivity = (activity: Signal<Activity>) => {
   batch(() => {
     getNonRootAncestors(activity)
       .filter(isSelfInProgress)
@@ -50,17 +50,20 @@ export const startActivity = (activity: Activity) => {
 
     const id = nanoid();
     addInterval({ id, start: signal(moment()), end: signal(null) });
-    activity.intervalIDs.value = [...activity.intervalIDs.value, id];
+    activity.value.intervalIDs.value = [
+      ...activity.value.intervalIDs.value,
+      id,
+    ];
   });
 };
 
 export const deleteActivityInterval = (
-  activity: Activity,
-  interval: Interval,
+  activity: Signal<Activity>,
+  interval: Signal<Interval>,
 ) => {
   batch(() => {
-    activity.intervalIDs.value = activity.intervalIDs.value.filter(
-      (id) => id !== interval.id,
+    activity.value.intervalIDs.value = activity.value.intervalIDs.value.filter(
+      (id) => id !== interval.value.id,
     );
     deleteInterval(interval);
   });

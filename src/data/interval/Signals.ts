@@ -30,16 +30,16 @@ export const useHumanizedDuration = (
 ) => useComputed(() => humanize(duration.value, inProgress.value));
 
 export const useIntervalDuration = (
-  interval: Omit<Interval, "id">,
+  interval: Signal<Omit<Interval, "id">>,
   full?: boolean,
 ) =>
   useComputed(() => {
-    const inProgress = interval.end.value === null;
-    const duration = (interval.end.value ?? durationRefreshTime.value).diff(
-      interval.start.value,
-    );
+    const inProgress = interval.value.end.value === null;
+    const duration = (
+      interval.value.end.value ?? durationRefreshTime.value
+    ).diff(interval.value.start.value);
     return humanize(duration, inProgress, full);
   });
 
-export const useIntervalsGroupedByDay = (activity: Activity) =>
+export const useIntervalsGroupedByDay = (activity: Signal<Activity>) =>
   useComputed(() => intervalsGroupedByDay(activity));

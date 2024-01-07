@@ -10,10 +10,10 @@ export type Interval = {
 };
 
 export const toSimpleClosedInterval = (
-  interval: Interval,
+  interval: Signal<Interval>,
 ): SimpleClosedInterval => {
-  const start = interval.start.value.valueOf();
+  const start = interval.value.start.value.valueOf();
   const end =
-    interval.end.value?.valueOf() ?? durationRefreshTime.value.valueOf();
+    interval.value.end.value?.valueOf() ?? durationRefreshTime.value.valueOf();
   return { start, end };
 };

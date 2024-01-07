@@ -47,8 +47,8 @@ class ActivityStore extends SignalStore<StoredActivity, Activity> {
         parentID: signal("root"),
         childIDs: signal(
           [...this.collection.value.values()]
-            .filter((activity) => activity.parentID.value === "root")
-            .map((activity) => activity.id),
+            .filter((activity) => activity.value.parentID.value === "root")
+            .map((activity) => activity.value.id),
         ),
         intervalIDs: signal([]),
       });

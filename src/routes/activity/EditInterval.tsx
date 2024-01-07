@@ -24,14 +24,14 @@ import { deleteIntervalConfirmationData } from "./DeleteIntervalConfirmation";
 import { DateTimeRangePicker } from "../../components/DateTimeRangePicker";
 
 export type EditIntervalLoaderData = {
-  activity: Activity;
-  interval: Interval;
-  edit: {
+  activity: Signal<Activity>;
+  interval: Signal<Interval>;
+  edit: Signal<{
     start: Signal<Moment>;
     startError: Signal<string>;
     end: Signal<Moment | null>;
     endError: Signal<string>;
-  };
+  }>;
 };
 
 export const EditInterval = () => {
@@ -41,7 +41,7 @@ export const EditInterval = () => {
   const duration = useIntervalDuration(edit, true);
   const navigate = useNavigate();
 
-  const omitEndTimePicker = useComputed(() => !edit.end.value);
+  const omitEndTimePicker = useComputed(() => !edit.value.end.value);
 
   return (
     <>
@@ -62,10 +62,10 @@ export const EditInterval = () => {
                 </Typography>
                 <DateTimeRangePicker
                   // TODO limit by own and descendant intervals
-                  startTime={edit.start}
-                  startTimeError={edit.startError}
-                  endTime={edit.end}
-                  endTimeError={edit.endError}
+                  startTime={edit.value.start}
+                  startTimeError={edit.value.startError}
+                  endTime={edit.value.end}
+                  endTimeError={edit.value.endError}
                   omitEndTimePicker={omitEndTimePicker}
                 />
                 <Typography sx={{ m: 1 }}>{duration}</Typography>
@@ -97,7 +97,7 @@ export const EditInterval = () => {
 
 const onSave = (args: EditIntervalLoaderData, navigate: NavigateFunction) => {
   const { interval, edit } = args;
-  if (!edit.startError.value && !edit.endError.value) {
+  if (!edit.value.startError.value && !edit.value.endError.value) {
     // TODO validate intervals + update ancestors
     batch(() => {
       editInterval(interval, edit);

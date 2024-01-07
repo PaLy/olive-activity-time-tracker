@@ -1,11 +1,11 @@
-import { effect, signal } from "@preact/signals-react";
+import { effect, Signal, signal } from "@preact/signals-react";
 import localforage from "localforage";
 import { produce } from "immer";
 
 export abstract class SignalStore<StoredValue, Value> {
   private store;
   private valueUpdaterDisposes = new Map<string, () => void>();
-  collection = signal(new Map<string, Value>());
+  collection = signal(new Map<string, Signal<Value>>());
   name;
 
   constructor(args: { name: string }) {
@@ -22,19 +22,19 @@ export abstract class SignalStore<StoredValue, Value> {
   afterLoaded = () => {};
 
   load = async () => {
-    const keyValues: [string, Value][] = [];
+    const keyValues: [string, Signal<Value>][] = [];
 
     // TODO error handling
     await this.store.iterate((storedValue: StoredValue, key) => {
       const value = this.asValue(storedValue);
-      keyValues.push([key, value]);
+      keyValues.push([key, signal(value)]);
     });
 
     return () => {
       this.collection.value = new Map(keyValues);
       keyValues.forEach(([key, value]) => {
         const dispose = effect(() =>
-          this.store.setItem(key, this.asStoredValue(value)),
+          this.store.setItem(key, this.asStoredValue(value.value)),
         );
         this.valueUpdaterDisposes.set(key, dispose);
       });
@@ -45,7 +45,7 @@ export abstract class SignalStore<StoredValue, Value> {
   set = (key: string, value: Value) => {
     this.collection.value = new Map([
       ...this.collection.value.entries(),
-      [key, value],
+      [key, signal(value)],
     ]);
 
     this.valueUpdaterDisposes.get(key)?.();

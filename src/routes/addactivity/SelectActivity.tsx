@@ -5,7 +5,7 @@ import {
   activityFullNames,
   nonRootActivities,
 } from "../../data/activity/Signals";
-import { sortBy } from "lodash";
+import { chain } from "lodash";
 
 type Props = {
   activity: Signal<Activity | null>;
@@ -49,7 +49,8 @@ export const SelectActivity = (props: Props) => {
 const filter = createFilterOptions<Activity>();
 
 const options = computed(() =>
-  sortBy(nonRootActivities.value, (activity) =>
-    activityFullNames.value.get(activity.id),
-  ),
+  chain(nonRootActivities.value)
+    .map((signal) => signal.value)
+    .sortBy((activity) => activityFullNames.value.get(activity.id))
+    .value(),
 );

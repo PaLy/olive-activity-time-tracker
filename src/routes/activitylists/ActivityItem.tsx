@@ -97,8 +97,8 @@ const ParentActivityItem = (props: ActivityItemProps) => {
         <List component="div" disablePadding>
           {childActivities.value.map((activity) => (
             <ActivityItem
-              key={activity.id}
-              activity={signal(activity)}
+              key={activity.value.id}
+              activity={activity}
               interval={interval}
             />
           ))}
@@ -169,9 +169,7 @@ const StartStopButton = (props: StartStopActivityProps) => {
       onClick={(event) => {
         // stops ListItemButton click
         event.stopPropagation();
-        inProgress.value
-          ? stopActivity(activity.value)
-          : startActivity(activity.value);
+        inProgress.value ? stopActivity(activity) : startActivity(activity);
       }}
       // stops ListItemButton click effect
       onMouseDown={(event) => event.stopPropagation()}

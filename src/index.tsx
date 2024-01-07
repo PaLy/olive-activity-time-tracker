@@ -79,12 +79,12 @@ const router = createHashRouter([
                     const data: EditIntervalLoaderData = {
                       activity,
                       interval,
-                      edit: {
-                        start: signal(interval.start.value),
+                      edit: signal({
+                        start: signal(interval.value.start.value),
                         startError: signal(""),
-                        end: signal(interval.end.value),
+                        end: signal(interval.value.end.value),
                         endError: signal(""),
-                      },
+                      }),
                     };
                     return data;
                   }
