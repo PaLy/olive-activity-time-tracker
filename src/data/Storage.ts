@@ -9,7 +9,15 @@ export const dbLoading = signal<"not-started" | "in-progress" | "finished">(
   "not-started",
 );
 effect(() => {
-  if (dbLoading.value === "not-started") loadDB();
+  switch (dbLoading.value) {
+    case "not-started":
+      loadDB();
+      break;
+    case "finished":
+      dbLoadListeners.forEach((listener) => listener());
+      dbLoadListeners.length = 0;
+      break;
+  }
 });
 
 function loadDB() {
@@ -22,6 +30,15 @@ function loadDB() {
       });
     },
   );
+}
+
+const dbLoadListeners: (() => void)[] = [];
+
+export async function afterDBLoaded<T>(callback: () => Promise<T>) {
+  if (dbLoading.value !== "finished") {
+    await new Promise((resolve) => dbLoadListeners.push(() => resolve(void 0)));
+  }
+  return callback();
 }
 
 export function clearDB() {
