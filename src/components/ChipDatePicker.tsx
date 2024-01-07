@@ -76,7 +76,13 @@ const MyChip = (
   } = props;
 
   return (
-    <Grid container alignItems={"center"} width={"initial"} minHeight={40}>
+    <Grid
+      container
+      alignItems={"center"}
+      width={"initial"}
+      minHeight={40}
+      sx={{ gap: 2 }}
+    >
       {onBefore && (
         <IconButton
           onClick={() => {
