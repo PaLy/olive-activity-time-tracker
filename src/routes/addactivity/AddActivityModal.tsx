@@ -25,7 +25,9 @@ export const createCreateActivityState = () => {
   const startTime = signal(
     moment().subtract(30, "minutes").seconds(0).milliseconds(0),
   );
+  const startTimeError = signal("");
   const endTime = signal(moment().seconds(0).milliseconds(0));
+  const endTimeError = signal("");
   const nameToggle = signal<"new" | "existing">("new");
   const name = signal("");
   const nameError = signal("");
@@ -51,7 +53,9 @@ export const createCreateActivityState = () => {
     dialogOpenedTime,
     intervalToggle,
     startTime,
+    startTimeError,
     endTime,
+    endTimeError,
     durationMs,
     nameToggle,
     name,
@@ -110,6 +114,8 @@ const checkValid = (state: CreateActivityState) => {
     nameToggle,
     name,
     nameError,
+    startTimeError,
+    endTimeError,
   } = state;
 
   if (nameToggle.value === "new") {
@@ -123,8 +129,8 @@ const checkValid = (state: CreateActivityState) => {
       return false;
     }
   }
-  // TODO time can be invalid if I choose yesterday 23:59, then choose today and don't choose a time...
-  return true;
+
+  return !startTimeError.value && !endTimeError.value;
 };
 
 const createActivity = (state: CreateActivityState) => {
