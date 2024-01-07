@@ -71,6 +71,7 @@ export async function importDB(jsonFile: File) {
     const validator = new Validator();
     const { instance, errors, valid } = validator.validate(json, jsonSchema);
     if (valid) {
+      await clearDB();
       await Promise.all(
         stores.map((store, i) => store.import(instance.stores[i].data)),
       ).then((updateStoreSignals) => {

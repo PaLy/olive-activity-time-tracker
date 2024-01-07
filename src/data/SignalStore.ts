@@ -99,20 +99,12 @@ export abstract class SignalStore<StoredValue, Value> {
   };
 
   import = async (data: { key: string; value: StoredValue }[]) => {
-    const clearSignals = await this.clear();
-
     await Promise.all(
       data.map(({ key, value }) => this.store.setItem(key, value)),
     ).catch(() => {
       // TODO clean so far imported?
     });
-
-    const loadSignals = await this.load();
-
-    return () => {
-      clearSignals();
-      loadSignals();
-    };
+    return this.load();
   };
 
   jsonSchema = () => ({
