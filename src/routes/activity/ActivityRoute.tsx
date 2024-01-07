@@ -53,28 +53,24 @@ const Intervals = (props: IntervalsProps) => {
         Intervals
       </Typography>
       <List>
-        {Object.values(groupedIntervals.value)
-          .toReversed()
-          .map((intervalsWithActivity) => (
-            <Fragment
-              key={intervalsWithActivity[0].interval.start.value.valueOf()}
-            >
-              <ListSubheader>
-                {intervalsWithActivity[0].interval.start.value.format(
-                  "ddd, MMM D, YYYY",
-                )}
-              </ListSubheader>
-              {intervalsWithActivity
-                .toReversed()
-                .map((intervalWithActivity) => (
-                  <IntervalItem
-                    key={intervalWithActivity.interval.id}
-                    activity={activity}
-                    intervalWithActivity={intervalWithActivity}
-                  />
-                ))}
-            </Fragment>
-          ))}
+        {Object.values(groupedIntervals.value).map((intervalsWithActivity) => (
+          <Fragment
+            key={intervalsWithActivity[0].interval.start.value.valueOf()}
+          >
+            <ListSubheader>
+              {intervalsWithActivity[0].interval.start.value.format(
+                "ddd, MMM D, YYYY",
+              )}
+            </ListSubheader>
+            {intervalsWithActivity.map((intervalWithActivity) => (
+              <IntervalItem
+                key={intervalWithActivity.interval.id}
+                activity={activity}
+                intervalWithActivity={intervalWithActivity}
+              />
+            ))}
+          </Fragment>
+        ))}
       </List>
     </>
   );

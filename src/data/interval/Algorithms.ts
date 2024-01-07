@@ -3,9 +3,10 @@ import { intervals } from "./Signals";
 import humanizeDuration from "humanize-duration";
 import { ClosedInterval } from "./ClosedInterval";
 import { Interval, toSimpleClosedInterval } from "./Interval";
-import { chain } from "lodash";
+import { chain, orderBy } from "lodash";
 import { Activity } from "../activity/Storage";
 import { getDescendants } from "../activity/Algorithms";
+import { MAX_DATE_MS } from "../../utils/Date";
 
 export const getIntervalsDuration = (
   intervalIds: string[],
@@ -64,36 +65,18 @@ export const intervalsGroupedByDay = (activity: Activity) =>
       interval.start.value.clone().startOf("day").valueOf(),
     )
     .toPairs()
-    .sortBy(([key]) => key)
+    .orderBy(([key]) => key, "desc")
     .fromPairs()
-    .mapValues((group) => group.toSorted(byStartAndEnd))
+    .mapValues((group) =>
+      orderBy(
+        group,
+        [
+          ({ interval }) => interval.start.value.valueOf(),
+          ({ interval }) => interval.end.value?.valueOf() ?? MAX_DATE_MS,
+        ],
+        ["desc", "desc"],
+      ),
+    )
     .value();
 
 export type IntervalWithActivity = { activity: Activity; interval: Interval };
-
-const byStartAndEnd = (a: IntervalWithActivity, b: IntervalWithActivity) => {
-  const aStart = a.interval.start.value;
-  const aEnd = a.interval.end.value;
-  const bStart = b.interval.start.value;
-  const bEnd = b.interval.end.value;
-
-  if (aStart < bStart) {
-    return -1;
-  } else if (aStart > bStart) {
-    return 1;
-  } else if (aEnd && bEnd) {
-    if (aEnd < bEnd) {
-      return -1;
-    } else if (aEnd > bEnd) {
-      return 1;
-    } else {
-      return 0;
-    }
-  } else if (aEnd) {
-    return -1;
-  } else if (bEnd) {
-    return 1;
-  } else {
-    return 0;
-  }
-};
