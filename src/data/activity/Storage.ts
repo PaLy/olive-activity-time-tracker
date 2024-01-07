@@ -40,18 +40,25 @@ class ActivityStore extends SignalStore<StoredActivity, Activity> {
   };
 
   override afterLoaded = () => {
-    if (!this.collection.value.get("root")) {
+    const rootChildIDs = [...this.collection.value.values()]
+      .filter(
+        (activity) =>
+          activity.value.parentID.value === "root" &&
+          activity.value.id !== "root",
+      )
+      .map((activity) => activity.value.id);
+
+    const root = this.collection.value.get("root");
+    if (!root) {
       this.set("root", {
         id: "root",
         name: signal(""),
         parentID: signal("root"),
-        childIDs: signal(
-          [...this.collection.value.values()]
-            .filter((activity) => activity.value.parentID.value === "root")
-            .map((activity) => activity.value.id),
-        ),
+        childIDs: signal(rootChildIDs),
         intervalIDs: signal([]),
       });
+    } else {
+      root.value.childIDs.value = rootChildIDs;
     }
   };
 
