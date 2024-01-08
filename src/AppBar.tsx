@@ -17,7 +17,7 @@ export const AppAppBar = (props: AppAppBarProps) => {
 
   return (
     <AppBar
-      position="sticky"
+      position="relative"
       enableColorOnDark
       // removes lightening
       sx={{ backgroundImage: "initial" }}

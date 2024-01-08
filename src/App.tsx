@@ -7,7 +7,7 @@ import {
   useMediaQuery,
 } from "@mui/material";
 import { useMemo } from "react";
-import { Outlet } from "react-router-dom";
+import { Outlet, ScrollRestoration } from "react-router-dom";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterMoment } from "@mui/x-date-pickers/AdapterMoment";
 import { dbLoading } from "./data/Storage";
@@ -19,6 +19,7 @@ function App() {
     <LocalizationProvider dateAdapter={AdapterMoment}>
       <ThemeProvider theme={theme}>
         <CssBaseline />
+        <ScrollRestoration />
         <Box
           sx={{
             position: "absolute",
@@ -26,7 +27,6 @@ function App() {
             bottom: 0,
             left: 0,
             right: 0,
-            overflow: "hidden",
           }}
         >
           <Container
@@ -34,19 +34,8 @@ function App() {
             style={{ height: "100%", position: "relative" }}
             disableGutters
           >
-            <Box
-              sx={{
-                position: "absolute",
-                left: 0,
-                right: 0,
-                top: 0,
-                bottom: 0,
-                overflowY: "auto",
-              }}
-            >
-              {/* TODO better loading indicator */}
-              {dbLoading.value === "finished" ? <Outlet /> : "Loading"}
-            </Box>
+            {/* TODO better loading indicator */}
+            {dbLoading.value === "finished" ? <Outlet /> : "Loading"}
           </Container>
         </Box>
       </ThemeProvider>
