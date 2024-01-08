@@ -13,7 +13,7 @@ export const AppBottomNavigation = () => {
   const { pathname } = useLocation();
 
   return (
-    <Paper elevation={3}>
+    <Paper elevation={3} sx={{ position: "sticky", bottom: 0 }}>
       <BottomNavigation
         showLabels
         value={pathname}

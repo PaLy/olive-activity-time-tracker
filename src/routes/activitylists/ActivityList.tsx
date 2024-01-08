@@ -1,5 +1,5 @@
 import { Signal } from "@preact/signals-react";
-import { Grid, List, Paper } from "@mui/material";
+import { Box, Fab, Grid, List, Paper } from "@mui/material";
 import { AppBarActions } from "./AppBarActions";
 import { ActivityItem } from "./ActivityItem";
 import {
@@ -12,6 +12,10 @@ import { AppAppBar } from "../../AppBar";
 import { AppBottomNavigation } from "./BottomNavigation";
 import { Flipper } from "react-flip-toolkit";
 import { ReactNode } from "react";
+import { useNavigate } from "react-router-dom";
+import { useLocation } from "../Router";
+import AddIcon from "@mui/icons-material/Add";
+import { AddActivityModal } from "../addactivity/AddActivityModal";
 
 type Props = {
   interval: Signal<ClosedInterval>;
@@ -25,35 +29,56 @@ export const ActivityList = (props: Props) => {
   const flipKey = useActivitiesOrderKey(interval);
 
   return (
-    <Grid container direction={"column"} height={"100%"}>
+    <Grid container direction={"column"} minHeight={"100%"}>
       <AppAppBar header={header} actions={<AppBarActions />} />
-      <Paper
-        square
-        sx={{
-          overflowY: "auto",
-          // https://stackoverflow.com/a/31867656/7946803
-          flex: "1 1 0",
-          minHeight: 0,
-        }}
-      >
+      <Paper square sx={{ flex: 1, display: "flex", flexDirection: "column" }}>
         {filterComponent && (
           <Grid container sx={{ p: 2, pb: 0 }} justifyContent={"center"}>
             {filterComponent}
           </Grid>
         )}
-        <Flipper flipKey={flipKey.value}>
-          <List sx={{ mb: 8, pt: 0 }}>
-            {childActivities.value.map((activity) => (
-              <ActivityItem
-                key={activity.value.id}
-                activity={activity}
-                interval={interval}
-              />
-            ))}
-          </List>
-        </Flipper>
+        <Box sx={{ flex: 1 }}>
+          <Flipper flipKey={flipKey.value}>
+            <List sx={{ mb: 2, pt: 0 }}>
+              {childActivities.value.map((activity) => (
+                <ActivityItem
+                  key={activity.value.id}
+                  activity={activity}
+                  interval={interval}
+                />
+              ))}
+            </List>
+          </Flipper>
+        </Box>
+        <Box
+          sx={{
+            position: "sticky",
+            bottom: 80,
+            mr: 3,
+            alignSelf: "end",
+          }}
+        >
+          <AddActivityOpener />
+          <AddActivityModal />
+        </Box>
       </Paper>
       <AppBottomNavigation />
     </Grid>
+  );
+};
+
+const AddActivityOpener = () => {
+  const navigate = useNavigate();
+  const { pathname } = useLocation();
+  return (
+    <Fab
+      color="primary"
+      variant={"extended"}
+      aria-label="start new activity"
+      onClick={() => navigate(`${pathname}/activity/add`)}
+    >
+      <AddIcon sx={{ mr: 1 }} />
+      Add
+    </Fab>
   );
 };
