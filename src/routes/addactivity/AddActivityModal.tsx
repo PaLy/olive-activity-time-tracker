@@ -6,7 +6,7 @@ import { Name } from "./Name";
 import { durationRefreshTime } from "../../data/interval/Signals";
 import { Activity } from "../../data/activity/Storage";
 import { humanize } from "../../data/interval/Algorithms";
-import { FullScreenModalContent } from "../../components/FullScreenModalContent";
+import { FullScreenModalHeader } from "../../components/FullScreenModalHeader";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import SaveIcon from "@mui/icons-material/Save";
 import { activities, rootActivity } from "../../data/activity/Signals";
@@ -80,28 +80,29 @@ const Content = () => {
   const { intervalToggle } = state;
   const navigate = useNavigate();
   return (
-    <FullScreenModalContent
-      finishButtonProps={{
-        startIcon:
-          intervalToggle.value !== "finished" ? (
-            <PlayArrowIcon />
-          ) : (
-            <SaveIcon />
-          ),
-        onClick: () => {
-          if (checkValid(state)) {
-            createActivity(state);
-            navigate(-1);
-          }
-        },
-        children: intervalToggle.value === "finished" ? "Save" : "Start",
-      }}
-    >
+    <>
+      <FullScreenModalHeader
+        finishButtonProps={{
+          startIcon:
+            intervalToggle.value !== "finished" ? (
+              <PlayArrowIcon />
+            ) : (
+              <SaveIcon />
+            ),
+          onClick: () => {
+            if (checkValid(state)) {
+              createActivity(state);
+              navigate(-1);
+            }
+          },
+          children: intervalToggle.value === "finished" ? "Save" : "Start",
+        }}
+      />
       <Box sx={{ ml: 1, mr: 1 }}>
         <IntervalSettings state={state} />
         <Name state={state} />
       </Box>
-    </FullScreenModalContent>
+    </>
   );
 };
 
