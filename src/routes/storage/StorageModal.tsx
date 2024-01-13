@@ -1,6 +1,6 @@
 import { Box, Grid, Typography } from "@mui/material";
 import { FullScreenModal } from "../../components/FullScreenModal";
-import { FullScreenModalContent } from "../../components/FullScreenModalContent";
+import { FullScreenModalHeader } from "../../components/FullScreenModalHeader";
 import { useLocation } from "../Router";
 import { DeleteDataButton } from "./DeleteDataButton";
 import { ExportButton } from "./ExportButton";
@@ -17,7 +17,8 @@ export const StorageModal = () => {
 
 const Content = () => {
   return (
-    <FullScreenModalContent headline={"Storage"}>
+    <>
+      <FullScreenModalHeader headline={"Storage"} />
       <Grid
         container
         sx={{ p: 1, height: "calc(100% - 56px);" }}
@@ -40,6 +41,6 @@ const Content = () => {
           <DeleteDataButton />
         </Grid>
       </Grid>
-    </FullScreenModalContent>
+    </>
   );
 };

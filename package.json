@@ -24,6 +24,8 @@
     "react-flip-toolkit": "^7.1.0",
     "react-router-dom": "^6.20.1",
     "react-scripts": "5.0.1",
+    "react-virtualized-auto-sizer": "^1.0.20",
+    "react-window": "^1.8.10",
     "usehooks-ts": "^2.9.1",
     "web-vitals": "^3.5.0"
   },
@@ -37,6 +39,7 @@
     "@types/humanize-duration":  "^3.27.3",
     "@types/jest": "^29.5.10",
     "@types/lodash": "^4.14.202",
+    "@types/react-window": "^1.8.8",
     "@types/use-sync-external-store": "^0.0.6",
     "eslint-config-prettier": "^9.0.0",
     "gh-pages": "^6.1.0",

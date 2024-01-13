@@ -11,9 +11,11 @@ import { Outlet, ScrollRestoration } from "react-router-dom";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterMoment } from "@mui/x-date-pickers/AdapterMoment";
 import { dbLoading } from "./data/Storage";
+import { useWindowResize } from "./utils/Window";
 
 function App() {
   const theme = useTheme();
+  useWindowResize();
 
   return (
     <LocalizationProvider dateAdapter={AdapterMoment}>

@@ -6,17 +6,15 @@ import {
   Typography,
 } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import { ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 
 type Props = {
   headline?: string;
   finishButtonProps?: ButtonProps;
-  children?: ReactNode;
 };
 
-export const FullScreenModalContent = (props: Props) => {
-  const { children, finishButtonProps, headline } = props;
+export const FullScreenModalHeader = (props: Props) => {
+  const { finishButtonProps, headline } = props;
   const navigate = useNavigate();
   return (
     <>
@@ -43,7 +41,6 @@ export const FullScreenModalContent = (props: Props) => {
         </Grid>
         {finishButtonProps && <Button variant="text" {...finishButtonProps} />}
       </Grid>
-      {children}
     </>
   );
 };
