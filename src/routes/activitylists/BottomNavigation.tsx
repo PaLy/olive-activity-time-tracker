@@ -12,17 +12,25 @@ export const AppBottomNavigation = () => {
   const navigate = useNavigate();
   const { pathname } = useLocation();
 
+  const currentPagePathnameEndIndex = pathname.indexOf("/", 1);
+  const currentPagePathname =
+    currentPagePathnameEndIndex === -1
+      ? pathname
+      : pathname.substring(0, currentPagePathnameEndIndex);
+
   return (
     <Paper elevation={3} sx={{ position: "sticky", bottom: 0 }}>
       <BottomNavigation
         showLabels
-        value={pathname}
+        value={currentPagePathname}
         onChange={(event, destination) => {
-          if (pathname !== destination) {
+          if (currentPagePathname !== destination) {
             if (destination === "/today") {
               navigate(-1);
             } else {
-              navigate(`${destination}`, { replace: pathname !== "/today" });
+              navigate(`${destination}`, {
+                replace: currentPagePathname !== "/today",
+              });
             }
           }
         }}
