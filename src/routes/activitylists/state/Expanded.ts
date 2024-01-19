@@ -1,7 +1,10 @@
 import { Activity } from "../../../data/activity/Storage";
 import { Signal } from "@preact/signals-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useActivityID } from "../../../data/activity/Signals";
+import {
+  parentActivities,
+  useActivityID,
+} from "../../../data/activity/Signals";
 import {
   getExpanded,
   setExpanded,
@@ -18,16 +21,43 @@ export function useExpanded(activity: Signal<Activity>) {
 
   return data;
 }
-export function useSetExpanded(activity: Signal<Activity>) {
+
+type SetExpandedVariables = {
+  activity: Signal<Activity>;
+  expanded: boolean;
+};
+
+export function useSetExpanded() {
   const queryClient = useQueryClient();
-  const id = useActivityID(activity).value;
 
   const { mutate } = useMutation({
-    mutationFn: (expanded: boolean) => {
+    mutationFn: (variables: SetExpandedVariables) => {
+      const { activity, expanded } = variables;
+      const { id } = activity.value;
       queryClient.setQueryData(["activityInListExpanded", { id }], expanded);
       return setExpanded(id, expanded);
     },
   });
 
   return mutate;
+}
+
+function useSetExpandedAll() {
+  const setExpanded = useSetExpanded();
+  return (expanded: boolean) =>
+    Promise.all(
+      parentActivities.value.map((activity) =>
+        setExpanded({ activity, expanded }),
+      ),
+    );
+}
+
+export function useExpandAll() {
+  const setExpandedAll = useSetExpandedAll();
+  return () => setExpandedAll(true);
+}
+
+export function useCollapseAll() {
+  const setExpandedAll = useSetExpandedAll();
+  return () => setExpandedAll(false);
 }

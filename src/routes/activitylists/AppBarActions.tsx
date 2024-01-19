@@ -1,6 +1,7 @@
 import { IconButton, Menu, MenuItem } from "@mui/material";
 import MoreIcon from "@mui/icons-material/MoreVert";
 import { computed, signal } from "@preact/signals-react";
+import { useCollapseAll, useExpandAll } from "./state/Expanded";
 
 const anchorEl = signal<Element | null>(null);
 const open = computed(() => anchorEl.value !== null);
@@ -25,6 +26,9 @@ export const AppBarActions = () => {
 };
 
 export const AppBarMenu = () => {
+  const expandAll = useExpandAll();
+  const collapseAll = useCollapseAll();
+
   return (
     <Menu
       id="app-menu"
@@ -35,8 +39,22 @@ export const AppBarMenu = () => {
         "aria-labelledby": "app-menu-actions",
       }}
     >
-      <MenuItem onClick={onClose}>Expand All</MenuItem>
-      <MenuItem onClick={onClose}>Collapse All</MenuItem>
+      <MenuItem
+        onClick={() => {
+          expandAll().then();
+          onClose();
+        }}
+      >
+        Expand All
+      </MenuItem>
+      <MenuItem
+        onClick={() => {
+          collapseAll().then();
+          onClose();
+        }}
+      >
+        Collapse All
+      </MenuItem>
     </Menu>
   );
 };
