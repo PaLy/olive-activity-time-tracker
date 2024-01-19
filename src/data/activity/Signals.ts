@@ -110,3 +110,9 @@ const defaultActivityPathAncestor = signal(null);
 
 export const useActivityID = (activity: Signal<Activity>) =>
   useComputed(() => activity.value.id);
+
+export const parentActivities = computed(() =>
+  [...nonRootActivities.value.values()].filter(
+    (activity) => activity.value.childIDs.value.length > 0,
+  ),
+);

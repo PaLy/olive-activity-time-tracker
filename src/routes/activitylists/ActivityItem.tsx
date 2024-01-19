@@ -50,7 +50,7 @@ const ParentActivityItem = (props: ActivityItemProps) => {
   const { name, id } = activity.value;
   const activityPL = useActivityPL(activity);
   const expanded = useExpanded(activity);
-  const setExpanded = useSetExpanded(activity);
+  const setExpanded = useSetExpanded();
   const childActivities = useChildActivitiesByDuration(activity, interval);
 
   const Expander = expanded ? ExpandLess : ExpandMore;
@@ -61,7 +61,7 @@ const ParentActivityItem = (props: ActivityItemProps) => {
         <div>
           <ListItemButton
             sx={{ pl: activityPL, pr: 0 }}
-            onClick={() => setExpanded(!expanded)}
+            onClick={() => setExpanded({ activity, expanded: !expanded })}
           >
             <ActivityAvatar activity={activity} />
             <ListItemText
