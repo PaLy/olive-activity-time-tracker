@@ -107,3 +107,6 @@ export const useActivityPath = (
   });
 
 const defaultActivityPathAncestor = signal(null);
+
+export const useActivityID = (activity: Signal<Activity>) =>
+  useComputed(() => activity.value.id);

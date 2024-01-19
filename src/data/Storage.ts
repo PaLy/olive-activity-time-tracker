@@ -2,6 +2,13 @@ import { batch, effect, signal } from "@preact/signals-react";
 import { activityStore } from "./activity/Storage";
 import { intervalStore } from "./interval/Storage";
 import { Validator } from "jsonschema";
+import {
+  clearActivityInListExpanded,
+  exportActivityInListExpanded,
+  importActivityInListExpanded,
+  jsonSchemaActivityInListExpanded,
+  STORE_NAME_ACTIVITY_IN_LIST_EXPANDED,
+} from "./activity/ActivityInListExpanded";
 
 const stores = [intervalStore, activityStore];
 
@@ -41,8 +48,9 @@ export async function afterDBLoaded<T>(callback: () => Promise<T>) {
   return callback();
 }
 
-export function clearDB() {
-  return Promise.all(stores.map((store) => store.clear())).then(
+export async function clearDB() {
+  await clearActivityInListExpanded();
+  await Promise.all(stores.map((store) => store.clear())).then(
     (updateStoreSignals) => {
       batch(() => {
         updateStoreSignals.forEach((update) => update());
@@ -52,7 +60,11 @@ export function clearDB() {
 }
 
 export async function exportDB() {
-  return { stores: await Promise.all(stores.map((store) => store.export())) };
+  return {
+    stores: await Promise.all(stores.map((store) => store.export())),
+    [STORE_NAME_ACTIVITY_IN_LIST_EXPANDED]:
+      await exportActivityInListExpanded(),
+  };
 }
 
 const jsonSchema = {
@@ -62,6 +74,7 @@ const jsonSchema = {
       type: "array",
       prefixItems: stores.map((store) => store.jsonSchema()),
     },
+    [STORE_NAME_ACTIVITY_IN_LIST_EXPANDED]: jsonSchemaActivityInListExpanded(),
   },
 };
 
@@ -72,6 +85,11 @@ export async function importDB(jsonFile: File) {
     const { instance, errors, valid } = validator.validate(json, jsonSchema);
     if (valid) {
       await clearDB();
+      if (instance[STORE_NAME_ACTIVITY_IN_LIST_EXPANDED]) {
+        await importActivityInListExpanded(
+          instance[STORE_NAME_ACTIVITY_IN_LIST_EXPANDED],
+        );
+      }
       await Promise.all(
         stores.map((store, i) => store.import(instance.stores[i].data)),
       ).then((updateStoreSignals) => {

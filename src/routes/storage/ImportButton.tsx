@@ -39,6 +39,7 @@ const handleFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
         );
       }
     } catch (e) {
+      console.error(e);
       // TODO delete data?
       error.value = "Something went wrong";
     }

@@ -12,36 +12,43 @@ import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterMoment } from "@mui/x-date-pickers/AdapterMoment";
 import { dbLoading } from "./data/Storage";
 import { useWindowResize } from "./utils/Window";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+
+const queryClient = new QueryClient();
 
 function App() {
   const theme = useTheme();
   useWindowResize();
 
   return (
-    <LocalizationProvider dateAdapter={AdapterMoment}>
-      <ThemeProvider theme={theme}>
-        <CssBaseline />
-        <ScrollRestoration />
-        <Box
-          sx={{
-            position: "absolute",
-            top: 0,
-            bottom: 0,
-            left: 0,
-            right: 0,
-          }}
-        >
-          <Container
-            maxWidth={"sm"}
-            style={{ height: "100%", position: "relative" }}
-            disableGutters
+    <QueryClientProvider client={queryClient}>
+      <ReactQueryDevtools initialIsOpen={false} />
+      <LocalizationProvider dateAdapter={AdapterMoment}>
+        <ThemeProvider theme={theme}>
+          <CssBaseline />
+          <ScrollRestoration />
+          <Box
+            sx={{
+              position: "absolute",
+              top: 0,
+              bottom: 0,
+              left: 0,
+              right: 0,
+            }}
           >
-            {/* TODO better loading indicator */}
-            {dbLoading.value === "finished" ? <Outlet /> : "Loading"}
-          </Container>
-        </Box>
-      </ThemeProvider>
-    </LocalizationProvider>
+            <Container
+              maxWidth={"sm"}
+              style={{ height: "100%", position: "relative" }}
+              disableGutters
+            >
+              {/* TODO better loading indicator */}
+              {dbLoading.value === "finished" ? <Outlet /> : "Loading"}
+            </Container>
+          </Box>
+        </ThemeProvider>
+      </LocalizationProvider>
+    </QueryClientProvider>
   );
 }
 
