@@ -14,6 +14,7 @@ import {
 import SettingsIcon from "@mui/icons-material/Settings";
 import StorageIcon from "@mui/icons-material/Storage";
 import { StorageModal } from "./routes/storage/StorageModal";
+import { SettingsModal } from "./routes/settings/SettingsModal";
 
 export const AppDrawer = () => {
   const navigate = useNavigate();
@@ -49,6 +50,7 @@ export const AppDrawer = () => {
           </List>
         </Box>
       </Drawer>
+      <SettingsModal />
       <StorageModal />
     </>
   );

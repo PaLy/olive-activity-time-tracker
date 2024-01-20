@@ -9,6 +9,13 @@ import {
   jsonSchemaActivityInListExpanded,
   STORE_NAME_ACTIVITY_IN_LIST_EXPANDED,
 } from "./activity/ActivityInListExpanded";
+import {
+  clearSettings,
+  exportSettings,
+  importSettings,
+  jsonSchemaSettings,
+  STORE_NAME_SETTINGS,
+} from "./settings/Settings";
 
 const stores = [intervalStore, activityStore];
 
@@ -50,6 +57,7 @@ export async function afterDBLoaded<T>(callback: () => Promise<T>) {
 
 export async function clearDB() {
   await clearActivityInListExpanded();
+  await clearSettings();
   await Promise.all(stores.map((store) => store.clear())).then(
     (updateStoreSignals) => {
       batch(() => {
@@ -64,6 +72,7 @@ export async function exportDB() {
     stores: await Promise.all(stores.map((store) => store.export())),
     [STORE_NAME_ACTIVITY_IN_LIST_EXPANDED]:
       await exportActivityInListExpanded(),
+    [STORE_NAME_SETTINGS]: await exportSettings(),
   };
 }
 
@@ -75,6 +84,7 @@ const jsonSchema = {
       prefixItems: stores.map((store) => store.jsonSchema()),
     },
     [STORE_NAME_ACTIVITY_IN_LIST_EXPANDED]: jsonSchemaActivityInListExpanded(),
+    [STORE_NAME_SETTINGS]: jsonSchemaSettings(),
   },
 };
 
@@ -89,6 +99,9 @@ export async function importDB(jsonFile: File) {
         await importActivityInListExpanded(
           instance[STORE_NAME_ACTIVITY_IN_LIST_EXPANDED],
         );
+      }
+      if (instance[STORE_NAME_SETTINGS]) {
+        await importSettings(instance[STORE_NAME_SETTINGS]);
       }
       await Promise.all(
         stores.map((store, i) => store.import(instance.stores[i].data)),
