@@ -10,7 +10,7 @@ import {
   ListItemIcon,
   ListItemText,
 } from "@mui/material";
-import { signal, Signal, useComputed } from "@preact/signals-react";
+import { Signal, useComputed } from "@preact/signals-react";
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
 import StopIcon from "@mui/icons-material/Stop";
@@ -30,6 +30,8 @@ import { ClosedInterval } from "../../data/interval/ClosedInterval";
 import { Flipped } from "react-flip-toolkit";
 import { Link } from "react-router-dom";
 import { useExpanded, useSetExpanded } from "./state/Expanded";
+import { useActivityListSettings } from "../../asyncState/ActivityList";
+import { ShowCost } from "../../data/settings/Settings";
 
 type ActivityItemProps = {
   activity: Signal<Activity>;
@@ -192,20 +194,30 @@ const ActivityRow2 = (props: ActivityRow2Props) => {
   const duration = useDuration(activity, interval);
   const inProgress = useInProgress(activity);
   const humanizedDuration = useHumanizedDuration(duration, inProgress);
-  const wage = useWage(duration);
+  const { showDuration, showCost, showPercentage } = useActivityListSettings();
+  const cost = getCost(duration, showCost);
+
   return (
     <>
-      {durationPercentage} % • {wage} € <br /> {humanizedDuration}
+      {showPercentage && <>{durationPercentage} %</>}
+      {showCost.show && <> • {cost}</>}
+      {showDuration && (
+        <>
+          <br /> {humanizedDuration}
+        </>
+      )}
     </>
   );
 };
 
-const hourlyEuroWage = signal(10);
+const getCost = (durationMs: Signal<number>, showCost: ShowCost) => {
+  const { perHour, currency } = showCost;
+  const cost =
+    Math.round(duration(durationMs.value).asHours() * Number(perHour) * 100) /
+    100;
 
-const useWage = (durationMs: Signal<number>) =>
-  useComputed(
-    () =>
-      Math.round(
-        duration(durationMs.value).asHours() * hourlyEuroWage.value * 100,
-      ) / 100,
-  );
+  return Intl.NumberFormat(undefined, {
+    style: "currency",
+    currency: currency,
+  }).format(cost);
+};
