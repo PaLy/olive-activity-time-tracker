@@ -1,4 +1,4 @@
-import { Container, Modal, Paper, Slide } from "@mui/material";
+import { Box, Container, Modal, Paper, Slide } from "@mui/material";
 import { ReactElement } from "react";
 
 type Props = {
@@ -13,7 +13,7 @@ export const FullScreenModal = (props: Props) => {
       <Slide direction="left" in={open} mountOnEnter unmountOnExit>
         <Container maxWidth={"sm"} style={{ height: "100%" }} disableGutters>
           <Paper square sx={{ pt: 1, pb: 1, height: "100%" }}>
-            {children}
+            <Box sx={{ height: "100%", overflow: "auto" }}>{children}</Box>
           </Paper>
         </Container>
       </Slide>
