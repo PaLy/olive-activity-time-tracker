@@ -1,5 +1,11 @@
 import { useNavigate } from "react-router-dom";
-import { batch, computed, signal, useSignal } from "@preact/signals-react";
+import {
+  batch,
+  computed,
+  Signal,
+  signal,
+  useSignal,
+} from "@preact/signals-react";
 import moment from "moment";
 import { IntervalSettings } from "./IntervalSettings";
 import { Name } from "./Name";
@@ -17,6 +23,7 @@ import { addActivity } from "../../data/activity/Update";
 import { useLocation } from "../Router";
 import { FullScreenModal } from "../../components/FullScreenModal";
 import { Box } from "@mui/material";
+import { useExpandPathToRoot } from "../activitylists/state/Expanded";
 
 export const createCreateActivityState = () => {
   const dialogOpenedTime = signal(moment());
@@ -79,6 +86,8 @@ const Content = () => {
   const state = useSignal(createCreateActivityState()).value;
   const { intervalToggle } = state;
   const navigate = useNavigate();
+  const expandPathToRoot = useExpandPathToRoot();
+
   return (
     <>
       <FullScreenModalHeader
@@ -92,6 +101,9 @@ const Content = () => {
           onClick: () => {
             if (checkValid(state)) {
               createActivity(state);
+              if (state.parentActivity.value) {
+                expandPathToRoot(state.parentActivity as Signal<Activity>);
+              }
               navigate(-1);
             }
           },
