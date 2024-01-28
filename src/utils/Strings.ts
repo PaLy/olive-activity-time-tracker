@@ -19,7 +19,8 @@ const createLongWordsFilter = () => {
       removalsLeft = array.length - 2;
     }
     const removed =
-      removalsLeft > 0 && (isPreposition(word) || word.startsWith("&"));
+      removalsLeft > 0 &&
+      (isPreposition(word) || ["&", "+", "-"].includes(word[0]));
     if (removed) {
       removalsLeft--;
     }
