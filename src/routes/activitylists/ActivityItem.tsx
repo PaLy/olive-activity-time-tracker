@@ -151,6 +151,7 @@ const ActivityAvatar = (props: ActivityAvatarProps) => {
         component={Link}
         to={`/activities/${id}`}
         sx={{ textDecoration: "none" }}
+        onClick={(event) => event.stopPropagation()}
       >
         {initials}
       </Avatar>
