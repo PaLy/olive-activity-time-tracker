@@ -2,7 +2,9 @@ import { Activity } from "../../../data/activity/Storage";
 import { Signal } from "@preact/signals-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
+  activities,
   parentActivities,
+  rootActivity,
   useActivityID,
 } from "../../../data/activity/Signals";
 import {
@@ -60,4 +62,17 @@ export function useExpandAll() {
 export function useCollapseAll() {
   const setExpandedAll = useSetExpandedAll();
   return () => setExpandedAll(false);
+}
+
+export function useExpandPathToRoot() {
+  const setExpanded = useSetExpanded();
+  return (activity: Signal<Activity>) => {
+    let currentActivity = activity;
+    while (currentActivity.value !== rootActivity.value) {
+      setExpanded({ activity: currentActivity, expanded: true });
+      currentActivity = activities.value.get(
+        currentActivity.value.parentID.value,
+      )!;
+    }
+  };
 }
