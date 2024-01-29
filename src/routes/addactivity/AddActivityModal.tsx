@@ -1,11 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import {
-  batch,
-  computed,
-  Signal,
-  signal,
-  useSignal,
-} from "@preact/signals-react";
+import { batch, computed, signal, useSignal } from "@preact/signals-react";
 import moment from "moment";
 import { IntervalSettings } from "./IntervalSettings";
 import { Name } from "./Name";
@@ -100,10 +94,8 @@ const Content = () => {
             ),
           onClick: () => {
             if (checkValid(state)) {
-              createActivity(state);
-              if (state.parentActivity.value) {
-                expandPathToRoot(state.parentActivity as Signal<Activity>);
-              }
+              const activity = createActivity(state);
+              expandPathToRoot(activity);
               navigate(-1);
             }
           },
@@ -165,7 +157,7 @@ const createActivity = (state: CreateActivityState) => {
     end: signal(end),
   };
 
-  batch(() => {
+  return batch(() => {
     addInterval(newInterval);
 
     if (nameToggle.value === "new") {
@@ -178,6 +170,7 @@ const createActivity = (state: CreateActivityState) => {
         childIDs: signal([]),
       };
       addActivity(newActivity);
+      return newActivity;
     } else {
       if (existingActivity.value) {
         const activity = activities.value.get(existingActivity.value.id)!.value;
@@ -185,6 +178,9 @@ const createActivity = (state: CreateActivityState) => {
           ...activity.intervalIDs.value,
           newInterval.id,
         ];
+        return activity;
+      } else {
+        throw new Error("Invalid state");
       }
     }
   });
