@@ -1,16 +1,14 @@
 import { useInitials } from "../../utils/Strings";
 import {
   Avatar,
-  Collapse,
   IconButton,
-  List,
   ListItem,
   ListItemAvatar,
   ListItemButton,
   ListItemIcon,
   ListItemText,
 } from "@mui/material";
-import { Signal, useComputed } from "@preact/signals-react";
+import { Signal } from "@preact/signals-react";
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
 import StopIcon from "@mui/icons-material/Stop";
@@ -19,7 +17,7 @@ import { duration } from "moment";
 import { useHumanizedDuration } from "../../data/interval/Signals";
 import { Activity } from "../../data/activity/Storage";
 import {
-  useChildActivitiesByDuration,
+  useChildrenCount,
   useDepth,
   useDuration,
   useDurationPercentage,
@@ -40,11 +38,10 @@ type ActivityItemProps = {
 
 export const ActivityItem = (props: ActivityItemProps) => {
   const { activity, interval } = props;
-  const childActivities = useChildActivitiesByDuration(activity, interval);
-  const Item = useComputed(() =>
-    childActivities.value.length > 0 ? ParentActivityItem : LeafActivityItem,
-  ).value;
-  return <Item {...props} />;
+  const childrenCount = useChildrenCount(activity, interval);
+  const Component =
+    childrenCount.value === 0 ? LeafActivityItem : ParentActivityItem;
+  return <Component {...props} />;
 };
 
 const ParentActivityItem = (props: ActivityItemProps) => {
@@ -53,7 +50,7 @@ const ParentActivityItem = (props: ActivityItemProps) => {
   const activityPL = useActivityPL(activity);
   const expanded = useExpanded(activity);
   const setExpanded = useSetExpanded();
-  const childActivities = useChildActivitiesByDuration(activity, interval);
+  const childrenCount = useChildrenCount(activity, interval);
 
   const Expander = expanded ? ExpandLess : ExpandMore;
 
@@ -81,9 +78,9 @@ const ParentActivityItem = (props: ActivityItemProps) => {
                   />
                   <span>
                     {name.value +
-                      (expanded || childActivities.value.length === 0
+                      (expanded || childrenCount.value === 0
                         ? ""
-                        : ` (${childActivities.value.length})`)}
+                        : ` (${childrenCount.value})`)}
                   </span>
                 </div>
               }
@@ -97,17 +94,6 @@ const ParentActivityItem = (props: ActivityItemProps) => {
           </ListItemButton>
         </div>
       </Flipped>
-      <Collapse in={expanded} timeout="auto" unmountOnExit>
-        <List component="div" disablePadding>
-          {childActivities.value.map((activity) => (
-            <ActivityItem
-              key={activity.value.id}
-              activity={activity}
-              interval={interval}
-            />
-          ))}
-        </List>
-      </Collapse>
     </>
   );
 };

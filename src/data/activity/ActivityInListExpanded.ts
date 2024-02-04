@@ -17,10 +17,12 @@ export const setExpanded = async (activityID: string, expanded: boolean) => {
 export const getExpanded = (activityID: string) =>
   store.getItem<boolean>(activityID).then((value) => !!value);
 
+export const getAllExpanded = () => store.keys();
+
 type ExportedData = string[];
 
 export const exportActivityInListExpanded = async () => {
-  const keys = await store.keys();
+  const keys = await getAllExpanded();
   return keys as ExportedData;
 };
 

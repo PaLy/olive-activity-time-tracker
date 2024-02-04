@@ -3,11 +3,12 @@ import { Activity, activityStore } from "./Storage";
 import {
   activityFullName,
   getSubtreeActivityIDsByDuration,
-  getChildActivitiesByDuration,
   getDuration,
   getNonRootAncestors,
   isSelfInProgress,
   ACTIVITY_FULL_NAME_SEPARATOR,
+  getActivitiesByDurationPreorder,
+  getChildActivities,
 } from "./Algorithms";
 
 import { ClosedInterval } from "../interval/ClosedInterval";
@@ -78,10 +79,17 @@ export const useDurationPercentage = (
   );
 };
 
-export const useChildActivitiesByDuration = (
-  activity: Signal<Activity>,
+export const useActivitiesByDurationPreorder = (
   filter: Signal<ClosedInterval>,
-) => useComputed(() => getChildActivitiesByDuration(activity, filter.value));
+  expandedAll: Signal<Set<string>>,
+) =>
+  useComputed(() =>
+    getActivitiesByDurationPreorder(
+      rootActivity,
+      filter.value,
+      expandedAll.value,
+    ),
+  );
 
 export const useActivitiesOrderKey = (filter: Signal<ClosedInterval>) =>
   useComputed(() =>
@@ -110,6 +118,11 @@ const defaultActivityPathAncestor = signal(null);
 
 export const useActivityID = (activity: Signal<Activity>) =>
   useComputed(() => activity.value.id);
+
+export const useChildrenCount = (
+  activity: Signal<Activity>,
+  filter: Signal<ClosedInterval>,
+) => computed(() => getChildActivities(activity, filter.value).length);
 
 export const parentActivities = computed(() =>
   [...nonRootActivities.value.values()].filter(

@@ -9,20 +9,24 @@ import { ChipDayPicker } from "../../components/ChipDayPicker";
 export const DayRoute = () => (
   <ActivityList
     interval={interval}
-    header={"Day"}
-    filterComponent={
-      <ChipDayPicker
-        maxDate={moment().subtract(1, "day")}
-        value={day}
-        isMaxDate={(value) => value.isSame(moment().subtract(1, "day"), "day")}
-        onBefore={(value) => value.clone().subtract(1, "day")}
-        onNext={(value) => value.clone().add(1, "day")}
-      />
-    }
+    header={header}
+    filterComponent={filterComponent}
   />
 );
 
+const header = signal("Day");
+
 const day = signal(moment().subtract(1, "day"));
+
+const filterComponent = signal(
+  <ChipDayPicker
+    maxDate={moment().subtract(1, "day")}
+    value={day}
+    isMaxDate={(value) => value.isSame(moment().subtract(1, "day"), "day")}
+    onBefore={(value) => value.clone().subtract(1, "day")}
+    onNext={(value) => value.clone().add(1, "day")}
+  />,
+);
 
 const interval = computed(() => ({
   start: startOfDay,
