@@ -1,15 +1,23 @@
 import { ActivityList } from "./ActivityList";
-import { computed } from "@preact/signals-react";
+import { computed, signal } from "@preact/signals-react";
 import moment from "moment";
 import { durationRefreshTime } from "../../data/interval/Signals";
 
 export const TodayRoute = () => {
   return (
     <>
-      <ActivityList interval={interval} header={"Today"} />
+      <ActivityList
+        interval={interval}
+        header={header}
+        filterComponent={filterComponent}
+      />
     </>
   );
 };
+
+const filterComponent = signal(undefined);
+
+const header = signal("Today");
 
 const interval = computed(() => ({
   start: startOfDay,

@@ -1,5 +1,5 @@
 import { Activity } from "../../../data/activity/Storage";
-import { Signal } from "@preact/signals-react";
+import { signal, Signal } from "@preact/signals-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   activities,
@@ -8,6 +8,7 @@ import {
   useActivityID,
 } from "../../../data/activity/Signals";
 import {
+  getAllExpanded,
   getExpanded,
   setExpanded,
 } from "../../../data/activity/ActivityInListExpanded";
@@ -24,6 +25,25 @@ export function useExpanded(activity: Signal<Activity>) {
   return data;
 }
 
+export function useExpandedAll() {
+  const { data } = useQuery({
+    queryKey: ["activitiesInListExpanded"],
+    queryFn: async () => {
+      expandedAllSignal.value = new Set(await getAllExpanded());
+      return expandedAllSignal.value;
+    },
+    initialData: new Set(),
+  });
+  return data;
+}
+
+const expandedAllSignal = signal(new Set<string>());
+
+export function useExpandedAllSignal() {
+  useExpandedAll();
+  return expandedAllSignal;
+}
+
 type SetExpandedVariables = {
   activity: Signal<Activity>;
   expanded: boolean;
@@ -33,11 +53,15 @@ export function useSetExpanded() {
   const queryClient = useQueryClient();
 
   const { mutate } = useMutation({
-    mutationFn: (variables: SetExpandedVariables) => {
+    mutationFn: async (variables: SetExpandedVariables) => {
       const { activity, expanded } = variables;
       const { id } = activity.value;
       queryClient.setQueryData(["activityInListExpanded", { id }], expanded);
-      return setExpanded(id, expanded);
+      await setExpanded(id, expanded);
+      await queryClient.invalidateQueries({
+        queryKey: ["activitiesInListExpanded"],
+        exact: true,
+      });
     },
   });
 

@@ -17,16 +17,7 @@ import {
 } from "../../data/interval/Signals";
 import { IntervalWithActivity } from "../../data/interval/Algorithms";
 import { useActivityPath } from "../../data/activity/Signals";
-import {
-  ComponentProps,
-  ElementType,
-  forwardRef,
-  ReactNode,
-  RefObject,
-  useEffect,
-  useImperativeHandle,
-  useRef,
-} from "react";
+import { ElementType, forwardRef, ReactNode, useImperativeHandle } from "react";
 import EditIcon from "@mui/icons-material/Edit";
 import { SuccessSnackbar } from "./SuccessSnackbar";
 import { DeleteIntervalConfirmation } from "./DeleteIntervalConfirmation";
@@ -39,29 +30,24 @@ import {
   useComputed,
   useSignal,
 } from "@preact/signals-react";
-import { ListChildComponentProps, VariableSizeList } from "react-window";
-import { windowWidth } from "../../utils/Window";
 import AutoSizer from "react-virtualized-auto-sizer";
 import moment from "moment";
+import { ResizableList, SingleItemData } from "../../components/ResizableList";
 
 export const ActivityRoute = () => {
   const activity = useLoaderData() as Signal<Activity>;
   const groupedIntervals = useIntervalsGroupedByDay(activity);
-  const variableSizeListRef = useRef<VariableSizeList<RowData>>(null);
   const visibleStartIndex = useSignal(0);
-  const rowData = useRowData(
-    groupedIntervals,
-    activity,
-    variableSizeListRef,
-    visibleStartIndex,
-  );
+  const rowData = useRowData(groupedIntervals, activity, visibleStartIndex);
 
   const topInterval = useComputed(() => {
     if (visibleStartIndex.value > 0) {
       return rowData.value
         .slice(visibleStartIndex.value)
         .find(
-          (singleRowData): singleRowData is RowItem<typeof IntervalItem> =>
+          (
+            singleRowData,
+          ): singleRowData is SingleItemData<typeof IntervalItem> =>
             singleRowData.RowComponent === IntervalItem,
         )?.rowProps.intervalWithActivity.interval.value;
     } else {
@@ -74,12 +60,9 @@ export const ActivityRoute = () => {
       <Paper square sx={{ height: "100%" }}>
         <AutoSizer>
           {({ width, height }) => (
-            <VariableSizeList
-              ref={variableSizeListRef}
+            <ResizableList
               height={height}
               width={width}
-              itemSize={(index) => rowData.value[index].rowData.size.value}
-              itemCount={rowData.value.length}
               itemData={rowData}
               innerElementType={innerElementType}
               innerRef={(ref: InnerRefValue | null) =>
@@ -88,9 +71,7 @@ export const ActivityRoute = () => {
               onItemsRendered={(props) =>
                 (visibleStartIndex.value = props.visibleStartIndex)
               }
-            >
-              {Row}
-            </VariableSizeList>
+            />
           )}
         </AutoSizer>
       </Paper>
@@ -169,7 +150,6 @@ const TopOfIntervalList = (props: TopOfIntervalListProps) => {
 const useRowData = (
   groupedIntervals: ReadonlySignal<{ [key: string]: IntervalWithActivity[] }>,
   activity: Signal<Activity>,
-  listRef: RefObject<VariableSizeList<RowData>>,
   visibleStartIndex: Signal<number>,
 ) =>
   useComputed(() => {
@@ -178,11 +158,11 @@ const useRowData = (
       {
         RowComponent: TopOfIntervalList,
         rowProps: { activity },
-        rowData: { size: signal(96), listRef },
+        rowData: { size: signal(96) },
       },
       ...Object.values(groupedIntervals.value).flatMap((intervals) => {
         const finalIndex = index;
-        const subheaderData: RowItem<typeof SubheaderItem> = {
+        const subheaderData: SingleItemData<typeof SubheaderItem> = {
           RowComponent: SubheaderItem,
           rowProps: {
             interval: intervals[0].interval,
@@ -190,57 +170,20 @@ const useRowData = (
               () => visibleStartIndex.value === finalIndex,
             ),
           },
-          rowData: { size: signal(48), listRef },
+          rowData: { size: signal(48) },
         };
-        const intervalsRowData: RowItem<typeof IntervalItem>[] = intervals.map(
-          (intervalWithActivity) => ({
+        const intervalsRowData: SingleItemData<typeof IntervalItem>[] =
+          intervals.map((intervalWithActivity) => ({
             RowComponent: IntervalItem,
             rowProps: { activity, intervalWithActivity },
-            rowData: { size: signal(60), listRef },
-          }),
-        );
+            rowData: { size: signal(60) },
+          }));
         const items = [subheaderData, ...intervalsRowData];
         index += items.length;
         return items;
       }),
-    ];
+    ] as SingleItemData<ElementType>[];
   });
-
-type RowItem<Component extends ElementType> = {
-  RowComponent: Component;
-  rowProps: ComponentProps<Component>;
-  rowData: {
-    size: Signal<number>;
-    listRef: RefObject<VariableSizeList<RowData>>;
-  };
-};
-
-type RowData = ReadonlySignal<RowItem<ElementType>[]>;
-
-const Row = (props: ListChildComponentProps<RowData>) => {
-  const { index, style, data } = props;
-  const indexData = data.value[index];
-  const {
-    RowComponent,
-    rowData: { size, listRef },
-    rowProps,
-  } = indexData;
-  const rowRef = useRef<HTMLDivElement>(null);
-  const windowWidthValue = windowWidth.value;
-
-  useEffect(() => {
-    size.value = rowRef.current?.getBoundingClientRect().height ?? size.value;
-    listRef.current?.resetAfterIndex(index);
-  }, [index, listRef, size, windowWidthValue]);
-
-  return (
-    <div style={style}>
-      <div ref={rowRef}>
-        <RowComponent {...rowProps} />
-      </div>
-    </div>
-  );
-};
 
 type SubheaderItemProps = {
   interval: Signal<Interval>;

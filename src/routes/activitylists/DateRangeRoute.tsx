@@ -8,24 +8,26 @@ import { ChipDayPicker } from "../../components/ChipDayPicker";
 export const DateRangeRoute = () => (
   <ActivityList
     interval={interval}
-    header={humanizedDuration.value}
-    filterComponent={
-      <Grid
-        container
-        justifyContent={"center"}
-        sx={{ gap: 1 }}
-        alignItems={"center"}
-      >
-        <ChipDayPicker value={start} maxDate={end.value} />
-        —
-        <ChipDayPicker value={end} minDate={start.value} disableFuture />
-      </Grid>
-    }
+    header={humanizedDuration}
+    filterComponent={filterComponent}
   />
 );
 
 const start = signal(moment().subtract(6, "days"));
 const end = signal(moment());
+
+const filterComponent = computed(() => (
+  <Grid
+    container
+    justifyContent={"center"}
+    sx={{ gap: 1 }}
+    alignItems={"center"}
+  >
+    <ChipDayPicker value={start} maxDate={end.value} />
+    —
+    <ChipDayPicker value={end} minDate={start.value} disableFuture />
+  </Grid>
+));
 
 const istart = computed(() => start.value.clone().startOf("day").valueOf());
 const iend = computed(() =>

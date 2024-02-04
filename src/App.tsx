@@ -14,12 +14,15 @@ import { dbLoading } from "./data/Storage";
 import { useWindowResize } from "./utils/Window";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import { ScrollMemoryContext } from "./components/ScrollMemory";
 
 const queryClient = new QueryClient();
 
 function App() {
   const theme = useTheme();
   useWindowResize();
+
+  const scrollMemory = new Map<string, number>();
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -28,23 +31,25 @@ function App() {
         <ThemeProvider theme={theme}>
           <CssBaseline />
           <ScrollRestoration />
-          <Box
-            sx={{
-              position: "absolute",
-              top: 0,
-              bottom: 0,
-              left: 0,
-              right: 0,
-            }}
-          >
-            <Container
-              maxWidth={"sm"}
-              style={{ height: "100%", position: "relative" }}
-              disableGutters
+          <ScrollMemoryContext.Provider value={scrollMemory}>
+            <Box
+              sx={{
+                position: "absolute",
+                top: 0,
+                bottom: 0,
+                left: 0,
+                right: 0,
+              }}
             >
-              {dbLoading.value === "finished" ? <Outlet /> : null}
-            </Container>
-          </Box>
+              <Container
+                maxWidth={"sm"}
+                style={{ height: "100%", position: "relative" }}
+                disableGutters
+              >
+                {dbLoading.value === "finished" ? <Outlet /> : null}
+              </Container>
+            </Box>
+          </ScrollMemoryContext.Provider>
         </ThemeProvider>
       </LocalizationProvider>
     </QueryClientProvider>

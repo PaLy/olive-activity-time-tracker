@@ -71,6 +71,35 @@ export const getChildActivitiesByDuration = (
     .map(({ child }) => child)
     .value();
 
+export const getChildActivities = (
+  activity: Signal<Activity>,
+  filter: ClosedInterval,
+) =>
+  chain(activity.value.childIDs.value)
+    .map((childID) => activities.value.get(childID)!)
+    .map((child) => ({ child, duration: getDuration(child, filter) }))
+    .filter(({ duration }) => duration > 0)
+    .map(({ child }) => child)
+    .value();
+
+export const getActivitiesByDurationPreorder = (
+  activity: Signal<Activity>,
+  filter: ClosedInterval,
+  expandedAll: Set<string>,
+): Signal<Activity>[] => {
+  const childActivities = getChildActivitiesByDuration(activity, filter);
+  return childActivities.flatMap((child) => {
+    if (expandedAll.has(child.value.id)) {
+      return [
+        child,
+        ...getActivitiesByDurationPreorder(child, filter, expandedAll),
+      ];
+    } else {
+      return [child];
+    }
+  });
+};
+
 export const getSubtreeActivityIDsByDuration = (
   subtreeRoot: Signal<Activity>,
   filter: ClosedInterval,
