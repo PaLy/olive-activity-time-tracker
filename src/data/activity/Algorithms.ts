@@ -8,9 +8,8 @@ import { Signal } from "@preact/signals-react";
 
 export const isSelfInProgress = (activity: Signal<Activity>) => {
   const { intervalIDs } = activity.value;
-  const lastIntervalId = intervalIDs.value.slice(-1)[0];
-  return (
-    !!lastIntervalId && !intervals.value.get(lastIntervalId)!.value.end.value
+  return intervalIDs.value.some(
+    (intervalID) => !intervals.value.get(intervalID)!.value.end.value,
   );
 };
 
