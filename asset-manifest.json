@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "https://paly.github.io/olive-activity-time-tracker/static/css/main.dccd3e69.css",
-    "main.js": "https://paly.github.io/olive-activity-time-tracker/static/js/main.1cc15073.js",
+    "main.js": "https://paly.github.io/olive-activity-time-tracker/static/js/main.e5e04cbf.js",
     "static/js/496.af223740.chunk.js": "https://paly.github.io/olive-activity-time-tracker/static/js/496.af223740.chunk.js",
     "static/media/roboto-latin-500-normal.woff2": "https://paly.github.io/olive-activity-time-tracker/static/media/roboto-latin-500-normal.f25d774ecfe0996f8eb5.woff2",
     "static/media/roboto-latin-700-normal.woff2": "https://paly.github.io/olive-activity-time-tracker/static/media/roboto-latin-700-normal.227c93190fe7f82de3f8.woff2",
@@ -61,11 +61,11 @@
     "static/media/roboto-greek-ext-700-normal.woff": "https://paly.github.io/olive-activity-time-tracker/static/media/roboto-greek-ext-700-normal.249853776d22a271b2b5.woff",
     "index.html": "https://paly.github.io/olive-activity-time-tracker/index.html",
     "main.dccd3e69.css.map": "https://paly.github.io/olive-activity-time-tracker/static/css/main.dccd3e69.css.map",
-    "main.1cc15073.js.map": "https://paly.github.io/olive-activity-time-tracker/static/js/main.1cc15073.js.map",
+    "main.e5e04cbf.js.map": "https://paly.github.io/olive-activity-time-tracker/static/js/main.e5e04cbf.js.map",
     "496.af223740.chunk.js.map": "https://paly.github.io/olive-activity-time-tracker/static/js/496.af223740.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.dccd3e69.css",
-    "static/js/main.1cc15073.js"
+    "static/js/main.e5e04cbf.js"
   ]
 }
