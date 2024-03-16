@@ -1,5 +1,5 @@
 import { signal, Signal, useComputed } from "@preact/signals-react";
-import { Box, Fab, Grid, Paper } from "@mui/material";
+import { Box, Fab, Grid, Paper, useMediaQuery, useTheme } from "@mui/material";
 import { AppBarActions } from "./AppBarActions";
 import { ActivityItem } from "./ActivityItem";
 import {
@@ -101,13 +101,17 @@ const useItemData = (props: Props) => {
   const { header, filterComponent, interval } = props;
   const expandedAll = useExpandedAllSignal();
   const activities = useActivitiesByDurationPreorder(interval, expandedAll);
+
+  const theme = useTheme();
+  const largeAppBar = useMediaQuery(theme.breakpoints.up("sm"));
+
   return useComputed(
     () =>
       [
         {
           RowComponent: Header,
           rowProps: { header, filterComponent },
-          rowData: { size: signal(120) },
+          rowData: { size: signal(largeAppBar ? 120 : 112) },
         } as SingleItemData<typeof Header>,
         ...activities.value.map(
           (activity) =>
