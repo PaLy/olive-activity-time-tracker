@@ -42,8 +42,7 @@ function App() {
               style={{ height: "100%", position: "relative" }}
               disableGutters
             >
-              {/* TODO better loading indicator */}
-              {dbLoading.value === "finished" ? <Outlet /> : "Loading"}
+              {dbLoading.value === "finished" ? <Outlet /> : null}
             </Container>
           </Box>
         </ThemeProvider>

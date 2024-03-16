@@ -2,6 +2,7 @@ package com.paly.olive
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.graphics.Color
 import android.os.Bundle
 import android.view.KeyEvent
 import android.webkit.WebView
@@ -24,6 +25,7 @@ class MainActivity : ComponentActivity() {
     @SuppressLint("SetJavaScriptEnabled")
     private fun createWebView(context: Context) {
         myWebView = WebView(context)
+        myWebView.setBackgroundColor(Color.TRANSPARENT)
         setContentView(myWebView)
 
         myWebView.settings.javaScriptEnabled = true
