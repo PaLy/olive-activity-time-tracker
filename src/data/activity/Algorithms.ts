@@ -1,7 +1,7 @@
 import { Activity } from "./Storage";
 import { intervals } from "../interval/Signals";
 import { activities, rootActivity } from "./Signals";
-import { getIntervalsDuration } from "../interval/Algorithms";
+import { getIntervalsDuration, getLastEndTime } from "../interval/Algorithms";
 import { ClosedInterval } from "../interval/ClosedInterval";
 import { chain } from "lodash";
 import { Signal } from "@preact/signals-react";
@@ -56,7 +56,7 @@ const getAllIntervalIds = (activity: Signal<Activity>) =>
     (activity) => activity.value.intervalIDs.value,
   );
 
-export const getChildActivitiesByDuration = (
+const getChildActivitiesByDuration = (
   activity: Signal<Activity>,
   filter: ClosedInterval,
 ) =>
@@ -71,6 +71,42 @@ export const getChildActivitiesByDuration = (
     .map(({ child }) => child)
     .value();
 
+const getChildActivitiesByLastEndTime = (
+  activity: Signal<Activity>,
+  filter: ClosedInterval,
+) =>
+  chain(activity.value.childIDs.value)
+    .map((childID) => activities.value.get(childID)!)
+    .map((child) => ({
+      child,
+      lastEndTime: getLastEndTime(getAllIntervalIds(child), filter),
+    }))
+    .filter(({ lastEndTime }) => lastEndTime !== undefined)
+    .orderBy(
+      [({ lastEndTime }) => lastEndTime, ({ child }) => child.value.name.value],
+      ["desc", "asc"],
+    )
+    .map(({ child }) => child)
+    .value();
+
+export enum OrderBy {
+  Duration,
+  LastEndTime,
+}
+
+export const getChildActivitiesByOrder = (
+  activity: Signal<Activity>,
+  filter: ClosedInterval,
+  orderBy: OrderBy,
+) => {
+  switch (orderBy) {
+    case OrderBy.Duration:
+      return getChildActivitiesByDuration(activity, filter);
+    case OrderBy.LastEndTime:
+      return getChildActivitiesByLastEndTime(activity, filter);
+  }
+};
+
 export const getChildActivities = (
   activity: Signal<Activity>,
   filter: ClosedInterval,
@@ -82,31 +118,34 @@ export const getChildActivities = (
     .map(({ child }) => child)
     .value();
 
-export const getActivitiesByDurationPreorder = (
+export const getActivitiesByOrder = (
   activity: Signal<Activity>,
   filter: ClosedInterval,
-  expandedAll: Set<string>,
+  expanded: Set<string>,
+  orderBy: Signal<OrderBy>,
 ): Signal<Activity>[] => {
-  const childActivities = getChildActivitiesByDuration(activity, filter);
-  return childActivities.flatMap((child) => {
-    if (expandedAll.has(child.value.id)) {
-      return [
-        child,
-        ...getActivitiesByDurationPreorder(child, filter, expandedAll),
-      ];
-    } else {
-      return [child];
-    }
-  });
+  return getChildActivitiesByOrder(activity, filter, orderBy.value).flatMap(
+    (child) => {
+      if (expanded.has(child.value.id)) {
+        return [
+          child,
+          ...getActivitiesByOrder(child, filter, expanded, orderBy),
+        ];
+      } else {
+        return [child];
+      }
+    },
+  );
 };
 
-export const getSubtreeActivityIDsByDuration = (
+export const getSubtreeActivityIDsByOrder = (
   subtreeRoot: Signal<Activity>,
   filter: ClosedInterval,
+  orderBy: OrderBy,
 ): string[] =>
   [subtreeRoot.value.id].concat(
-    getChildActivitiesByDuration(subtreeRoot, filter).flatMap((child) =>
-      getSubtreeActivityIDsByDuration(child, filter),
+    getChildActivitiesByOrder(subtreeRoot, filter, orderBy).flatMap((child) =>
+      getSubtreeActivityIDsByOrder(child, filter, orderBy),
     ),
   );
 

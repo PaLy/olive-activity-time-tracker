@@ -3,7 +3,7 @@ import { Box, Fab, Grid, Paper, useMediaQuery, useTheme } from "@mui/material";
 import { AppBarActions } from "./AppBarActions";
 import { ActivityItem } from "./ActivityItem";
 import {
-  useActivitiesByDurationPreorder,
+  rootActivity,
   useActivitiesOrderKey,
 } from "../../data/activity/Signals";
 import { ClosedInterval } from "../../data/interval/ClosedInterval";
@@ -18,11 +18,13 @@ import { AddActivityModal } from "../addactivity/AddActivityModal";
 import { ResizableList, SingleItemData } from "../../components/ResizableList";
 import AutoSizer from "react-virtualized-auto-sizer";
 import { useExpandedAllSignal } from "./state/Expanded";
+import { getActivitiesByOrder, OrderBy } from "../../data/activity/Algorithms";
 
 type Props = {
   interval: Signal<ClosedInterval>;
   header: Signal<string>;
   filterComponent: Signal<ReactNode | undefined>;
+  orderBy: Signal<OrderBy>;
 };
 
 export const ActivityList = (props: Props) => {
@@ -44,10 +46,10 @@ type ListProps = Props & { height: number; width: number };
 
 const List = (props: ListProps) => {
   const { height, width, ...otherProps } = props;
-  const { interval } = props;
+  const { interval, orderBy } = props;
   const itemData = useItemData(otherProps);
   const innerRef = useRef<HTMLDivElement>();
-  const flipKey = useActivitiesOrderKey(interval);
+  const flipKey = useActivitiesOrderKey(interval, orderBy);
 
   useEffect(() => {
     innerRef.current!.style.minHeight = `${height}px`;
@@ -98,9 +100,9 @@ const innerElementType = forwardRef<
 ));
 
 const useItemData = (props: Props) => {
-  const { header, filterComponent, interval } = props;
+  const { header, filterComponent, interval, orderBy } = props;
   const expandedAll = useExpandedAllSignal();
-  const activities = useActivitiesByDurationPreorder(interval, expandedAll);
+  const activities = useActivities(orderBy, interval, expandedAll);
 
   const theme = useTheme();
   const largeAppBar = useMediaQuery(theme.breakpoints.up("sm"));
@@ -124,6 +126,20 @@ const useItemData = (props: Props) => {
       ] as SingleItemData<ElementType>[],
   );
 };
+
+const useActivities = (
+  orderBy: Signal<OrderBy>,
+  interval: Signal<ClosedInterval>,
+  expandedAll: Signal<Set<string>>,
+) =>
+  useComputed(() =>
+    getActivitiesByOrder(
+      rootActivity,
+      interval.value,
+      expandedAll.value,
+      orderBy,
+    ),
+  );
 
 type HeaderProps = Pick<Props, "header" | "filterComponent">;
 

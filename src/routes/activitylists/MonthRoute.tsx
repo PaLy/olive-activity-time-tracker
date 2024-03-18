@@ -2,14 +2,18 @@ import { ActivityList } from "./ActivityList";
 import { computed, signal } from "@preact/signals-react";
 import moment from "moment";
 import { ChipDatePicker } from "../../components/ChipDatePicker";
+import { OrderBy } from "../../data/activity/Algorithms";
 
 export const MonthRoute = () => (
   <ActivityList
     interval={interval}
     header={header}
     filterComponent={filterComponent}
+    orderBy={orderBy}
   />
 );
+
+const orderBy = signal(OrderBy.Duration);
 
 const header = signal("Month");
 

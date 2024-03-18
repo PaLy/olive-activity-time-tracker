@@ -4,14 +4,18 @@ import { Grid } from "@mui/material";
 import moment from "moment";
 import humanizeDuration from "humanize-duration";
 import { ChipDayPicker } from "../../components/ChipDayPicker";
+import { OrderBy } from "../../data/activity/Algorithms";
 
 export const DateRangeRoute = () => (
   <ActivityList
     interval={interval}
     header={humanizedDuration}
     filterComponent={filterComponent}
+    orderBy={orderBy}
   />
 );
+
+const orderBy = signal(OrderBy.Duration);
 
 const start = signal(moment().subtract(6, "days"));
 const end = signal(moment());

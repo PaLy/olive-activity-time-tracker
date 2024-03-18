@@ -2,13 +2,13 @@ import { computed, signal, Signal, useComputed } from "@preact/signals-react";
 import { Activity, activityStore } from "./Storage";
 import {
   activityFullName,
-  getSubtreeActivityIDsByDuration,
+  getSubtreeActivityIDsByOrder,
   getDuration,
   getNonRootAncestors,
   isSelfInProgress,
   ACTIVITY_FULL_NAME_SEPARATOR,
-  getActivitiesByDurationPreorder,
   getChildActivities,
+  OrderBy,
 } from "./Algorithms";
 
 import { ClosedInterval } from "../interval/ClosedInterval";
@@ -79,22 +79,17 @@ export const useDurationPercentage = (
   );
 };
 
-export const useActivitiesByDurationPreorder = (
+export const useActivitiesOrderKey = (
   filter: Signal<ClosedInterval>,
-  expandedAll: Signal<Set<string>>,
+  orderBy: Signal<OrderBy>,
 ) =>
   useComputed(() =>
-    getActivitiesByDurationPreorder(
+    // should be joined by a character which is not used in any ID
+    getSubtreeActivityIDsByOrder(
       rootActivity,
       filter.value,
-      expandedAll.value,
-    ),
-  );
-
-export const useActivitiesOrderKey = (filter: Signal<ClosedInterval>) =>
-  useComputed(() =>
-    // should be joined by a character which is not used in any ID
-    getSubtreeActivityIDsByDuration(rootActivity, filter.value).join("$"),
+      orderBy.value,
+    ).join("$"),
   );
 
 export const useActivityPath = (
