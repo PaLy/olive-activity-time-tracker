@@ -11,10 +11,15 @@ export type Interval = {
 };
 
 export const toSimpleClosedInterval = (
-  interval: Signal<Interval>,
+  interval: Signal<Omit<Interval, "id">>,
 ): SimpleClosedInterval => {
   const { start, end } = interval.value;
-  const endValue =
-    end.value ?? moment.max(durationRefreshTime.value, start.value);
-  return { start: start.value.valueOf(), end: endValue.valueOf() };
+
+  const endValue = moment.min(
+    end.value ?? durationRefreshTime.value,
+    durationRefreshTime.value,
+  );
+  const startValue = moment.min(start.value, endValue);
+
+  return { start: startValue.valueOf(), end: endValue.valueOf() };
 };

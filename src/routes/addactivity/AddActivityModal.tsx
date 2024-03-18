@@ -38,12 +38,11 @@ export const createCreateActivityState = () => {
   const durationMs = computed(() => {
     const inProgress = intervalToggle.value !== "finished";
 
-    const finalStartTime =
+    const startTimeByToggle =
       intervalToggle.value === "now" ? dialogOpenedTime.value : startTime.value;
 
-    const finalEndTime = inProgress
-      ? moment.max(durationRefreshTime.value, finalStartTime)
-      : endTime.value;
+    const finalEndTime = inProgress ? durationRefreshTime.value : endTime.value;
+    const finalStartTime = moment.min(startTimeByToggle, finalEndTime);
 
     return humanize(finalEndTime.diff(finalStartTime), inProgress);
   });

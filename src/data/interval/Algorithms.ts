@@ -59,14 +59,12 @@ export const humanize = (
   inProgress: boolean,
   full?: boolean,
 ) => {
-  const positiveDuration = Math.max(0, duration);
-
-  return humanizeDuration(positiveDuration, {
+  return humanizeDuration(duration, {
     delimiter: " ",
     largest: inProgress || full ? Infinity : 2,
     round: true,
     units:
-      inProgress || full || positiveDuration < 59.5 * 1000
+      inProgress || full || duration < 59.5 * 1000
         ? ["y", "mo", "w", "d", "h", "m", "s"]
         : ["y", "mo", "w", "d", "h", "m"],
   });
