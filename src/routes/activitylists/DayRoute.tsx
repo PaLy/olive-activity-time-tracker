@@ -2,6 +2,7 @@ import { ActivityList } from "./ActivityList";
 import { computed, signal } from "@preact/signals-react";
 import moment from "moment";
 import { ChipDayPicker } from "../../components/ChipDayPicker";
+import { OrderBy } from "../../data/activity/Algorithms";
 
 /**
  * TODO don't display play buttons? (if activity has started today, it will still have a play button)
@@ -11,8 +12,11 @@ export const DayRoute = () => (
     interval={interval}
     header={header}
     filterComponent={filterComponent}
+    orderBy={orderBy}
   />
 );
+
+const orderBy = signal(OrderBy.Duration);
 
 const header = signal("Day");
 

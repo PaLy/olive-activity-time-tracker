@@ -39,6 +39,21 @@ export const getIntervalsDuration = (
   return durationMs;
 };
 
+export const getLastEndTime = (
+  intervalIds: string[],
+  filter: ClosedInterval,
+): number | undefined => {
+  return chain(intervalIds)
+    .map((id) => intervals.value.get(id)!)
+    .map(toSimpleClosedInterval)
+    .filter((interval) =>
+      overlaps(interval, { start: filter.start.value, end: filter.end.value }),
+    )
+    .map((interval) => interval.end)
+    .max()
+    .value();
+};
+
 export const humanize = (
   duration: number,
   inProgress: boolean,
