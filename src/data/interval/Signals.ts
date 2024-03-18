@@ -9,7 +9,7 @@ import { intervalStore } from "./Storage";
 import moment from "moment/moment";
 
 import { humanize, intervalsGroupedByDay } from "./Algorithms";
-import { Interval } from "./Interval";
+import { Interval, toSimpleClosedInterval } from "./Interval";
 import { Activity } from "../activity/Storage";
 
 export const intervals = computed(() => intervalStore.collection.value);
@@ -34,11 +34,9 @@ export const useIntervalDuration = (
   full?: boolean,
 ) =>
   useComputed(() => {
-    const { start, end } = interval.value;
-    const inProgress = end.value === null;
-    const duration = (
-      end.value ?? moment.max(durationRefreshTime.value, start.value)
-    ).diff(start.value);
+    const inProgress = interval.value.end.value === null;
+    const { start, end } = toSimpleClosedInterval(interval);
+    const duration = end - start;
     return humanize(duration, inProgress, full);
   });
 
