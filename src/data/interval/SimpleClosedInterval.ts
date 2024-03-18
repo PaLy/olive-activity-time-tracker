@@ -13,7 +13,7 @@ export const join = (intervals: SimpleClosedInterval[]) =>
       const last = joined.slice(-1)[0];
       if (current.start <= last.end) {
         if (current.end > last.end) {
-          // current partially overlaps the last
+          // the current partially overlaps the last
           joined.pop();
           joined.push({ start: last.start, end: current.end });
         } else {
