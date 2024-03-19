@@ -127,10 +127,9 @@ export const getActivitiesByOrder = (
   return getChildActivitiesByOrder(activity, filter, orderBy.value).flatMap(
     (child) => {
       if (expanded.has(child.value.id)) {
-        return [
-          child,
-          ...getActivitiesByOrder(child, filter, expanded, orderBy),
-        ];
+        return [child].concat(
+          getActivitiesByOrder(child, filter, expanded, orderBy),
+        );
       } else {
         return [child];
       }
@@ -138,14 +137,14 @@ export const getActivitiesByOrder = (
   );
 };
 
-export const getSubtreeActivityIDsByOrder = (
-  subtreeRoot: Signal<Activity>,
+export const getActivityIDsByOrder = (
+  activity: Signal<Activity>,
   filter: ClosedInterval,
   orderBy: OrderBy,
 ): string[] =>
-  [subtreeRoot.value.id].concat(
-    getChildActivitiesByOrder(subtreeRoot, filter, orderBy).flatMap((child) =>
-      getSubtreeActivityIDsByOrder(child, filter, orderBy),
+  [activity.value.id].concat(
+    getChildActivitiesByOrder(activity, filter, orderBy).flatMap((child) =>
+      getActivityIDsByOrder(child, filter, orderBy),
     ),
   );
 
