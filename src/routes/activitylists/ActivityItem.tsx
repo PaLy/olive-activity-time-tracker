@@ -41,12 +41,19 @@ export const ActivityItem = (props: ActivityItemProps) => {
   const childrenCount = useChildrenCount(activity, interval);
   const Component =
     childrenCount.value === 0 ? LeafActivityItem : ParentActivityItem;
-  return <Component {...props} />;
+
+  return (
+    <Flipped flipId={activity.value.id}>
+      <div>
+        <Component {...props} />
+      </div>
+    </Flipped>
+  );
 };
 
 const ParentActivityItem = (props: ActivityItemProps) => {
   const { activity, interval } = props;
-  const { name, id } = activity.value;
+  const { name } = activity.value;
   const activityPL = useActivityPL(activity);
   const expanded = useExpanded(activity);
   const setExpanded = useSetExpanded();
@@ -55,69 +62,54 @@ const ParentActivityItem = (props: ActivityItemProps) => {
   const Expander = expanded ? ExpandLess : ExpandMore;
 
   return (
-    <>
-      <Flipped flipId={id}>
-        <div>
-          <ListItemButton
-            sx={{ pl: activityPL, pr: 0 }}
-            onClick={() => setExpanded({ activity, expanded: !expanded })}
+    <ListItemButton
+      sx={{ pl: activityPL, pr: 0 }}
+      onClick={() => setExpanded({ activity, expanded: !expanded })}
+    >
+      <ActivityAvatar activity={activity} />
+      <ListItemText
+        primary={
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              flexWrap: "wrap",
+            }}
           >
-            <ActivityAvatar activity={activity} />
-            <ListItemText
-              primary={
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    flexWrap: "wrap",
-                  }}
-                >
-                  <Expander
-                    viewBox={"5 0 13 24"}
-                    sx={{ width: "initial", mr: 1 }}
-                  />
-                  <span>
-                    {name.value +
-                      (expanded || childrenCount.value === 0
-                        ? ""
-                        : ` (${childrenCount.value})`)}
-                  </span>
-                </div>
-              }
-              secondary={
-                <ActivityRow2 activity={activity} interval={interval} />
-              }
-            />
-            <ListItemIcon>
-              <StartStopButton activity={activity} />
-            </ListItemIcon>
-          </ListItemButton>
-        </div>
-      </Flipped>
-    </>
+            <Expander viewBox={"5 0 13 24"} sx={{ width: "initial", mr: 1 }} />
+            <span>
+              {name.value +
+                (expanded || childrenCount.value === 0
+                  ? ""
+                  : ` (${childrenCount.value})`)}
+            </span>
+          </div>
+        }
+        secondary={<ActivityRow2 activity={activity} interval={interval} />}
+      />
+      <ListItemIcon>
+        <StartStopButton activity={activity} />
+      </ListItemIcon>
+    </ListItemButton>
   );
 };
 
 const LeafActivityItem = (props: ActivityItemProps) => {
   const { activity, interval } = props;
-  const { name, id } = activity.value;
+  const { name } = activity.value;
   const activityPL = useActivityPL(activity);
 
   return (
-    <Flipped flipId={id}>
-      <div>
-        <ListItem sx={{ pl: activityPL, pr: 0 }}>
-          <ActivityAvatar activity={activity} />
-          <ListItemText
-            primary={name}
-            secondary={<ActivityRow2 activity={activity} interval={interval} />}
-          />
-          <ListItemIcon>
-            <StartStopButton activity={activity} />
-          </ListItemIcon>
-        </ListItem>
-      </div>
-    </Flipped>
+    <ListItem sx={{ pl: activityPL, pr: 0 }}>
+      <ActivityAvatar activity={activity} />
+      <ListItemText
+        primary={name}
+        secondary={<ActivityRow2 activity={activity} interval={interval} />}
+      />
+      <ListItemIcon>
+        <StartStopButton activity={activity} />
+      </ListItemIcon>
+    </ListItem>
   );
 };
 

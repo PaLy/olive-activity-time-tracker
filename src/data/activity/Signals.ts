@@ -2,7 +2,7 @@ import { computed, signal, Signal, useComputed } from "@preact/signals-react";
 import { Activity, activityStore } from "./Storage";
 import {
   activityFullName,
-  getSubtreeActivityIDsByOrder,
+  getActivityIDsByOrder,
   getDuration,
   getNonRootAncestors,
   isSelfInProgress,
@@ -84,12 +84,10 @@ export const useActivitiesOrderKey = (
   orderBy: Signal<OrderBy>,
 ) =>
   useComputed(() =>
-    // should be joined by a character which is not used in any ID
-    getSubtreeActivityIDsByOrder(
-      rootActivity,
-      filter.value,
-      orderBy.value,
-    ).join("$"),
+    // Should be joined by a character which is not used in any ID.
+    // Collapsed activities are used to create the key as well to disable flip animation on expand/collapse,
+    // which doesn't look nice.
+    getActivityIDsByOrder(rootActivity, filter.value, orderBy.value).join("$"),
   );
 
 export const useActivityPath = (
