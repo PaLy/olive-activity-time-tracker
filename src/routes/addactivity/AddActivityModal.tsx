@@ -9,7 +9,11 @@ import { humanize } from "../../data/interval/Algorithms";
 import { FullScreenModalHeader } from "../../components/FullScreenModalHeader";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import SaveIcon from "@mui/icons-material/Save";
-import { activities, rootActivity } from "../../data/activity/Signals";
+import {
+  activities,
+  anyActivityLogged,
+  rootActivity,
+} from "../../data/activity/Signals";
 import { Interval } from "../../data/interval/Interval";
 import { nanoid } from "nanoid";
 import { addInterval } from "../../data/interval/Update";
@@ -28,7 +32,9 @@ export const createCreateActivityState = () => {
   const startTimeError = signal("");
   const endTime = signal(moment().seconds(0).milliseconds(0));
   const endTimeError = signal("");
-  const nameToggle = signal<"new" | "existing">("new");
+  const nameToggle = signal<"new" | "existing">(
+    anyActivityLogged.value ? "existing" : "new",
+  );
   const name = signal("");
   const nameError = signal("");
   const parentActivity = signal<Activity | null>(null);

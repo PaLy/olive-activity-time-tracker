@@ -30,8 +30,8 @@ export const Name = (props: Props) => {
           }}
           aria-label="new or existing name toggle"
         >
-          <ToggleButton value="new">New</ToggleButton>
           <ToggleButton value="existing">Existing</ToggleButton>
+          <ToggleButton value="new">New</ToggleButton>
         </ToggleButtonGroup>
       </Box>
       {toggle.value === "new" && (

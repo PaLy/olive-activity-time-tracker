@@ -122,3 +122,5 @@ export const parentActivities = computed(() =>
     (activity) => activity.value.childIDs.value.length > 0,
   ),
 );
+
+export const anyActivityLogged = computed(() => activities.value.size > 1);
