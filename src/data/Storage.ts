@@ -1,8 +1,16 @@
 import { batch, effect, signal } from "@preact/signals-react";
-import { activityStore } from "./activity/Storage";
-import { intervalStore } from "./interval/Storage";
-import { Validator } from "jsonschema";
 import {
+  activityStore,
+  STORE_NAME_ACTIVITIES,
+  StoredActivity,
+} from "./activity/Storage";
+import {
+  ExportedInterval,
+  intervalStore,
+  STORE_NAME_INTERVALS,
+} from "./interval/Storage";
+import {
+  ActivityInListExpanded,
   clearActivityInListExpanded,
   exportActivityInListExpanded,
   importActivityInListExpanded,
@@ -14,10 +22,12 @@ import {
   exportSettings,
   importSettings,
   jsonSchemaSettings,
+  Settings,
   STORE_NAME_SETTINGS,
 } from "./settings/Settings";
+import Ajv, { JTDSchemaType } from "ajv/dist/jtd";
 
-const stores = [intervalStore, activityStore];
+const stores = [intervalStore, activityStore] as const;
 
 export const dbLoading = signal<"not-started" | "in-progress" | "finished">(
   "not-started",
@@ -49,10 +59,14 @@ function loadDB() {
 const dbLoadListeners: (() => void)[] = [];
 
 export async function afterDBLoaded<T>(callback: () => Promise<T>) {
+  await waitForDBLoaded();
+  return callback();
+}
+
+export async function waitForDBLoaded() {
   if (dbLoading.value !== "finished") {
     await new Promise((resolve) => dbLoadListeners.push(() => resolve(void 0)));
   }
-  return callback();
 }
 
 export async function clearDB() {
@@ -68,62 +82,52 @@ export async function clearDB() {
 }
 
 export async function exportDB() {
-  return {
-    stores: await Promise.all(stores.map((store) => store.export())),
+  const data = {
+    [STORE_NAME_ACTIVITIES]: await activityStore.export(),
+    [STORE_NAME_INTERVALS]: await intervalStore.export(),
     [STORE_NAME_ACTIVITY_IN_LIST_EXPANDED]:
       await exportActivityInListExpanded(),
     [STORE_NAME_SETTINGS]: await exportSettings(),
   };
+  return JSON.stringify(data, null, 2);
 }
 
-const jsonSchema = {
-  type: "object",
+type DBData = {
+  [STORE_NAME_ACTIVITIES]: StoredActivity[];
+  [STORE_NAME_INTERVALS]: ExportedInterval[];
+  [STORE_NAME_ACTIVITY_IN_LIST_EXPANDED]: ActivityInListExpanded;
+  [STORE_NAME_SETTINGS]: Settings;
+};
+
+const jsonSchema: JTDSchemaType<DBData> = {
   properties: {
-    stores: {
-      type: "array",
-      prefixItems: stores.map((store) => store.jsonSchema()),
-    },
+    [STORE_NAME_ACTIVITIES]: activityStore.valueJsonSchema,
+    [STORE_NAME_INTERVALS]: intervalStore.valueJsonSchema,
     [STORE_NAME_ACTIVITY_IN_LIST_EXPANDED]: jsonSchemaActivityInListExpanded(),
     [STORE_NAME_SETTINGS]: jsonSchemaSettings(),
   },
 };
 
-export async function importDB(jsonFile: File) {
-  const json = await parseJSON(jsonFile);
-  if (json) {
-    const validator = new Validator();
-    const { instance, errors, valid } = validator.validate(json, jsonSchema);
-    if (valid) {
-      await clearDB();
-      if (instance[STORE_NAME_ACTIVITY_IN_LIST_EXPANDED]) {
-        await importActivityInListExpanded(
-          instance[STORE_NAME_ACTIVITY_IN_LIST_EXPANDED],
-        );
-      }
-      if (instance[STORE_NAME_SETTINGS]) {
-        await importSettings(instance[STORE_NAME_SETTINGS]);
-      }
-      await Promise.all(
-        stores.map((store, i) => store.import(instance.stores[i].data)),
-      ).then((updateStoreSignals) => {
-        batch(() => {
-          updateStoreSignals.forEach((update) => update());
-        });
+export async function importDB(json: string) {
+  const ajv = new Ajv({ verbose: process.env.NODE_ENV !== "production" });
+  const parse = ajv.compileParser(jsonSchema);
+  const dbData = parse(json);
+  if (dbData) {
+    await clearDB();
+    await importActivityInListExpanded(
+      dbData[STORE_NAME_ACTIVITY_IN_LIST_EXPANDED],
+    );
+    await importSettings(dbData[STORE_NAME_SETTINGS]);
+    await Promise.all([
+      activityStore.import(dbData[STORE_NAME_ACTIVITIES]),
+      intervalStore.import(dbData[STORE_NAME_INTERVALS]),
+    ]).then((updateStoreSignals) => {
+      batch(() => {
+        updateStoreSignals.forEach((update) => update());
       });
-      return { valid: true };
-    } else {
-      return { errors, valid };
-    }
+    });
+    return { valid: true };
   } else {
-    return { valid: false };
-  }
-}
-
-async function parseJSON(jsonFile: File) {
-  const text = await jsonFile.text();
-  try {
-    return JSON.parse(text);
-  } catch (e) {
-    return null;
+    return { errors: `${parse.message}::${parse.position}`, valid: false };
   }
 }

@@ -2,11 +2,18 @@ import { signal } from "@preact/signals-react";
 import moment from "moment";
 import { Interval } from "./Interval";
 import { SignalStore } from "../SignalStore";
-import { dateSchema } from "../JsonSchema";
+import { dateTimeSchema } from "../JsonSchema";
+import { JTDSchemaType } from "ajv/dist/jtd";
 
-class IntervalStore extends SignalStore<StoredInterval, Interval> {
+export const STORE_NAME_INTERVALS = "intervals";
+
+class IntervalStore extends SignalStore<
+  StoredInterval,
+  Interval,
+  ExportedInterval
+> {
   constructor() {
-    super({ name: "interval" });
+    super({ name: STORE_NAME_INTERVALS });
   }
 
   asValue = (interval: StoredInterval): Interval => {
@@ -17,14 +24,14 @@ class IntervalStore extends SignalStore<StoredInterval, Interval> {
     };
   };
 
-  valueJsonSchema = {
-    type: "object",
-    properties: {
-      id: { type: "string" },
-      start: dateSchema,
-      end: dateSchema,
+  valueJsonSchema: JTDSchemaType<ExportedInterval[]> = {
+    elements: {
+      properties: {
+        id: { type: "string" },
+        start: dateTimeSchema,
+        end: dateTimeSchema,
+      },
     },
-    required: ["id", "start"],
   };
 
   asStoredValue = (interval: Interval): StoredInterval => {
@@ -35,13 +42,27 @@ class IntervalStore extends SignalStore<StoredInterval, Interval> {
     };
   };
 
-  override asExportedValue = (interval: StoredInterval): StoredInterval => {
+  override asExportedValue = (interval: StoredInterval): ExportedInterval => {
     const { id, start, end } = interval;
     return {
       id,
-      start,
-      end: end ?? moment().valueOf(),
+      start: moment(start).toJSON(),
+      end: (end ? moment(end) : moment()).toJSON(),
     };
+  };
+
+  override fromExportedValue = (
+    interval: ExportedInterval,
+  ): [string, StoredInterval] => {
+    const { id, start, end } = interval;
+    return [
+      id,
+      {
+        id,
+        start: moment(start).valueOf(),
+        end: moment(end).valueOf(),
+      },
+    ];
   };
 }
 
@@ -51,4 +72,10 @@ type StoredInterval = {
   id: string;
   start: number;
   end: number | null;
+};
+
+export type ExportedInterval = {
+  id: string;
+  start: string;
+  end: string;
 };

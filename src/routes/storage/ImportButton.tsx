@@ -29,14 +29,12 @@ const handleFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
   resultOpen.value = false;
   const file = event.target.files?.[0];
   if (file) {
+    const fileText = await file.text();
     try {
-      const { valid, errors } = await importDB(file);
+      const { valid, errors } = await importDB(fileText);
       if (!valid) {
         error.value = "Invalid JSON";
-        console.error(
-          "Invalid JSON:",
-          errors?.map((e) => e.message).join("\n"),
-        );
+        console.error("Invalid JSON:", errors);
       }
     } catch (e) {
       console.error(e);
