@@ -1,4 +1,6 @@
 import localforage from "localforage";
+import { JTDSchemaType } from "ajv/dist/jtd";
+import { cloneDeep } from "lodash";
 
 export const STORE_NAME_SETTINGS = "settings";
 
@@ -16,7 +18,7 @@ export const getActivityList = () =>
 export const setActivityList = (activityList: ActivityList) =>
   store.setItem<ActivityList>(Keys.activityList, activityList);
 
-type Settings = {
+export type Settings = {
   activityList: ActivityList;
 };
 
@@ -59,7 +61,7 @@ export const DEFAULT_SETTINGS: Settings = {
 };
 
 export const exportSettings = async () => {
-  const result: Record<string, unknown> = {};
+  const result: Record<string, unknown> = cloneDeep(DEFAULT_SETTINGS);
   await store.iterate((value, key) => {
     result[key] = value;
   });
@@ -69,22 +71,21 @@ export const exportSettings = async () => {
 export const clearSettings = () => store.clear();
 
 export const importSettings = async (exportedSettings: Settings) => {
-  await setActivityList(exportedSettings.activityList);
+  if (exportedSettings.activityList) {
+    await setActivityList(exportedSettings.activityList);
+  }
 };
 
-export const jsonSchemaSettings = () => ({
-  type: "object",
+export const jsonSchemaSettings = (): JTDSchemaType<Settings> => ({
   properties: {
     activityList: {
-      type: "object",
       properties: {
         showPercentage: { type: "boolean" },
         showCost: {
-          type: "object",
           properties: {
             show: { type: "boolean" },
             perHour: { type: "string" },
-            currency: { type: "string" },
+            currency: { enum: Object.values(Currency) },
           },
         },
         showDuration: { type: "boolean" },

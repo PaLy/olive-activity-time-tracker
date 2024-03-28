@@ -1,4 +1,5 @@
 import localforage from "localforage";
+import { stringArray } from "../JsonSchema";
 
 export const STORE_NAME_ACTIVITY_IN_LIST_EXPANDED = "activityInListExpanded";
 
@@ -19,22 +20,19 @@ export const getExpanded = (activityID: string) =>
 
 export const getAllExpanded = () => store.keys();
 
-type ExportedData = string[];
+export type ActivityInListExpanded = string[];
 
 export const exportActivityInListExpanded = async () => {
   const keys = await getAllExpanded();
-  return keys as ExportedData;
+  return keys as ActivityInListExpanded;
 };
 
 export const clearActivityInListExpanded = () => store.clear();
 
 export const importActivityInListExpanded = async (
-  exportedData: ExportedData,
+  exportedData: ActivityInListExpanded,
 ) => {
   await Promise.all(exportedData.map((id) => setExpanded(id, true)));
 };
 
-export const jsonSchemaActivityInListExpanded = () => ({
-  type: "array",
-  items: { type: "string" },
-});
+export const jsonSchemaActivityInListExpanded = () => stringArray;

@@ -1,10 +1,17 @@
 import { Signal, signal } from "@preact/signals-react";
 import { SignalStore } from "../SignalStore";
 import { stringArray } from "../JsonSchema";
+import { JTDSchemaType } from "ajv/dist/jtd";
 
-class ActivityStore extends SignalStore<StoredActivity, Activity> {
+export const STORE_NAME_ACTIVITIES = "activities";
+
+class ActivityStore extends SignalStore<
+  StoredActivity,
+  Activity,
+  StoredActivity
+> {
   constructor() {
-    super({ name: "activity" });
+    super({ name: STORE_NAME_ACTIVITIES });
   }
 
   asValue = (activity: StoredActivity): Activity => {
@@ -27,16 +34,16 @@ class ActivityStore extends SignalStore<StoredActivity, Activity> {
     };
   };
 
-  valueJsonSchema = {
-    type: "object",
-    properties: {
-      id: { type: "string" },
-      name: { type: "string" },
-      intervalIDs: stringArray,
-      parentID: { type: "string" },
-      childIDs: stringArray,
+  valueJsonSchema: JTDSchemaType<StoredActivity[]> = {
+    elements: {
+      properties: {
+        id: { type: "string" },
+        name: { type: "string" },
+        intervalIDs: stringArray,
+        parentID: { type: "string" },
+        childIDs: stringArray,
+      },
     },
-    required: ["id", "name", "intervalIDs", "parentID", "childIDs"],
   };
 
   override afterLoaded = () => {
@@ -65,6 +72,10 @@ class ActivityStore extends SignalStore<StoredActivity, Activity> {
   override asExportedValue = (activity: StoredActivity) => {
     return activity.id === "root" ? null : activity;
   };
+
+  override fromExportedValue = (
+    activity: StoredActivity,
+  ): [string, StoredActivity] => [activity.id, activity];
 }
 
 export const activityStore = new ActivityStore();
@@ -77,7 +88,7 @@ export type Activity = {
   childIDs: Signal<string[]>;
 };
 
-type StoredActivity = {
+export type StoredActivity = {
   id: string;
   name: string;
   intervalIDs: string[];

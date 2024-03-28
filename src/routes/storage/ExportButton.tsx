@@ -3,6 +3,7 @@ import FileDownloadIcon from "@mui/icons-material/FileDownload";
 import { exportDB } from "../../data/Storage";
 import { saveAs } from "file-saver";
 import { signal } from "@preact/signals-react";
+import moment from "moment";
 
 export const ExportButton = () => {
   return (
@@ -12,9 +13,9 @@ export const ExportButton = () => {
         startIcon={<FileDownloadIcon />}
         onClick={async () => {
           // TODO warning about in-progress activities
-          const data = await exportDB();
-          const json = JSON.stringify(data, null, 2);
-          const filename = "activities.json";
+          const json = await exportDB();
+          const dateTime = moment().format("YYYYMMDDHHmm");
+          const filename = `activities_${dateTime}.json`;
           if (window.Android) {
             const result = window.Android.export(json, filename);
             if (result === "error") {

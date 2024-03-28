@@ -1,8 +1,13 @@
 import { effect, Signal, signal } from "@preact/signals-react";
 import localforage from "localforage";
 import { produce } from "immer";
+import { JTDSchemaType } from "ajv/dist/jtd";
 
-export abstract class SignalStore<StoredValue, Value> {
+export abstract class SignalStore<
+  StoredValue,
+  Value,
+  ExportedValue = StoredValue,
+> {
   private store;
   private valueUpdaterDisposes = new Map<string, () => void>();
   collection = signal(new Map<string, Signal<Value>>());
@@ -16,9 +21,12 @@ export abstract class SignalStore<StoredValue, Value> {
 
   abstract asValue: (storedValue: StoredValue) => Value;
   abstract asStoredValue: (value: Value) => StoredValue;
-  abstract valueJsonSchema: unknown;
+  abstract asExportedValue: (value: StoredValue) => ExportedValue | null;
+  abstract fromExportedValue: (
+    value: ExportedValue,
+  ) => [key: string, StoredValue];
+  abstract valueJsonSchema: JTDSchemaType<ExportedValue[]>;
 
-  asExportedValue = (value: StoredValue): StoredValue | null => value;
   afterLoaded = () => {};
 
   load = async () => {
@@ -82,25 +90,22 @@ export abstract class SignalStore<StoredValue, Value> {
   };
 
   export = async () => {
-    const result: {
-      storeName: string;
-      data: { key: string; value: StoredValue }[];
-    } = { storeName: this.name, data: [] };
+    const result: ExportedValue[] = [];
 
     // TODO error handling
     await this.store.iterate((storedValue: StoredValue, key) => {
       const exportedValue = this.asExportedValue(storedValue);
       if (exportedValue) {
-        result.data.push({ key, value: exportedValue });
+        result.push(exportedValue);
       }
     });
 
     return result;
   };
 
-  import = async (data: { key: string; value: StoredValue }[]) => {
+  import = async (data: ExportedValue[]) => {
     await Promise.all(
-      data.map(({ key, value }) => this.store.setItem(key, value)),
+      data.map((value) => this.store.setItem(...this.fromExportedValue(value))),
     ).catch(() => {
       // TODO clean so far imported?
     });

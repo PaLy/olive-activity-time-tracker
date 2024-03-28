@@ -1,12 +1,11 @@
-export const dateSchema = {
-  type: "integer",
-  minimum: -8_640_000_000_000_000,
-  maximum: 8_640_000_000_000_000,
+import { JTDSchemaType } from "ajv/dist/jtd";
+
+export const dateTimeSchema: JTDSchemaType<string> = {
+  type: "timestamp",
 };
 
-export const stringArray = {
-  type: "array",
-  items: {
+export const stringArray: JTDSchemaType<string[]> = {
+  elements: {
     type: "string",
   },
 };
