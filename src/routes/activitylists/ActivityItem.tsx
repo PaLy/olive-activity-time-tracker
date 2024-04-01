@@ -143,6 +143,7 @@ type StartStopActivityProps = {
 
 const StartStopButton = (props: StartStopActivityProps) => {
   const { activity } = props;
+  const setExpanded = useSetExpanded();
   const inProgress = useInProgress(activity);
   const ariaLabel = inProgress.value ? "stop activity" : "start activity";
 
@@ -152,7 +153,12 @@ const StartStopButton = (props: StartStopActivityProps) => {
       onClick={(event) => {
         // stops ListItemButton click
         event.stopPropagation();
-        inProgress.value ? stopActivity(activity) : startActivity(activity);
+        if (inProgress.value) {
+          stopActivity(activity);
+          setExpanded({ activity, expanded: false });
+        } else {
+          startActivity(activity);
+        }
       }}
       // stops ListItemButton click effect
       onMouseDown={(event) => event.stopPropagation()}
