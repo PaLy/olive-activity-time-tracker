@@ -1,6 +1,6 @@
 import { Alert, Button, Snackbar } from "@mui/material";
 import FileUploadIcon from "@mui/icons-material/FileUpload";
-import { ChangeEvent } from "react";
+import { ChangeEvent, useEffect } from "react";
 import { importDB } from "../../data/Storage";
 import { signal } from "@preact/signals-react";
 
@@ -51,19 +51,28 @@ const handleFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
 const resultOpen = signal(false);
 const error = signal("");
 
-const Result = () => (
-  <Snackbar
-    open={resultOpen.value}
-    autoHideDuration={6000}
-    onClose={() => (resultOpen.value = false)}
-    TransitionProps={{ onExited: () => (error.value = "") }}
-  >
-    <Alert
+const Result = () => {
+  useEffect(() => {
+    return () => {
+      resultOpen.value = false;
+      error.value = "";
+    };
+  }, []);
+
+  return (
+    <Snackbar
+      open={resultOpen.value}
+      autoHideDuration={6000}
       onClose={() => (resultOpen.value = false)}
-      severity={error.value ? "error" : "success"}
-      sx={{ width: "100%" }}
+      TransitionProps={{ onExited: () => (error.value = "") }}
     >
-      {error.value || "Data successfully imported"}
-    </Alert>
-  </Snackbar>
-);
+      <Alert
+        onClose={() => (resultOpen.value = false)}
+        severity={error.value ? "error" : "success"}
+        sx={{ width: "100%" }}
+      >
+        {error.value || "Data successfully imported"}
+      </Alert>
+    </Snackbar>
+  );
+};

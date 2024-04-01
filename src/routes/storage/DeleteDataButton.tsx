@@ -10,6 +10,7 @@ import {
 } from "@mui/material";
 import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 import { clearDB } from "../../data/Storage";
+import { useEffect } from "react";
 
 const deleteFlowStep = signal<
   "not-started" | "confirm" | "in-progress" | "result"
@@ -58,19 +59,28 @@ const Confirmation = () => (
   </Dialog>
 );
 
-const Result = () => (
-  <Snackbar
-    open={deleteFlowStep.value === "result"}
-    autoHideDuration={6000}
-    onClose={closeDeleteSnackbar}
-    TransitionProps={{ onExited: () => (deleteError.value = "") }}
-  >
-    <Alert
+const Result = () => {
+  useEffect(() => {
+    return () => {
+      closeDeleteSnackbar();
+      deleteError.value = "";
+    };
+  }, []);
+
+  return (
+    <Snackbar
+      open={deleteFlowStep.value === "result"}
+      autoHideDuration={6000}
       onClose={closeDeleteSnackbar}
-      severity={deleteError.value ? "error" : "success"}
-      sx={{ width: "100%" }}
+      TransitionProps={{ onExited: () => (deleteError.value = "") }}
     >
-      {deleteError.value || "Data successfully deleted"}
-    </Alert>
-  </Snackbar>
-);
+      <Alert
+        onClose={closeDeleteSnackbar}
+        severity={deleteError.value ? "error" : "success"}
+        sx={{ width: "100%" }}
+      >
+        {deleteError.value || "Data successfully deleted"}
+      </Alert>
+    </Snackbar>
+  );
+};

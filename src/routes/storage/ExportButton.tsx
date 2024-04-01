@@ -4,6 +4,7 @@ import { exportDB } from "../../data/Storage";
 import { saveAs } from "file-saver";
 import { signal } from "@preact/signals-react";
 import moment from "moment";
+import { useEffect } from "react";
 
 export const ExportButton = () => {
   return (
@@ -38,18 +39,26 @@ export const ExportButton = () => {
 
 const androidError = signal(false);
 
-const AndroidError = () => (
-  <Snackbar
-    open={androidError.value}
-    autoHideDuration={6000}
-    onClose={() => (androidError.value = false)}
-  >
-    <Alert
+const AndroidError = () => {
+  useEffect(() => {
+    return () => {
+      androidError.value = false;
+    };
+  }, []);
+
+  return (
+    <Snackbar
+      open={androidError.value}
+      autoHideDuration={6000}
       onClose={() => (androidError.value = false)}
-      severity={"error"}
-      sx={{ width: "100%" }}
     >
-      Failed to export
-    </Alert>
-  </Snackbar>
-);
+      <Alert
+        onClose={() => (androidError.value = false)}
+        severity={"error"}
+        sx={{ width: "100%" }}
+      >
+        Failed to export
+      </Alert>
+    </Snackbar>
+  );
+};
