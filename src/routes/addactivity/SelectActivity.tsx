@@ -3,6 +3,7 @@ import { computed, Signal } from "@preact/signals-react";
 import { Activity } from "../../data/activity/Storage";
 import {
   activityFullNames,
+  inProgressActivities,
   nonRootActivities,
 } from "../../data/activity/Signals";
 import { chain } from "lodash";
@@ -29,6 +30,7 @@ export const SelectActivity = (props: Props) => {
       filterOptions={filter}
       handleHomeEndKeys
       options={options.value}
+      getOptionDisabled={(activity) => inProgressActivities.value.has(activity)}
       getOptionLabel={(option) => activityFullNames.value.get(option.id)!}
       renderOption={(props, option) => (
         <li {...props}>{activityFullNames.value.get(option.id)}</li>

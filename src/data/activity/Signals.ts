@@ -41,7 +41,8 @@ export const inProgressActivities = computed(
         .flatMap((inProgressActivity) => [
           inProgressActivity,
           ...getNonRootAncestors(inProgressActivity),
-        ]),
+        ])
+        .map((activity) => activity.value),
     ),
 );
 
@@ -50,11 +51,7 @@ export const inProgressActivitiesCount = computed(
 );
 
 export const useInProgress = (activity: Signal<Activity>) =>
-  useComputed(() =>
-    [...inProgressActivities.value.values()].some(
-      (a) => a.value === activity.value,
-    ),
-  );
+  useComputed(() => inProgressActivities.value.has(activity.value));
 
 export const useParentActivity = (activity: Signal<Activity>) =>
   useComputed(() => activities.value.get(activity.value.parentID.value)!.value);
