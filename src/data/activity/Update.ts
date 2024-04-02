@@ -31,7 +31,7 @@ export const stopActivity = (activity: Signal<Activity>) => {
     const parentID = activity.value.parentID.value;
     if (parentID !== rootActivity.value.id) {
       const parent = activities.value.get(parentID)!;
-      if (!inProgressActivities.value.has(parent)) {
+      if (!inProgressActivities.value.has(parent.value)) {
         startActivity(parent);
       }
     }
