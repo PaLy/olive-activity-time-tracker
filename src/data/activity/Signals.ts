@@ -1,16 +1,15 @@
 import { computed, signal, Signal, useComputed } from "@preact/signals-react";
 import { Activity, activityStore } from "./Storage";
 import {
+  ACTIVITY_FULL_NAME_SEPARATOR,
   activityFullName,
   getActivityIDsByOrder,
+  getChildActivities,
   getDuration,
   getNonRootAncestors,
   isSelfInProgress,
-  ACTIVITY_FULL_NAME_SEPARATOR,
-  getChildActivities,
   OrderBy,
 } from "./Algorithms";
-
 import { ClosedInterval } from "../interval/ClosedInterval";
 
 export const activities = computed(() => activityStore.collection.value);
@@ -79,12 +78,16 @@ export const useDurationPercentage = (
 export const useActivitiesOrderKey = (
   filter: Signal<ClosedInterval>,
   orderBy: Signal<OrderBy>,
+  expandedAll: Signal<Set<string>>,
 ) =>
   useComputed(() =>
     // Should be joined by a character which is not used in any ID.
-    // Collapsed activities are used to create the key as well to disable flip animation on expand/collapse,
-    // which doesn't look nice.
-    getActivityIDsByOrder(rootActivity, filter.value, orderBy.value).join("$"),
+    getActivityIDsByOrder(
+      rootActivity,
+      filter.value,
+      orderBy.value,
+      expandedAll,
+    ).join("$"),
   );
 
 export const useActivityPath = (
