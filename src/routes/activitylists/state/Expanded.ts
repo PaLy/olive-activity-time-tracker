@@ -88,10 +88,10 @@ export function useCollapseAll() {
   return () => setExpandedAll(false);
 }
 
-export function useExpandPathToRoot() {
+export function useExpandChildrenPathToRoot() {
   const setExpanded = useSetExpanded();
-  return (activity: Activity) => {
-    let currentActivity = activities.value.get(activity.parentID.value)!;
+  return (activity: Signal<Activity>) => {
+    let currentActivity = activity;
     while (currentActivity.value !== rootActivity.value) {
       setExpanded({ activity: currentActivity, expanded: true });
       currentActivity = activities.value.get(

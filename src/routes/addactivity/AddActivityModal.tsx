@@ -21,7 +21,7 @@ import { addActivity } from "../../data/activity/Update";
 import { useLocation } from "../Router";
 import { FullScreenModal } from "../../components/FullScreenModal";
 import { Box } from "@mui/material";
-import { useExpandPathToRoot } from "../activitylists/state/Expanded";
+import { useExpandChildrenPathToRoot } from "../activitylists/state/Expanded";
 
 export const createCreateActivityState = () => {
   const dialogOpenedTime = signal(moment());
@@ -85,7 +85,7 @@ const Content = () => {
   const state = useSignal(createCreateActivityState()).value;
   const { intervalToggle } = state;
   const navigate = useNavigate();
-  const expandPathToRoot = useExpandPathToRoot();
+  const expandPathToRoot = useExpandChildrenPathToRoot();
 
   return (
     <>
@@ -174,13 +174,12 @@ const createActivity = (state: CreateActivityState) => {
         intervalIDs: signal([newInterval.id]),
         childIDs: signal([]),
       };
-      addActivity(newActivity);
-      return newActivity;
+      return addActivity(newActivity);
     } else {
       if (existingActivity.value) {
-        const activity = activities.value.get(existingActivity.value.id)!.value;
-        activity.intervalIDs.value = [
-          ...activity.intervalIDs.value,
+        const activity = activities.value.get(existingActivity.value.id)!;
+        activity.value.intervalIDs.value = [
+          ...activity.value.intervalIDs.value,
           newInterval.id,
         ];
         return activity;

@@ -158,6 +158,7 @@ const StartStopButton = (props: StartStopActivityProps) => {
           setExpanded({ activity, expanded: false });
         } else {
           startActivity(activity);
+          setExpanded({ activity, expanded: true });
         }
       }}
       // stops ListItemButton click effect
