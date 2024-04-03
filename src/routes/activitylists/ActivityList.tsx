@@ -49,7 +49,8 @@ const List = (props: ListProps) => {
   const { interval, orderBy } = props;
   const itemData = useItemData(otherProps);
   const innerRef = useRef<HTMLDivElement>();
-  const flipKey = useActivitiesOrderKey(interval, orderBy);
+  const expandedAll = useExpandedAllSignal();
+  const flipKey = useActivitiesOrderKey(interval, orderBy, expandedAll);
 
   useEffect(() => {
     innerRef.current!.style.minHeight = `${height}px`;

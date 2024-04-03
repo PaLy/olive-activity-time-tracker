@@ -1,5 +1,5 @@
 import { Activity } from "../../../data/activity/Storage";
-import { signal, Signal } from "@preact/signals-react";
+import { ReadonlySignal, signal, Signal } from "@preact/signals-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   activities,
@@ -29,17 +29,19 @@ export function useExpandedAll() {
   const { data } = useQuery({
     queryKey: ["activitiesInListExpanded"],
     queryFn: async () => {
-      expandedAllSignal.value = new Set(await getAllExpanded());
+      expandedAllSignal.value = new Set(
+        [rootActivity.value.id].concat(await getAllExpanded()),
+      );
       return expandedAllSignal.value;
     },
-    initialData: new Set(),
+    initialData: new Set([rootActivity.value.id]),
   });
   return data;
 }
 
 const expandedAllSignal = signal(new Set<string>());
 
-export function useExpandedAllSignal() {
+export function useExpandedAllSignal(): ReadonlySignal<Set<string>> {
   useExpandedAll();
   return expandedAllSignal;
 }

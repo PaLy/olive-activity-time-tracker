@@ -141,12 +141,15 @@ export const getActivityIDsByOrder = (
   activity: Signal<Activity>,
   filter: ClosedInterval,
   orderBy: OrderBy,
+  expandedAll: Signal<Set<string>>,
 ): string[] =>
-  [activity.value.id].concat(
-    getChildActivitiesByOrder(activity, filter, orderBy).flatMap((child) =>
-      getActivityIDsByOrder(child, filter, orderBy),
-    ),
-  );
+  expandedAll.value.has(activity.value.id)
+    ? [activity.value.id].concat(
+        getChildActivitiesByOrder(activity, filter, orderBy).flatMap((child) =>
+          getActivityIDsByOrder(child, filter, orderBy, expandedAll),
+        ),
+      )
+    : [activity.value.id];
 
 export const getActivityByInterval = (intervalID: string) =>
   [...activities.value.values()].find((activity) =>
