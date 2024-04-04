@@ -19,6 +19,7 @@ import { ResizableList, SingleItemData } from "../../components/ResizableList";
 import AutoSizer from "react-virtualized-auto-sizer";
 import { useExpandedAllSignal } from "./state/Expanded";
 import { getActivitiesByOrder, OrderBy } from "../../data/activity/Algorithms";
+import { durationRefreshDisabled } from "../../data/interval/Signals";
 
 type Props = {
   interval: Signal<ClosedInterval>;
@@ -57,7 +58,11 @@ const List = (props: ListProps) => {
   }, [height]);
 
   return (
-    <Flipper flipKey={flipKey.value}>
+    <Flipper
+      flipKey={flipKey.value}
+      onStart={() => (durationRefreshDisabled.value = true)}
+      onComplete={() => (durationRefreshDisabled.value = false)}
+    >
       <ResizableList
         itemData={itemData}
         width={width}

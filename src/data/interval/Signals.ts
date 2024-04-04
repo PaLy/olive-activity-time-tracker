@@ -15,13 +15,27 @@ import { Activity } from "../activity/Storage";
 export const intervals = computed(() => intervalStore.collection.value);
 
 export const durationRefreshTime = signal(moment());
+export const durationRefreshDisabled = signal(false);
+
+let durationRefreshInterval: number | undefined;
+const updateDurationRefreshTime = () => (durationRefreshTime.value = moment());
+
+const clearDurationRefreshInterval = () => {
+  clearInterval(durationRefreshInterval);
+  durationRefreshInterval = undefined;
+};
 
 effect(() => {
-  const interval = window.setInterval(
-    () => (durationRefreshTime.value = moment()),
-    1000,
-  );
-  return () => clearInterval(interval);
+  if (!durationRefreshDisabled.value) {
+    updateDurationRefreshTime();
+    durationRefreshInterval = window.setInterval(
+      updateDurationRefreshTime,
+      1000,
+    );
+    return clearDurationRefreshInterval;
+  } else {
+    clearDurationRefreshInterval();
+  }
 });
 
 export const useHumanizedDuration = (
