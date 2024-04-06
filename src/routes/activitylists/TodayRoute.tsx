@@ -10,7 +10,7 @@ export const TodayRoute = () => {
       <ActivityList
         interval={interval}
         header={header}
-        filterComponent={filterComponent}
+        filter={filter}
         orderBy={orderBy}
       />
     </>
@@ -19,7 +19,7 @@ export const TodayRoute = () => {
 
 const orderBy = signal(OrderBy.LastEndTime);
 
-const filterComponent = signal(undefined);
+const filter = signal(undefined);
 
 const header = signal("Today");
 

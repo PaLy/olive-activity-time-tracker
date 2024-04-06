@@ -1,4 +1,4 @@
-import { ActivityList } from "./ActivityList";
+import { ActivityList, ActivityListFilter } from "./ActivityList";
 import { computed, signal } from "@preact/signals-react";
 import moment from "moment";
 import { ChipDatePicker } from "../../components/ChipDatePicker";
@@ -8,7 +8,7 @@ export const MonthRoute = () => (
   <ActivityList
     interval={interval}
     header={header}
-    filterComponent={filterComponent}
+    filter={filter}
     orderBy={orderBy}
   />
 );
@@ -19,18 +19,21 @@ const header = signal("Month");
 
 const month = signal(moment());
 
-const filterComponent = signal(
-  <ChipDatePicker
-    disableFuture
-    format={"MMMM YYYY"}
-    views={["year", "month"]}
-    openTo={"month"}
-    value={month}
-    isMaxDate={(value) => value.isSame(moment(), "month")}
-    onBefore={(value) => value.clone().subtract(1, "month")}
-    onNext={(value) => value.clone().add(1, "month")}
-  />,
-);
+const filter = signal<ActivityListFilter>({
+  element: (
+    <ChipDatePicker
+      disableFuture
+      format={"MMMM YYYY"}
+      views={["year", "month"]}
+      openTo={"month"}
+      value={month}
+      isMaxDate={(value) => value.isSame(moment(), "month")}
+      onBefore={(value) => value.clone().subtract(1, "month")}
+      onNext={(value) => value.clone().add(1, "month")}
+    />
+  ),
+  initialHeight: 40,
+});
 
 const interval = computed(() => ({
   start: startOfDay,
