@@ -3,7 +3,6 @@ import { computed, Signal } from "@preact/signals-react";
 import { Activity } from "../../data/activity/Storage";
 import {
   activityFullNames,
-  inProgressActivities,
   nonRootActivities,
 } from "../../data/activity/Signals";
 import { chain } from "lodash";
@@ -13,10 +12,11 @@ type Props = {
   label: string;
   autoFocus?: boolean;
   error?: Signal<string>;
+  getOptionDisabled?: (activity: Activity) => boolean;
 };
 
 export const SelectActivity = (props: Props) => {
-  const { activity, label, error, autoFocus } = props;
+  const { activity, label, error, autoFocus, getOptionDisabled } = props;
   return (
     <Autocomplete
       sx={{ m: 1 }}
@@ -30,7 +30,7 @@ export const SelectActivity = (props: Props) => {
       filterOptions={filter}
       handleHomeEndKeys
       options={options.value}
-      getOptionDisabled={(activity) => inProgressActivities.value.has(activity)}
+      getOptionDisabled={getOptionDisabled}
       getOptionLabel={(option) => activityFullNames.value.get(option.id)!}
       renderOption={(props, option) => (
         <li {...props}>{activityFullNames.value.get(option.id)}</li>

@@ -1,6 +1,7 @@
 import { CreateActivityState } from "./AddActivityModal";
 import { Box, TextField, ToggleButton, ToggleButtonGroup } from "@mui/material";
 import { SelectActivity } from "./SelectActivity";
+import { inProgressActivities } from "../../data/activity/Signals";
 
 type Props = {
   state: CreateActivityState;
@@ -31,7 +32,9 @@ export const Name = (props: Props) => {
           aria-label="new or existing name toggle"
         >
           <ToggleButton value="existing">Existing</ToggleButton>
-          <ToggleButton value="new">New</ToggleButton>
+          <ToggleButton value="new" aria-label="new">
+            New
+          </ToggleButton>
         </ToggleButtonGroup>
       </Box>
       {toggle.value === "new" && (
@@ -61,6 +64,9 @@ export const Name = (props: Props) => {
             activity={existingActivity}
             label={"Activity"}
             error={existingActivityError}
+            getOptionDisabled={(activity) =>
+              inProgressActivities.value.has(activity)
+            }
           />
         </Box>
       )}

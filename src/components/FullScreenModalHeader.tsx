@@ -39,7 +39,9 @@ export const FullScreenModalHeader = (props: Props) => {
             </Typography>
           )}
         </Grid>
-        {finishButtonProps && <Button variant="text" {...finishButtonProps} />}
+        {finishButtonProps && (
+          <Button variant="text" aria-label="finish" {...finishButtonProps} />
+        )}
       </Grid>
     </>
   );
