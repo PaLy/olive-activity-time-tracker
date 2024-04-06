@@ -1,4 +1,4 @@
-import { ActivityList } from "./ActivityList";
+import { ActivityList, ActivityListFilter } from "./ActivityList";
 import { computed, signal } from "@preact/signals-react";
 import moment from "moment";
 import { ChipDayPicker } from "../../components/ChipDayPicker";
@@ -11,7 +11,7 @@ export const DayRoute = () => (
   <ActivityList
     interval={interval}
     header={header}
-    filterComponent={filterComponent}
+    filter={filter}
     orderBy={orderBy}
   />
 );
@@ -22,15 +22,18 @@ const header = signal("Day");
 
 const day = signal(moment().subtract(1, "day"));
 
-const filterComponent = signal(
-  <ChipDayPicker
-    maxDate={moment().subtract(1, "day")}
-    value={day}
-    isMaxDate={(value) => value.isSame(moment().subtract(1, "day"), "day")}
-    onBefore={(value) => value.clone().subtract(1, "day")}
-    onNext={(value) => value.clone().add(1, "day")}
-  />,
-);
+const filter = signal<ActivityListFilter>({
+  element: (
+    <ChipDayPicker
+      maxDate={moment().subtract(1, "day")}
+      value={day}
+      isMaxDate={(value) => value.isSame(moment().subtract(1, "day"), "day")}
+      onBefore={(value) => value.clone().subtract(1, "day")}
+      onNext={(value) => value.clone().add(1, "day")}
+    />
+  ),
+  initialHeight: 40,
+});
 
 const interval = computed(() => ({
   start: startOfDay,
