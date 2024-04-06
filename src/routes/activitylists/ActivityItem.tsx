@@ -30,6 +30,7 @@ import { Link } from "react-router-dom";
 import { useExpanded, useSetExpanded } from "./state/Expanded";
 import { useActivityListSettings } from "../../asyncState/ActivityList";
 import { ShowCost } from "../../data/settings/Settings";
+import anime from "animejs";
 
 type ActivityItemProps = {
   activity: Signal<Activity>;
@@ -43,12 +44,21 @@ export const ActivityItem = (props: ActivityItemProps) => {
     childrenCount.value === 0 ? LeafActivityItem : ParentActivityItem;
 
   return (
-    <Flipped flipId={activity.value.id}>
+    <Flipped flipId={activity.value.id} onAppear={onActivityAppear}>
       <div>
         <Component {...props} />
       </div>
     </Flipped>
   );
+};
+
+const onActivityAppear = (el: HTMLElement, i: number) => {
+  anime({
+    targets: el,
+    opacity: 1,
+    delay: i * 10,
+    easing: "easeOutSine",
+  });
 };
 
 const ParentActivityItem = (props: ActivityItemProps) => {
