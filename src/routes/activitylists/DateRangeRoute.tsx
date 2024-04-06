@@ -1,4 +1,4 @@
-import { ActivityList } from "./ActivityList";
+import { ActivityList, ActivityListFilter } from "./ActivityList";
 import { computed, signal } from "@preact/signals-react";
 import { Grid } from "@mui/material";
 import moment from "moment";
@@ -10,7 +10,7 @@ export const DateRangeRoute = () => (
   <ActivityList
     interval={interval}
     header={humanizedDuration}
-    filterComponent={filterComponent}
+    filter={filter}
     orderBy={orderBy}
   />
 );
@@ -20,18 +20,21 @@ const orderBy = signal(OrderBy.Duration);
 const start = signal(moment().subtract(6, "days"));
 const end = signal(moment());
 
-const filterComponent = computed(() => (
-  <Grid
-    container
-    justifyContent={"center"}
-    sx={{ gap: 1 }}
-    alignItems={"center"}
-  >
-    <ChipDayPicker value={start} maxDate={end.value} />
-    —
-    <ChipDayPicker value={end} minDate={start.value} disableFuture />
-  </Grid>
-));
+const filter = computed<ActivityListFilter>(() => ({
+  element: (
+    <Grid
+      container
+      justifyContent={"center"}
+      sx={{ gap: 1 }}
+      alignItems={"center"}
+    >
+      <ChipDayPicker value={start} maxDate={end.value} />
+      —
+      <ChipDayPicker value={end} minDate={start.value} disableFuture />
+    </Grid>
+  ),
+  initialHeight: 40,
+}));
 
 const istart = computed(() => start.value.clone().startOf("day").valueOf());
 const iend = computed(() =>

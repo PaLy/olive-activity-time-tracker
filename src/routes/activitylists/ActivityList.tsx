@@ -24,8 +24,14 @@ import { durationRefreshDisabled } from "../../data/interval/Signals";
 type Props = {
   interval: Signal<ClosedInterval>;
   header: Signal<string>;
-  filterComponent: Signal<ReactNode | undefined>;
+  filter: Signal<ActivityListFilter | undefined>;
   orderBy: Signal<OrderBy>;
+};
+
+export type ActivityListFilter = {
+  element: ReactNode;
+  // needed to avoid activities jumping
+  initialHeight: number;
 };
 
 export const ActivityList = (props: Props) => {
@@ -105,8 +111,10 @@ const innerElementType = forwardRef<
   </div>
 ));
 
+const FILTER_PADDING_TOP = 16;
+
 const useItemData = (props: Props) => {
-  const { header, filterComponent, interval, orderBy } = props;
+  const { header, filter, interval, orderBy } = props;
   const expandedAll = useExpandedAllSignal();
   const activities = useActivities(orderBy, interval, expandedAll);
 
@@ -118,8 +126,14 @@ const useItemData = (props: Props) => {
       [
         {
           RowComponent: Header,
-          rowProps: { header, filterComponent },
-          rowData: { size: signal(largeAppBar ? 120 : 112) },
+          rowProps: { header, filter },
+          rowData: {
+            size: signal(
+              (filter.value
+                ? filter.value.initialHeight + FILTER_PADDING_TOP
+                : 0) + (largeAppBar ? 64 : 56),
+            ),
+          },
         } as SingleItemData<typeof Header>,
         ...activities.value.map(
           (activity) =>
@@ -147,16 +161,20 @@ const useActivities = (
     ),
   );
 
-type HeaderProps = Pick<Props, "header" | "filterComponent">;
+type HeaderProps = Pick<Props, "header" | "filter">;
 
 const Header = (props: HeaderProps) => {
-  const { header, filterComponent } = props;
+  const { header, filter } = props;
   return (
     <>
       <AppAppBar header={header.value} actions={<AppBarActions />} />
-      {filterComponent.value && (
-        <Grid container sx={{ p: 2, pb: 0 }} justifyContent={"center"}>
-          {filterComponent}
+      {filter.value && (
+        <Grid
+          container
+          style={{ padding: FILTER_PADDING_TOP, paddingBottom: 0 }}
+          justifyContent={"center"}
+        >
+          {filter.value?.element}
         </Grid>
       )}
     </>
