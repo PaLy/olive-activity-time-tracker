@@ -8,7 +8,7 @@ import {
   ListItemIcon,
   ListItemText,
 } from "@mui/material";
-import { Signal } from "@preact/signals-react";
+import { Signal, useComputed } from "@preact/signals-react";
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
 import StopIcon from "@mui/icons-material/Stop";
@@ -23,7 +23,6 @@ import {
   useDurationPercentage,
   useInProgress,
 } from "../../data/activity/Signals";
-import { startActivity, stopActivity } from "../../data/activity/Update";
 import { ClosedInterval } from "../../data/interval/ClosedInterval";
 import { Flipped } from "react-flip-toolkit";
 import { Link } from "react-router-dom";
@@ -31,6 +30,10 @@ import { useExpanded, useSetExpanded } from "./state/Expanded";
 import { useActivityListSettings } from "../../asyncState/ActivityList";
 import { ShowCost } from "../../data/settings/Settings";
 import anime from "animejs";
+import {
+  useStartActivity,
+  useStopActivity,
+} from "../../data/activity/Operations";
 
 type ActivityItemProps = {
   activity: Signal<Activity>;
@@ -88,7 +91,7 @@ const ParentActivityItem = (props: ActivityItemProps) => {
           >
             <Expander viewBox={"5 0 13 24"} sx={{ width: "initial", mr: 1 }} />
             <span>
-              {name.value +
+              {name +
                 (expanded || childrenCount.value === 0
                   ? ""
                   : ` (${childrenCount.value})`)}
@@ -131,7 +134,8 @@ type ActivityAvatarProps = {
 };
 
 const ActivityAvatar = (props: ActivityAvatarProps) => {
-  const { name, id } = props.activity.value;
+  const { id } = props.activity.value;
+  const name = useComputed(() => props.activity.value.name);
   const initials = useInitials(name);
   return (
     <ListItemAvatar>
@@ -153,22 +157,23 @@ type StartStopActivityProps = {
 
 const StartStopButton = (props: StartStopActivityProps) => {
   const { activity } = props;
-  const setExpanded = useSetExpanded();
   const inProgress = useInProgress(activity);
   const ariaLabel = inProgress.value ? "stop activity" : "start activity";
+
+  const { mutate: startActivity, isPending: starting } = useStartActivity();
+  const { mutate: stopActivity, isPending: stopping } = useStopActivity();
 
   return (
     <IconButton
       aria-label={ariaLabel}
-      onClick={(event) => {
+      disabled={starting || stopping}
+      onClick={async (event) => {
         // stops ListItemButton click
         event.stopPropagation();
         if (inProgress.value) {
-          stopActivity(activity);
-          setExpanded({ activity, expanded: false });
+          startActivity({ activity });
         } else {
-          startActivity(activity);
-          setExpanded({ activity, expanded: true });
+          stopActivity({ activity });
         }
       }}
       // stops ListItemButton click effect

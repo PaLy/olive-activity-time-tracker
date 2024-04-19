@@ -6,10 +6,10 @@ import {
   DialogContent,
   DialogTitle,
 } from "@mui/material";
-import { deleteActivityInterval } from "../../data/activity/Update";
+import { useRemoveActivityInterval } from "../../data/activity/Operations";
 import { batch, signal } from "@preact/signals-react";
-import { successSnackbarMessage, successSnackbarOpen } from "./SuccessSnackbar";
 import { EditIntervalLoaderData } from "./EditInterval";
+import { openSnackbar } from "./AppSnackbar";
 
 export const deleteIntervalConfirmationData =
   signal<EditIntervalLoaderData | null>(null);
@@ -24,6 +24,16 @@ const Content = () => {
   const { activity, interval } = deleteIntervalConfirmationData.value ?? {};
   const navigate = useNavigate();
 
+  const { mutate: deleteActivityInterval } = useRemoveActivityInterval({
+    onSuccess: () => {
+      batch(() => {
+        deleteIntervalConfirmationData.value = null;
+        openSnackbar({ message: "Interval successfully deleted" });
+      });
+      navigate(-1);
+    },
+  });
+
   return (
     <>
       <DialogTitle>Are you sure you want to delete the interval?</DialogTitle>
@@ -37,13 +47,10 @@ const Content = () => {
         </Button>
         <Button
           onClick={() => {
-            batch(() => {
-              deleteActivityInterval(activity!, interval!);
-              deleteIntervalConfirmationData.value = null;
-              successSnackbarOpen.value = true;
-              successSnackbarMessage.value = "Interval successfully deleted";
+            deleteActivityInterval({
+              activity: activity!,
+              interval: interval!,
             });
-            navigate(-1);
           }}
         >
           Yes

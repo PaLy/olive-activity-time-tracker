@@ -1,17 +1,12 @@
-import { signal } from "@preact/signals-react";
 import moment from "moment";
 import { Interval } from "./Interval";
-import { SignalStore } from "../SignalStore";
+import { Store } from "../Store";
 import { dateTimeSchema } from "../JsonSchema";
 import { JTDSchemaType } from "ajv/dist/jtd";
 
 export const STORE_NAME_INTERVALS = "intervals";
 
-class IntervalStore extends SignalStore<
-  StoredInterval,
-  Interval,
-  ExportedInterval
-> {
+class IntervalStore extends Store<StoredInterval, Interval, ExportedInterval> {
   constructor() {
     super({ name: STORE_NAME_INTERVALS });
   }
@@ -19,8 +14,8 @@ class IntervalStore extends SignalStore<
   asValue = (interval: StoredInterval): Interval => {
     return {
       id: interval.id,
-      start: signal(moment(interval.start)),
-      end: signal(interval.end === null ? null : moment(interval.end)),
+      start: moment(interval.start),
+      end: interval.end === null ? undefined : moment(interval.end),
     };
   };
 
@@ -37,8 +32,8 @@ class IntervalStore extends SignalStore<
   asStoredValue = (interval: Interval): StoredInterval => {
     return {
       id: interval.id,
-      start: interval.start.value.valueOf(),
-      end: interval.end.value?.valueOf() ?? null,
+      start: interval.start.valueOf(),
+      end: interval.end?.valueOf() ?? null,
     };
   };
 
@@ -64,6 +59,23 @@ class IntervalStore extends SignalStore<
       },
     ];
   };
+
+  editInterval = async (interval: Interval, edit: IntervalEdit) => {
+    await intervalStore
+      .set(interval.id, { ...interval, ...edit })
+      .catch((error) => {
+        throw new Error(`Failed to edit interval: ${error}`);
+      });
+  };
+
+  stopIntervals = (intervals: Interval[]) =>
+    Promise.allSettled(
+      intervals.map((interval) =>
+        this.editInterval(interval, { end: moment() }),
+      ),
+    ).catch((error) => {
+      throw new Error(`Failed to stop interval: ${error}`);
+    });
 }
 
 export const intervalStore = new IntervalStore();
@@ -79,3 +91,5 @@ export type ExportedInterval = {
   start: string;
   end: string;
 };
+
+export type IntervalEdit = Partial<Pick<Interval, "start" | "end">>;

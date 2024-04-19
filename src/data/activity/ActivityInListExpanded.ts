@@ -8,10 +8,14 @@ const store = localforage.createInstance({
 });
 
 export const setExpanded = async (activityID: string, expanded: boolean) => {
-  if (!expanded) {
-    await store.removeItem(activityID);
-  } else {
-    await store.setItem(activityID, true);
+  try {
+    if (!expanded) {
+      await store.removeItem(activityID);
+    } else {
+      await store.setItem(activityID, true);
+    }
+  } catch (error) {
+    throw new Error(`Failed to set expanded: ${error}`);
   }
 };
 

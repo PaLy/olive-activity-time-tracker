@@ -6,42 +6,41 @@ import { ClosedInterval } from "../interval/ClosedInterval";
 import { chain } from "lodash";
 import { Signal } from "@preact/signals-react";
 
-export const isSelfInProgress = (activity: Signal<Activity>) => {
-  const { intervalIDs } = activity.value;
-  return intervalIDs.value.some(
-    (intervalID) => !intervals.value.get(intervalID)!.value.end.value,
+export const isSelfInProgress = (activity: Activity) => {
+  const { intervalIDs } = activity;
+  return intervalIDs.some(
+    (intervalID) => !intervals.value.get(intervalID)!.value.end,
   );
 };
 
 export const getDescendants = (
   activity: Signal<Activity>,
 ): Signal<Activity>[] =>
-  activity.value.childIDs.value
+  activity.value.childIDs
     .map((childID) => activities.value.get(childID)!)
     .flatMap((child) => [child, ...getDescendants(child)]) ?? [];
 
-export const getNonRootAncestors = (
-  activity: Signal<Activity>,
-): Signal<Activity>[] => getAncestors(activity).slice(0, -1);
+export const getNonRootAncestors = (activity: Activity): Signal<Activity>[] =>
+  getAncestors(activity).slice(0, -1);
 
-const getAncestors = (activity: Signal<Activity>): Signal<Activity>[] => {
-  const parent = activities.value.get(activity.value.parentID.value)!;
+const getAncestors = (activity: Activity): Signal<Activity>[] => {
+  const parent = activities.value.get(activity.parentID)!;
   return parent.value === rootActivity.value
     ? [rootActivity]
-    : [parent, ...getAncestors(parent)];
+    : [parent, ...getAncestors(parent.value)];
 };
 
 export const activityFullName = (activity: Signal<Activity>) =>
-  getNonRootAncestors(activity)
+  getNonRootAncestors(activity.value)
     .reverse()
     .concat(activity)
-    .map((activity) => activity.value.name.value)
+    .map((activity) => activity.value.name)
     .join(ACTIVITY_FULL_NAME_SEPARATOR);
 
 export const ACTIVITY_FULL_NAME_SEPARATOR = " / ";
 
-export const getOwnIntervals = (activity: Signal<Activity>) =>
-  activity.value.intervalIDs.value.map((id) => intervals.value.get(id)!);
+export const getOwnIntervals = (activity: Activity) =>
+  activity.intervalIDs.map((id) => intervals.value.get(id)!);
 
 export const getDuration = (
   activity: Signal<Activity>,
@@ -53,19 +52,19 @@ export const getDuration = (
 
 const getAllIntervalIds = (activity: Signal<Activity>) =>
   [activity, ...getDescendants(activity)].flatMap(
-    (activity) => activity.value.intervalIDs.value,
+    (activity) => activity.value.intervalIDs,
   );
 
 const getChildActivitiesByDuration = (
   activity: Signal<Activity>,
   filter: ClosedInterval,
 ) =>
-  chain(activity.value.childIDs.value)
+  chain(activity.value.childIDs)
     .map((childID) => activities.value.get(childID)!)
     .map((child) => ({ child, duration: getDuration(child, filter) }))
     .filter(({ duration }) => duration > 0)
     .orderBy(
-      [({ duration }) => duration, ({ child }) => child.value.name.value],
+      [({ duration }) => duration, ({ child }) => child.value.name],
       ["desc", "asc"],
     )
     .map(({ child }) => child)
@@ -75,7 +74,7 @@ const getChildActivitiesByLastEndTime = (
   activity: Signal<Activity>,
   filter: ClosedInterval,
 ) =>
-  chain(activity.value.childIDs.value)
+  chain(activity.value.childIDs)
     .map((childID) => activities.value.get(childID)!)
     .map((child) => ({
       child,
@@ -83,7 +82,7 @@ const getChildActivitiesByLastEndTime = (
     }))
     .filter(({ lastEndTime }) => lastEndTime !== undefined)
     .orderBy(
-      [({ lastEndTime }) => lastEndTime, ({ child }) => child.value.name.value],
+      [({ lastEndTime }) => lastEndTime, ({ child }) => child.value.name],
       ["desc", "asc"],
     )
     .map(({ child }) => child)
@@ -111,7 +110,7 @@ export const getChildActivities = (
   activity: Signal<Activity>,
   filter: ClosedInterval,
 ) =>
-  chain(activity.value.childIDs.value)
+  chain(activity.value.childIDs)
     .map((childID) => activities.value.get(childID)!)
     .map((child) => ({ child, duration: getDuration(child, filter) }))
     .filter(({ duration }) => duration > 0)
@@ -153,5 +152,5 @@ export const getActivityIDsByOrder = (
 
 export const getActivityByInterval = (intervalID: string) =>
   [...activities.value.values()].find((activity) =>
-    activity.value.intervalIDs.value.find((id) => id === intervalID),
+    activity.value.intervalIDs.find((id) => id === intervalID),
   );
