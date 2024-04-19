@@ -36,12 +36,12 @@ export const inProgressActivities = computed(
   () =>
     new Set(
       nonRootActivities.value
+        .map((activity) => activity.value)
         .filter(isSelfInProgress)
         .flatMap((inProgressActivity) => [
           inProgressActivity,
           ...getNonRootAncestors(inProgressActivity),
-        ])
-        .map((activity) => activity.value),
+        ]),
     ),
 );
 
@@ -53,10 +53,10 @@ export const useInProgress = (activity: Signal<Activity>) =>
   useComputed(() => inProgressActivities.value.has(activity.value));
 
 export const useParentActivity = (activity: Signal<Activity>) =>
-  useComputed(() => activities.value.get(activity.value.parentID.value)!.value);
+  useComputed(() => activities.value.get(activity.value.parentID)!.value);
 
 export const useDepth = (activity: Signal<Activity>) =>
-  useComputed(() => getNonRootAncestors(activity).length);
+  useComputed(() => getNonRootAncestors(activity.value).length);
 
 export const useDuration = (
   activity: Signal<Activity>,
@@ -119,7 +119,7 @@ export const useChildrenCount = (
 
 export const parentActivities = computed(() =>
   [...nonRootActivities.value.values()].filter(
-    (activity) => activity.value.childIDs.value.length > 0,
+    (activity) => activity.value.childIDs.length > 0,
   ),
 );
 

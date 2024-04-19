@@ -1,15 +1,14 @@
-import { effect, Signal, signal } from "@preact/signals-react";
+import { Signal, signal } from "@preact/signals-react";
 import localforage from "localforage";
 import { produce } from "immer";
 import { JTDSchemaType } from "ajv/dist/jtd";
 
-export abstract class SignalStore<
+export abstract class Store<
   StoredValue,
-  Value,
+  Value = StoredValue,
   ExportedValue = StoredValue,
 > {
   private store;
-  private valueUpdaterDisposes = new Map<string, () => void>();
   collection = signal(new Map<string, Signal<Value>>());
   name;
 
@@ -27,66 +26,48 @@ export abstract class SignalStore<
   ) => [key: string, StoredValue];
   abstract valueJsonSchema: JTDSchemaType<ExportedValue[]>;
 
-  afterLoaded = () => {};
+  afterLoaded = async () => {};
 
   load = async () => {
     const keyValues: [string, Signal<Value>][] = [];
 
     // TODO error handling
     await this.store.iterate((storedValue: StoredValue, key) => {
-      const value = this.asValue(storedValue);
-      keyValues.push([key, signal(value)]);
+      keyValues.push([key, signal(this.asValue(storedValue))]);
     });
-
-    return () => {
-      this.collection.value = new Map(keyValues);
-      keyValues.forEach(([key, value]) => {
-        const dispose = effect(() =>
-          this.store.setItem(key, this.asStoredValue(value.value)),
-        );
-        this.valueUpdaterDisposes.set(key, dispose);
-      });
-      this.afterLoaded?.();
-    };
+    this.collection.value = new Map(keyValues);
+    await this.afterLoaded?.();
   };
 
-  set = (key: string, value: Value) => {
+  set = async (key: string, value: Value) => {
+    await this.store.setItem(key, this.asStoredValue(value));
     this.collection.value = new Map([
       ...this.collection.value.entries(),
       [key, signal(value)],
     ]);
-
-    this.valueUpdaterDisposes.get(key)?.();
-    this.valueUpdaterDisposes.delete(key);
-
-    const updaterDispose = effect(() =>
-      this.store.setItem(key, this.asStoredValue(value)).catch(() => {
-        // TODO display error - activities are not saving,...
-      }),
-    );
-    this.valueUpdaterDisposes.set(key, updaterDispose);
+    return value;
   };
 
-  remove = (key: string) => {
+  get = async (key: string) => {
+    try {
+      const storedValue: StoredValue | null = await this.store.getItem(key);
+      return storedValue ? this.asValue(storedValue) : null;
+    } catch (error) {
+      throw new Error(`Failed to get item: ${error}`);
+    }
+  };
+
+  remove = async (key: string) => {
+    await this.store.removeItem(key);
     this.collection.value = produce(this.collection.value, (draft) => {
       draft.delete(key);
     });
-    this.valueUpdaterDisposes.get(key)?.();
-    this.valueUpdaterDisposes.delete(key);
   };
 
   clear = async () => {
-    try {
-      await this.store.clear();
-    } catch (error) {
-      // TODO
-    }
-    return () => {
-      this.collection.value = new Map();
-      this.valueUpdaterDisposes.forEach((dispose) => dispose());
-      this.valueUpdaterDisposes.clear();
-      this.afterLoaded?.();
-    };
+    await this.store.clear();
+    this.collection.value = new Map();
+    await this.afterLoaded?.();
   };
 
   export = async () => {

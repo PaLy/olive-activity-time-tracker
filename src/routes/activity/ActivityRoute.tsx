@@ -19,7 +19,6 @@ import { IntervalWithActivity } from "../../data/interval/Algorithms";
 import { useActivityPath } from "../../data/activity/Signals";
 import { ElementType, forwardRef, ReactNode, useImperativeHandle } from "react";
 import EditIcon from "@mui/icons-material/Edit";
-import { SuccessSnackbar } from "./SuccessSnackbar";
 import { DeleteIntervalConfirmation } from "./DeleteIntervalConfirmation";
 import { Interval } from "../../data/interval/Interval";
 import {
@@ -77,7 +76,6 @@ export const ActivityRoute = () => {
       </Paper>
       <Outlet />
       <DeleteIntervalConfirmation />
-      <SuccessSnackbar />
     </>
   );
 };
@@ -119,12 +117,7 @@ type StickySubheaderProps = {
 const StickySubheader = (props: StickySubheaderProps) => {
   const { interval } = props;
   const definedInterval = useComputed(
-    () =>
-      interval.value ?? {
-        id: "",
-        start: signal(moment()),
-        end: signal(moment()),
-      },
+    () => interval.value ?? { id: "", start: moment(), end: moment() },
   );
 
   return <>{interval.value && <SubheaderItem interval={definedInterval} />}</>;
@@ -197,7 +190,7 @@ const SubheaderItem = (props: SubheaderItemProps) => {
   } else {
     return (
       <ListSubheader>
-        {interval.value.start.value.format("ddd, MMM D, YYYY")}
+        {interval.value.start.format("ddd, MMM D, YYYY")}
       </ListSubheader>
     );
   }
@@ -212,7 +205,7 @@ const IntervalItem = (props: IntervalProps) => {
   const { activity, intervalWithActivity } = props;
   const { interval, activity: subActivity } = intervalWithActivity;
   const { start } = interval.value;
-  const duration = useIntervalDuration(interval);
+  const duration = useIntervalDuration(interval, useSignal(false));
 
   const subActivityPath = useActivityPath(subActivity, activity);
   const subActivitySuffix =
@@ -220,7 +213,7 @@ const IntervalItem = (props: IntervalProps) => {
       ? ` (${subActivityPath.value})`
       : "";
 
-  const startValue = start.value.format(INTERVAL_FORMAT);
+  const startValue = start.format(INTERVAL_FORMAT);
   const endValue = formatIntervalEnd(interval);
 
   return (
@@ -251,11 +244,11 @@ const INTERVAL_FORMAT = "HH:mm:ss";
 
 const formatIntervalEnd = (interval: Signal<Interval>) => {
   const { start, end } = interval.value;
-  if (!end.value) {
+  if (!end) {
     return "now";
-  } else if (start.value.isSame(end.value, "day")) {
-    return end.value.format(INTERVAL_FORMAT);
+  } else if (start.isSame(end, "day")) {
+    return end.format(INTERVAL_FORMAT);
   } else {
-    return end.value.format("ddd, MMM D, YYYY HH:mm");
+    return end.format("ddd, MMM D, YYYY HH:mm");
   }
 };

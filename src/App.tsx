@@ -15,6 +15,7 @@ import { useWindowResize } from "./utils/Window";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { ScrollMemoryContext } from "./components/ScrollMemory";
+import { AppSnackbar } from "./routes/activity/AppSnackbar";
 
 const queryClient = new QueryClient();
 
@@ -50,6 +51,7 @@ function App() {
               </Container>
             </Box>
           </ScrollMemoryContext.Provider>
+          <AppSnackbar />
         </ThemeProvider>
       </LocalizationProvider>
     </QueryClientProvider>

@@ -96,9 +96,7 @@ export function useExpandChildrenPathToRoot() {
     let currentActivity = activity;
     while (currentActivity.value !== rootActivity.value) {
       setExpanded({ activity: currentActivity, expanded: true });
-      currentActivity = activities.value.get(
-        currentActivity.value.parentID.value,
-      )!;
+      currentActivity = activities.value.get(currentActivity.value.parentID)!;
     }
   };
 }

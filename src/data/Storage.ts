@@ -1,8 +1,8 @@
-import { batch, effect, signal } from "@preact/signals-react";
+import { effect, signal } from "@preact/signals-react";
 import {
+  Activity,
   activityStore,
   STORE_NAME_ACTIVITIES,
-  StoredActivity,
 } from "./activity/Storage";
 import {
   ExportedInterval,
@@ -44,16 +44,10 @@ effect(() => {
   }
 });
 
-function loadDB() {
+async function loadDB() {
   dbLoading.value = "in-progress";
-  return Promise.all(stores.map((store) => store.load())).then(
-    (updateStoreSignals) => {
-      batch(() => {
-        updateStoreSignals.forEach((update) => update());
-        dbLoading.value = "finished";
-      });
-    },
-  );
+  await Promise.all(stores.map((store) => store.load()));
+  dbLoading.value = "finished";
 }
 
 const dbLoadListeners: (() => void)[] = [];
@@ -72,13 +66,7 @@ export async function waitForDBLoaded() {
 export async function clearDB() {
   await clearActivityInListExpanded();
   await clearSettings();
-  await Promise.all(stores.map((store) => store.clear())).then(
-    (updateStoreSignals) => {
-      batch(() => {
-        updateStoreSignals.forEach((update) => update());
-      });
-    },
-  );
+  await Promise.all(stores.map((store) => store.clear()));
 }
 
 export async function exportDB() {
@@ -93,7 +81,7 @@ export async function exportDB() {
 }
 
 type DBData = {
-  [STORE_NAME_ACTIVITIES]: StoredActivity[];
+  [STORE_NAME_ACTIVITIES]: Activity[];
   [STORE_NAME_INTERVALS]: ExportedInterval[];
   [STORE_NAME_ACTIVITY_IN_LIST_EXPANDED]: ActivityInListExpanded;
   [STORE_NAME_SETTINGS]: Settings;
@@ -121,11 +109,7 @@ export async function importDB(json: string) {
     await Promise.all([
       activityStore.import(dbData[STORE_NAME_ACTIVITIES]),
       intervalStore.import(dbData[STORE_NAME_INTERVALS]),
-    ]).then((updateStoreSignals) => {
-      batch(() => {
-        updateStoreSignals.forEach((update) => update());
-      });
-    });
+    ]);
     return { valid: true };
   } else {
     return { errors: `${parse.message}::${parse.position}`, valid: false };

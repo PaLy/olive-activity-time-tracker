@@ -45,13 +45,13 @@ export const useHumanizedDuration = (
 
 export const useIntervalDuration = (
   interval: Signal<Omit<Interval, "id">>,
-  full?: boolean,
+  full: Signal<boolean>,
 ) =>
   useComputed(() => {
-    const inProgress = interval.value.end.value === null;
+    const inProgress = !interval.value.end;
     const { start, end } = toSimpleClosedInterval(interval);
     const duration = end - start;
-    return humanize(duration, inProgress, full);
+    return humanize(duration, inProgress, full.value);
   });
 
 export const useIntervalsGroupedByDay = (activity: Signal<Activity>) =>

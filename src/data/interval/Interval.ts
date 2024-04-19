@@ -6,8 +6,8 @@ import moment from "moment/moment";
 
 export type Interval = {
   id: string;
-  start: Signal<Moment>;
-  end: Signal<Moment | null>;
+  start: Moment;
+  end?: Moment;
 };
 
 export const toSimpleClosedInterval = (
@@ -16,10 +16,10 @@ export const toSimpleClosedInterval = (
   const { start, end } = interval.value;
 
   const endValue = moment.min(
-    end.value ?? durationRefreshTime.value,
+    end ?? durationRefreshTime.value,
     durationRefreshTime.value,
   );
-  const startValue = moment.min(start.value, endValue);
+  const startValue = moment.min(start, endValue);
 
   return { start: startValue.valueOf(), end: endValue.valueOf() };
 };

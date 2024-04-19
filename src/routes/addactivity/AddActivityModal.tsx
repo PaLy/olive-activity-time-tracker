@@ -1,23 +1,17 @@
 import { useNavigate } from "react-router-dom";
-import { batch, computed, signal, useSignal } from "@preact/signals-react";
+import { computed, signal, useSignal } from "@preact/signals-react";
 import moment from "moment";
 import { IntervalSettings } from "./IntervalSettings";
 import { Name } from "./Name";
 import { durationRefreshTime } from "../../data/interval/Signals";
-import { Activity } from "../../data/activity/Storage";
+import { Activity, activityStore } from "../../data/activity/Storage";
 import { humanize } from "../../data/interval/Algorithms";
 import { FullScreenModalHeader } from "../../components/FullScreenModalHeader";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import SaveIcon from "@mui/icons-material/Save";
-import {
-  activities,
-  anyActivityLogged,
-  rootActivity,
-} from "../../data/activity/Signals";
+import { anyActivityLogged, rootActivity } from "../../data/activity/Signals";
 import { Interval } from "../../data/interval/Interval";
 import { nanoid } from "nanoid";
-import { addInterval } from "../../data/interval/Update";
-import { addActivity } from "../../data/activity/Update";
 import { useLocation } from "../Router";
 import { FullScreenModal } from "../../components/FullScreenModal";
 import { Box } from "@mui/material";
@@ -97,9 +91,10 @@ const Content = () => {
             ) : (
               <SaveIcon />
             ),
-          onClick: () => {
+          onClick: async () => {
             if (checkValid(state)) {
-              const activity = createActivity(state);
+              const activity = await createActivity(state);
+              // TODO handle error
               expandPathToRoot(activity);
               navigate(-1);
             }
@@ -141,7 +136,7 @@ const checkValid = (state: CreateActivityState) => {
   return !startTimeError.value && !endTimeError.value;
 };
 
-const createActivity = (state: CreateActivityState) => {
+const createActivity = async (state: CreateActivityState) => {
   const {
     nameToggle,
     name,
@@ -154,38 +149,29 @@ const createActivity = (state: CreateActivityState) => {
 
   const start =
     intervalToggle.value === "now" ? dialogOpenedTime.value : startTime.value;
-  const end = intervalToggle.value === "finished" ? endTime.value : null;
+  const end = intervalToggle.value === "finished" ? endTime.value : undefined;
   const parentActivity = state.parentActivity.value ?? rootActivity.value;
-  const newInterval: Interval = {
-    id: nanoid(),
-    start: signal(start),
-    end: signal(end),
-  };
 
-  return batch(() => {
-    addInterval(newInterval);
+  let activity = existingActivity.value;
 
-    if (nameToggle.value === "new") {
-      const id = nanoid();
-      const newActivity: Activity = {
-        id,
-        parentID: signal(parentActivity.id),
-        name: signal(name.value),
-        intervalIDs: signal([newInterval.id]),
-        childIDs: signal([]),
-      };
-      return addActivity(newActivity);
-    } else {
-      if (existingActivity.value) {
-        const activity = activities.value.get(existingActivity.value.id)!;
-        activity.value.intervalIDs.value = [
-          ...activity.value.intervalIDs.value,
-          newInterval.id,
-        ];
-        return activity;
-      } else {
-        throw new Error("Invalid state");
-      }
-    }
-  });
+  if (nameToggle.value === "new") {
+    const id = nanoid();
+    const newActivity: Activity = {
+      id,
+      parentID: parentActivity.id,
+      name: name.value,
+      intervalIDs: [],
+      childIDs: [],
+    };
+    await activityStore.addActivity(newActivity);
+    activity = newActivity;
+  }
+
+  if (activity) {
+    const newInterval: Interval = { id: nanoid(), start, end };
+    await activityStore.addInterval(activity, newInterval);
+    return signal(activity);
+  } else {
+    throw new Error("Invalid state");
+  }
 };

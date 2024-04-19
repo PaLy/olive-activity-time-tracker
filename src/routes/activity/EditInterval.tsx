@@ -9,19 +9,19 @@ import {
   Slide,
   Typography,
 } from "@mui/material";
-import { NavigateFunction, useLoaderData, useNavigate } from "react-router-dom";
+import { useLoaderData, useNavigate } from "react-router-dom";
 import SaveIcon from "@mui/icons-material/Save";
 import { Interval } from "../../data/interval/Interval";
 import { Activity } from "../../data/activity/Storage";
 import { useActivityPath } from "../../data/activity/Signals";
 import { useIntervalDuration } from "../../data/interval/Signals";
 import { Moment } from "moment/moment";
-import { batch, Signal, useComputed } from "@preact/signals-react";
-import { editInterval } from "../../data/interval/Update";
+import { Signal, useComputed, useSignal } from "@preact/signals-react";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { successSnackbarMessage, successSnackbarOpen } from "./SuccessSnackbar";
 import { deleteIntervalConfirmationData } from "./DeleteIntervalConfirmation";
 import { DateTimeRangePicker } from "../../components/DateTimeRangePicker";
+import { useEditInterval } from "../../data/interval/Operations";
+import { openSnackbar } from "./AppSnackbar";
 
 export type EditIntervalLoaderData = {
   activity: Signal<Activity>;
@@ -29,7 +29,7 @@ export type EditIntervalLoaderData = {
   edit: Signal<{
     start: Signal<Moment>;
     startError: Signal<string>;
-    end: Signal<Moment | null>;
+    end: Signal<Moment | undefined>;
     endError: Signal<string>;
   }>;
 };
@@ -38,10 +38,16 @@ export const EditInterval = () => {
   const loaderData = useLoaderData() as EditIntervalLoaderData;
   const { activity, edit } = loaderData;
   const activityPath = useActivityPath(activity);
-  const duration = useIntervalDuration(edit, true);
+  const editedInterval = useComputed(() => ({
+    start: edit.value.start.value,
+    end: edit.value.end?.value,
+  }));
+  const duration = useIntervalDuration(editedInterval, useSignal(true));
   const navigate = useNavigate();
 
   const omitEndTimePicker = useComputed(() => !edit.value.end.value);
+
+  const { save, saving } = useSave(loaderData);
 
   return (
     <>
@@ -81,7 +87,12 @@ export const EditInterval = () => {
                   <Button
                     variant="text"
                     startIcon={<SaveIcon />}
-                    onClick={() => onSave(loaderData, navigate)}
+                    onClick={save}
+                    disabled={
+                      saving ||
+                      !!edit.value.startError.value ||
+                      !!edit.value.endError.value
+                    }
                   >
                     Save
                   </Button>
@@ -95,15 +106,25 @@ export const EditInterval = () => {
   );
 };
 
-const onSave = (args: EditIntervalLoaderData, navigate: NavigateFunction) => {
+const useSave = (args: EditIntervalLoaderData) => {
   const { interval, edit } = args;
-  if (!edit.value.startError.value && !edit.value.endError.value) {
-    // TODO validate intervals + update ancestors
-    batch(() => {
-      editInterval(interval, edit);
-      successSnackbarOpen.value = true;
-      successSnackbarMessage.value = "Interval successfully changed";
-    });
-    navigate(-1);
-  }
+  const navigate = useNavigate();
+
+  const { mutate, isPending } = useEditInterval({
+    onSuccess: () => {
+      openSnackbar({ message: "Interval successfully changed" });
+      navigate(-1);
+    },
+  });
+
+  return {
+    save: async () => {
+      // TODO validate intervals + update ancestors
+      mutate({
+        interval,
+        edit: { start: edit.value.start.value, end: edit.value.end.value },
+      });
+    },
+    saving: isPending,
+  };
 };

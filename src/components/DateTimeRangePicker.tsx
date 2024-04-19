@@ -5,7 +5,7 @@ import { Moment } from "moment";
 type Props = {
   startTime: Signal<Moment>;
   startTimeError: Signal<string>;
-  endTime: Signal<Moment> | Signal<Moment | null>;
+  endTime: Signal<Moment> | Signal<Moment | undefined>;
   endTimeError: Signal<string>;
   omitEndTimePicker: Signal<boolean>;
 };
