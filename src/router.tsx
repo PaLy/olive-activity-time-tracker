@@ -70,9 +70,9 @@ export const router = createHashRouter([
                       activity,
                       interval,
                       edit: signal({
-                        start: signal(interval.value.start.value),
+                        start: signal(interval.value.start),
                         startError: signal(""),
-                        end: signal(interval.value.end.value),
+                        end: signal(interval.value.end),
                         endError: signal(""),
                       }),
                     };

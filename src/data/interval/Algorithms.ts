@@ -73,13 +73,13 @@ export const humanize = (
 export const intervalsGroupedByDay = (activity: Signal<Activity>) =>
   chain([activity, ...getDescendants(activity)])
     .flatMap((activity) =>
-      activity.value.intervalIDs.value.map((id) => ({
+      activity.value.intervalIDs.map((id) => ({
         activity,
         interval: intervals.value.get(id)!,
       })),
     )
     .groupBy(({ interval }) =>
-      interval.value.start.value.clone().startOf("day").valueOf(),
+      interval.value.start.clone().startOf("day").valueOf(),
     )
     .toPairs()
     .orderBy(([key]) => key, "desc")
@@ -88,8 +88,8 @@ export const intervalsGroupedByDay = (activity: Signal<Activity>) =>
       orderBy(
         group,
         [
-          ({ interval }) => interval.value.start.value.valueOf(),
-          ({ interval }) => interval.value.end.value?.valueOf() ?? MAX_DATE_MS,
+          ({ interval }) => interval.value.start.valueOf(),
+          ({ interval }) => interval.value.end?.valueOf() ?? MAX_DATE_MS,
         ],
         ["desc", "desc"],
       ),
