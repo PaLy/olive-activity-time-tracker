@@ -1,12 +1,8 @@
 import { useLayoutEffect } from "react";
-import { batch, computed, signal } from "@preact/signals-react";
+import { batch, signal } from "@preact/signals-react";
 
 export const windowWidth = signal(0);
 export const windowHeight = signal(0);
-export const windowSize = computed(() => ({
-  width: windowWidth.value,
-  height: windowHeight.value,
-}));
 
 export const useWindowResize = () => {
   useLayoutEffect(() => {

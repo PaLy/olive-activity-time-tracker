@@ -9,7 +9,6 @@ describe("AddActivityModal", () => {
     await userEvent.click(
       await screen.findByRole("button", { name: "start new activity" }),
     );
-    await userEvent.click(await screen.findByRole("button", { name: "new" }));
     await userEvent.type(await screen.findByRole("textbox"), "Work");
     await userEvent.click(
       await screen.findByRole("button", { name: "finish" }),

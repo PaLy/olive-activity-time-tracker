@@ -11,7 +11,7 @@ class IntervalStore extends Store<StoredInterval, Interval, ExportedInterval> {
     super({ name: STORE_NAME_INTERVALS });
   }
 
-  asValue = (interval: StoredInterval): Interval => {
+  asValue = async (interval: StoredInterval): Promise<Interval> => {
     return {
       id: interval.id,
       start: moment(interval.start),

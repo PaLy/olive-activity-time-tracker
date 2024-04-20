@@ -1,11 +1,12 @@
 import { Autocomplete, createFilterOptions, TextField } from "@mui/material";
-import { computed, Signal } from "@preact/signals-react";
+import { Signal } from "@preact/signals-react";
 import { Activity } from "../../data/activity/Storage";
-import {
-  activityFullNames,
-  nonRootActivities,
-} from "../../data/activity/Signals";
 import { chain } from "lodash";
+import {
+  useActivityFullNames,
+  useNonRootActivities,
+} from "../../data/activity/Signals";
+import { useMemo } from "react";
 
 type Props = {
   activity: Signal<Activity | null>;
@@ -17,6 +18,10 @@ type Props = {
 
 export const SelectActivity = (props: Props) => {
   const { activity, label, error, autoFocus, getOptionDisabled } = props;
+
+  const activityFullNames = useActivityFullNames();
+  const options = useOptions();
+
   return (
     <Autocomplete
       sx={{ m: 1 }}
@@ -29,11 +34,14 @@ export const SelectActivity = (props: Props) => {
       }}
       filterOptions={filter}
       handleHomeEndKeys
-      options={options.value}
+      options={options}
+      isOptionEqualToValue={(option, value) => option.id === value.id}
       getOptionDisabled={getOptionDisabled}
-      getOptionLabel={(option) => activityFullNames.value.get(option.id)!}
+      getOptionLabel={(option) =>
+        activityFullNames.get(option.id) ?? option.name
+      }
       renderOption={(props, option) => (
-        <li {...props}>{activityFullNames.value.get(option.id)}</li>
+        <li {...props}>{activityFullNames.get(option.id) ?? option.name}</li>
       )}
       renderInput={(params) => (
         <TextField
@@ -50,9 +58,14 @@ export const SelectActivity = (props: Props) => {
 
 const filter = createFilterOptions<Activity>();
 
-const options = computed(() =>
-  chain(nonRootActivities.value)
-    .map((signal) => signal.value)
-    .sortBy((activity) => activityFullNames.value.get(activity.id))
-    .value(),
-);
+const useOptions = () => {
+  const nonRootActivities = useNonRootActivities();
+  const activityFullNames = useActivityFullNames();
+  return useMemo(
+    () =>
+      chain([...nonRootActivities.values()])
+        .sortBy((activity) => activityFullNames.get(activity.id))
+        .value(),
+    [activityFullNames, nonRootActivities],
+  );
+};

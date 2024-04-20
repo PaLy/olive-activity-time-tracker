@@ -1,5 +1,5 @@
-import { computed, signal, Signal, useComputed } from "@preact/signals-react";
-import { Activity, activityStore } from "./Storage";
+import { Signal } from "@preact/signals-react";
+import { Activity } from "./Storage";
 import {
   ACTIVITY_FULL_NAME_SEPARATOR,
   activityFullName,
@@ -11,116 +11,150 @@ import {
   OrderBy,
 } from "./Algorithms";
 import { ClosedInterval } from "../interval/ClosedInterval";
+import { useActivities } from "./Operations";
+import { useMemo } from "react";
+import { produce } from "immer";
 
-export const activities = computed(() => activityStore.collection.value);
+export const useNonRootActivities = () => {
+  const { data: activities = new Map<string, Activity>() } = useActivities();
+  return useMemo(
+    () =>
+      produce(activities, (draft) => {
+        draft.delete("root");
+      }),
+    [activities],
+  );
+};
 
-export const rootActivity = computed(() => activities.value.get("root")!.value);
-
-export const nonRootActivities = computed(() =>
-  [...activities.value.values()].filter(
-    (activity) => activity.value !== rootActivity.value,
-  ),
-);
-
-export const activityFullNames = computed(
-  () =>
-    new Map(
-      [...activities.value.entries()].map(([id, activity]) => [
-        id,
-        activityFullName(activity),
-      ]),
-    ),
-);
-
-export const inProgressActivities = computed(
-  () =>
-    new Set(
-      nonRootActivities.value
-        .map((activity) => activity.value)
-        .filter(isSelfInProgress)
-        .flatMap((inProgressActivity) => [
-          inProgressActivity,
-          ...getNonRootAncestors(inProgressActivity),
+export const useActivityFullNames = () => {
+  const { data: activities = new Map<string, Activity>() } = useActivities();
+  return useMemo(
+    () =>
+      new Map(
+        [...activities.entries()].map(([id, activity]) => [
+          id,
+          activityFullName(activity, activities),
         ]),
-    ),
-);
+      ),
+    [activities],
+  );
+};
 
-export const inProgressActivitiesCount = computed(
-  () => inProgressActivities.value.size,
-);
+export const useInProgressActivities = () => {
+  const { data: activities = new Map<string, Activity>() } = useActivities();
+  return useMemo(
+    () =>
+      new Set(
+        Array.from(activities.values())
+          .filter(isSelfInProgress)
+          .flatMap((inProgressActivity) => [
+            inProgressActivity,
+            ...getNonRootAncestors(inProgressActivity, activities),
+          ]),
+      ),
+    [activities],
+  );
+};
 
-export const useInProgress = (activity: Signal<Activity>) =>
-  useComputed(() => inProgressActivities.value.has(activity.value));
+export const useInProgressActivitiesCount = () =>
+  useInProgressActivities().size;
 
-export const useParentActivity = (activity: Signal<Activity>) =>
-  useComputed(() => activities.value.get(activity.value.parentID)!.value);
+export const useInProgress = (activity: Activity) =>
+  useInProgressActivities().has(activity);
 
-export const useDepth = (activity: Signal<Activity>) =>
-  useComputed(() => getNonRootAncestors(activity.value).length);
+export const useParentActivity = (activity: Activity) => {
+  const { data: activities = new Map<string, Activity>() } = useActivities();
+  return activities.get(activity.parentID);
+};
+
+export const useDepth = (activity: Activity) => {
+  const { data: activities = new Map<string, Activity>() } = useActivities();
+  return useMemo(
+    () => getNonRootAncestors(activity, activities).length,
+    [activities, activity],
+  );
+};
 
 export const useDuration = (
-  activity: Signal<Activity>,
+  activity: Activity | undefined,
   filter: Signal<ClosedInterval>,
-) => useComputed(() => getDuration(activity, filter.value));
+) => {
+  const { data: activities = new Map<string, Activity>() } = useActivities();
+  return useMemo(
+    () => (activity ? getDuration(activity, filter.value, activities) : 0),
+    [activities, activity, filter.value],
+  );
+};
 
 export const useDurationPercentage = (
-  activity: Signal<Activity>,
+  activity: Activity,
   filter: Signal<ClosedInterval>,
 ) => {
   const parentActivity = useParentActivity(activity);
   const activityDuration = useDuration(activity, filter);
   const parentDuration = useDuration(parentActivity, filter);
-  return useComputed(() =>
-    Math.round((activityDuration.value / parentDuration.value) * 100),
-  );
+  return Math.round((activityDuration / parentDuration) * 100);
 };
 
 export const useActivitiesOrderKey = (
   filter: Signal<ClosedInterval>,
   orderBy: Signal<OrderBy>,
-  expandedAll: Signal<Set<string>>,
-) =>
-  useComputed(() =>
-    // Should be joined by a character which is not used in any ID.
-    getActivityIDsByOrder(
-      rootActivity,
-      filter.value,
-      orderBy.value,
-      expandedAll,
-    ).join("$"),
-  );
+  expandedAll: Set<string>,
+) => {
+  const { data: activities = new Map<string, Activity>() } = useActivities();
 
-export const useActivityPath = (
-  activity: Signal<Activity>,
-  ancestor: Signal<Activity | null> = defaultActivityPathAncestor,
-) =>
-  useComputed(() => {
-    const finalAncestor = ancestor?.value ?? rootActivity.value;
-    const ancestorFullname = activityFullNames.value.get(finalAncestor.id)!;
-    const activityFullname = activityFullNames.value.get(activity.value.id)!;
+  return useMemo(
+    () =>
+      // Should be joined by a character which is not used in any ID.
+      getActivityIDsByOrder(
+        filter.value,
+        orderBy.value,
+        expandedAll,
+        activities,
+      ).join("$"),
+    [activities, expandedAll, filter.value, orderBy.value],
+  );
+};
+
+export const useActivityPath = (activity: Activity, ancestor?: Activity) => {
+  const activityFullNames = useActivityFullNames();
+
+  return useMemo(() => {
+    const finalAncestorID = ancestor?.id ?? "root";
+    const ancestorFullname = activityFullNames.get(finalAncestorID) ?? "";
+    const activityFullname =
+      activityFullNames.get(activity.id) ?? activity.name;
     const separatorLength =
-      finalAncestor !== rootActivity.value
-        ? ACTIVITY_FULL_NAME_SEPARATOR.length
-        : 0;
+      finalAncestorID !== "root" ? ACTIVITY_FULL_NAME_SEPARATOR.length : 0;
     return activityFullname.substring(
       ancestorFullname.length + separatorLength,
     );
-  });
-
-const defaultActivityPathAncestor = signal(null);
-
-export const useActivityID = (activity: Signal<Activity>) =>
-  useComputed(() => activity.value.id);
+  }, [activity, activityFullNames, ancestor]);
+};
 
 export const useChildrenCount = (
-  activity: Signal<Activity>,
+  activity: Activity,
   filter: Signal<ClosedInterval>,
-) => computed(() => getChildActivities(activity, filter.value).length);
+) => {
+  const { data: activities = new Map<string, Activity>() } = useActivities();
+  return useMemo(
+    () => getChildActivities(activity, filter.value, activities).length,
+    [activities, activity, filter.value],
+  );
+};
 
-export const parentActivities = computed(() =>
-  [...nonRootActivities.value.values()].filter(
-    (activity) => activity.value.childIDs.length > 0,
-  ),
-);
+export const useParentActivities = () => {
+  const { data: activities = new Map<string, Activity>() } = useActivities();
+  return useMemo(
+    () =>
+      [...activities.values()].filter(
+        (activity) => activity.childIDs.length > 0,
+      ),
+    [activities],
+  );
+};
 
-export const anyActivityLogged = computed(() => activities.value.size > 1);
+export const useAnyActivityLogged = () => {
+  const { data: activities = new Map<string, Activity>() } = useActivities();
+  return activities.size > 1;
+};
