@@ -1,5 +1,4 @@
 import { join, overlaps } from "./SimpleClosedInterval";
-import { intervals } from "./Signals";
 import humanizeDuration from "humanize-duration";
 import { ClosedInterval } from "./ClosedInterval";
 import { Interval, toSimpleClosedInterval } from "./Interval";
@@ -7,18 +6,15 @@ import { chain, orderBy } from "lodash";
 import { Activity } from "../activity/Storage";
 import { getDescendants } from "../activity/Algorithms";
 import { MAX_DATE_MS } from "../../utils/Date";
-import { Signal } from "@preact/signals-react";
 
 export const getIntervalsDuration = (
-  intervalIds: string[],
+  intervals: Interval[],
   filter: ClosedInterval,
 ) => {
   let durationMs = 0;
   let curFilter = { start: filter.start.value, end: filter.end.value };
 
-  const simpleIntervals = intervalIds
-    .map((id) => intervals.value.get(id)!)
-    .map(toSimpleClosedInterval);
+  const simpleIntervals = intervals.map(toSimpleClosedInterval);
 
   join(simpleIntervals).forEach((interval) => {
     const { start, end } = interval;
@@ -40,11 +36,10 @@ export const getIntervalsDuration = (
 };
 
 export const getLastEndTime = (
-  intervalIds: string[],
+  intervals: Interval[],
   filter: ClosedInterval,
 ): number | undefined => {
-  return chain(intervalIds)
-    .map((id) => intervals.value.get(id)!)
+  return chain(intervals)
     .map(toSimpleClosedInterval)
     .filter((interval) =>
       overlaps(interval, { start: filter.start.value, end: filter.end.value }),
@@ -70,17 +65,18 @@ export const humanize = (
   });
 };
 
-export const intervalsGroupedByDay = (activity: Signal<Activity>) =>
-  chain([activity, ...getDescendants(activity)])
+export const intervalsGroupedByDay = (
+  activity: Activity,
+  activities: Map<string, Activity>,
+) =>
+  chain([activity, ...getDescendants(activity, activities)])
     .flatMap((activity) =>
-      activity.value.intervalIDs.map((id) => ({
+      activity.intervals.map((interval) => ({
         activity,
-        interval: intervals.value.get(id)!,
+        interval,
       })),
     )
-    .groupBy(({ interval }) =>
-      interval.value.start.clone().startOf("day").valueOf(),
-    )
+    .groupBy(({ interval }) => interval.start.clone().startOf("day").valueOf())
     .toPairs()
     .orderBy(([key]) => key, "desc")
     .fromPairs()
@@ -88,8 +84,8 @@ export const intervalsGroupedByDay = (activity: Signal<Activity>) =>
       orderBy(
         group,
         [
-          ({ interval }) => interval.value.start.valueOf(),
-          ({ interval }) => interval.value.end?.valueOf() ?? MAX_DATE_MS,
+          ({ interval }) => interval.start.valueOf(),
+          ({ interval }) => interval.end?.valueOf() ?? MAX_DATE_MS,
         ],
         ["desc", "desc"],
       ),
@@ -97,6 +93,6 @@ export const intervalsGroupedByDay = (activity: Signal<Activity>) =>
     .value();
 
 export type IntervalWithActivity = {
-  activity: Signal<Activity>;
-  interval: Signal<Interval>;
+  activity: Activity;
+  interval: Interval;
 };

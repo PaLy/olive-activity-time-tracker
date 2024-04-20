@@ -1,6 +1,4 @@
-import { Signal, signal } from "@preact/signals-react";
 import localforage from "localforage";
-import { produce } from "immer";
 import { JTDSchemaType } from "ajv/dist/jtd";
 
 export abstract class Store<
@@ -9,7 +7,6 @@ export abstract class Store<
   ExportedValue = StoredValue,
 > {
   private store;
-  collection = signal(new Map<string, Signal<Value>>());
   name;
 
   constructor(args: { name: string }) {
@@ -18,7 +15,7 @@ export abstract class Store<
     this.name = name;
   }
 
-  abstract asValue: (storedValue: StoredValue) => Value;
+  abstract asValue: (storedValue: StoredValue) => Promise<Value>;
   abstract asStoredValue: (value: Value) => StoredValue;
   abstract asExportedValue: (value: StoredValue) => ExportedValue | null;
   abstract fromExportedValue: (
@@ -26,32 +23,40 @@ export abstract class Store<
   ) => [key: string, StoredValue];
   abstract valueJsonSchema: JTDSchemaType<ExportedValue[]>;
 
-  afterLoaded = async () => {};
+  afterLoaded = async (
+    items: Map<string, Value>,
+  ): Promise<Map<string, Value>> => items;
 
   load = async () => {
-    const keyValues: [string, Signal<Value>][] = [];
-
-    // TODO error handling
-    await this.store.iterate((storedValue: StoredValue, key) => {
-      keyValues.push([key, signal(this.asValue(storedValue))]);
-    });
-    this.collection.value = new Map(keyValues);
-    await this.afterLoaded?.();
+    const storedValues = new Map<string, StoredValue>();
+    const result = new Map<string, Value>();
+    try {
+      await this.store.iterate((storedValue: StoredValue, key) => {
+        storedValues.set(key, storedValue);
+      });
+      for (const [key, storedValue] of storedValues.entries()) {
+        result.set(key, await this.asValue(storedValue));
+      }
+      return this.afterLoaded?.(result);
+    } catch (error) {
+      throw new Error(`Failed to load items: ${error}`);
+    }
   };
 
   set = async (key: string, value: Value) => {
-    await this.store.setItem(key, this.asStoredValue(value));
-    this.collection.value = new Map([
-      ...this.collection.value.entries(),
-      [key, signal(value)],
-    ]);
+    try {
+      await this.store.setItem(key, this.asStoredValue(value));
+    } catch (error) {
+      throw new Error(`Failed to set item: ${error}`);
+    }
     return value;
   };
 
   get = async (key: string) => {
     try {
       const storedValue: StoredValue | null = await this.store.getItem(key);
-      return storedValue ? this.asValue(storedValue) : null;
+      if (storedValue === null) throw new Error(`Item not found: ${key}`);
+      return await this.asValue(storedValue);
     } catch (error) {
       throw new Error(`Failed to get item: ${error}`);
     }
@@ -59,15 +64,11 @@ export abstract class Store<
 
   remove = async (key: string) => {
     await this.store.removeItem(key);
-    this.collection.value = produce(this.collection.value, (draft) => {
-      draft.delete(key);
-    });
   };
 
   clear = async () => {
     await this.store.clear();
-    this.collection.value = new Map();
-    await this.afterLoaded?.();
+    await this.afterLoaded?.(await this.load());
   };
 
   export = async () => {
@@ -90,15 +91,5 @@ export abstract class Store<
     ).catch(() => {
       // TODO clean so far imported?
     });
-    return this.load();
   };
-
-  jsonSchema = () => ({
-    type: "object",
-    properties: {
-      storeName: { type: "string", pattern: `^${this.name}$` },
-      data: { type: "array", items: this.valueJsonSchema },
-    },
-    required: ["storeName", "data"],
-  });
 }

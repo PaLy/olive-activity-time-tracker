@@ -1,8 +1,6 @@
-import { Signal } from "@preact/signals-react";
-import { Moment } from "moment/moment";
+import moment, { Moment } from "moment/moment";
 import { SimpleClosedInterval } from "./SimpleClosedInterval";
 import { durationRefreshTime } from "./Signals";
-import moment from "moment/moment";
 
 export type Interval = {
   id: string;
@@ -11,9 +9,9 @@ export type Interval = {
 };
 
 export const toSimpleClosedInterval = (
-  interval: Signal<Omit<Interval, "id">>,
+  interval: Omit<Interval, "id">,
 ): SimpleClosedInterval => {
-  const { start, end } = interval.value;
+  const { start, end } = interval;
 
   const endValue = moment.min(
     end ?? durationRefreshTime.value,

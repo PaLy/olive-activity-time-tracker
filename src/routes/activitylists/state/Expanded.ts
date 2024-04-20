@@ -1,21 +1,16 @@
 import { Activity } from "../../../data/activity/Storage";
-import { ReadonlySignal, signal, Signal } from "@preact/signals-react";
+import { ReadonlySignal, signal } from "@preact/signals-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import {
-  activities,
-  parentActivities,
-  rootActivity,
-  useActivityID,
-} from "../../../data/activity/Signals";
 import {
   getAllExpanded,
   getExpanded,
   setExpanded,
 } from "../../../data/activity/ActivityInListExpanded";
+import { useActivities } from "../../../data/activity/Operations";
+import { useParentActivities } from "../../../data/activity/Signals";
 
-export function useExpanded(activity: Signal<Activity>) {
-  const id = useActivityID(activity).value;
-
+export function useExpanded(activity: Activity) {
+  const { id } = activity;
   const { data } = useQuery({
     queryKey: ["activityInListExpanded", { id }],
     queryFn: () => getExpanded(id),
@@ -30,11 +25,11 @@ export function useExpandedAll() {
     queryKey: ["activitiesInListExpanded"],
     queryFn: async () => {
       expandedAllSignal.value = new Set(
-        [rootActivity.value.id].concat(await getAllExpanded()),
+        ["root"].concat(await getAllExpanded()),
       );
       return expandedAllSignal.value;
     },
-    initialData: new Set([rootActivity.value.id]),
+    initialData: new Set(["root"]),
   });
   return data;
 }
@@ -47,7 +42,7 @@ export function useExpandedAllSignal(): ReadonlySignal<Set<string>> {
 }
 
 type SetExpandedVariables = {
-  activity: Signal<Activity>;
+  activity: Activity;
   expanded: boolean;
 };
 
@@ -57,7 +52,7 @@ export function useSetExpanded() {
   const { mutate } = useMutation({
     mutationFn: async (variables: SetExpandedVariables) => {
       const { activity, expanded } = variables;
-      const { id } = activity.value;
+      const { id } = activity;
       queryClient.setQueryData(["activityInListExpanded", { id }], expanded);
       await setExpanded(id, expanded);
       await queryClient.invalidateQueries({
@@ -72,11 +67,10 @@ export function useSetExpanded() {
 
 function useSetExpandedAll() {
   const setExpanded = useSetExpanded();
+  const parentActivities = useParentActivities();
   return (expanded: boolean) =>
     Promise.all(
-      parentActivities.value.map((activity) =>
-        setExpanded({ activity, expanded }),
-      ),
+      parentActivities.map((activity) => setExpanded({ activity, expanded })),
     );
 }
 
@@ -92,11 +86,14 @@ export function useCollapseAll() {
 
 export function useExpandChildrenPathToRoot() {
   const setExpanded = useSetExpanded();
-  return (activity: Signal<Activity>) => {
-    let currentActivity = activity;
-    while (currentActivity.value !== rootActivity.value) {
+  const { data: activities } = useActivities();
+
+  return (activity: Activity) => {
+    let currentActivity: Activity | undefined = activity;
+
+    while (currentActivity && currentActivity.id !== "root") {
       setExpanded({ activity: currentActivity, expanded: true });
-      currentActivity = activities.value.get(currentActivity.value.parentID)!;
+      currentActivity = activities?.get(currentActivity.parentID);
     }
   };
 }
