@@ -1,11 +1,11 @@
-import { render, screen } from "@testing-library/react";
-import { RouterProvider } from "react-router-dom";
-import { router } from "../../../router";
+import { screen, waitFor } from "@testing-library/react";
 import { userEvent } from "@testing-library/user-event";
+import { activityStore } from "../../../data/activity/Storage";
+import { renderApp } from "../../../__testutils__/app";
 
 describe("AddActivityModal", () => {
   it("can add a new activity under an in-progress activity", async () => {
-    render(<RouterProvider router={router}></RouterProvider>);
+    renderApp();
     await userEvent.click(
       await screen.findByRole("button", { name: "start new activity" }),
     );
@@ -27,5 +27,19 @@ describe("AddActivityModal", () => {
 
     expect(await screen.findByText("Work")).toBeVisible();
     expect(await screen.findByText("Code Review")).toBeVisible();
+  });
+
+  it("can start first activity", async () => {
+    renderApp();
+    await userEvent.click(
+      await screen.findByRole("button", { name: "start new activity" }),
+    );
+    await userEvent.type(await screen.findByRole("textbox"), "Work");
+    await userEvent.click(
+      await screen.findByRole("button", { name: "finish" }),
+    );
+    await waitFor(async () =>
+      expect(await screen.findByText("Work")).toBeVisible(),
+    );
   });
 });

@@ -17,9 +17,12 @@ import { ScrollMemoryContext } from "./components/ScrollMemory";
 import { AppSnackbar } from "./routes/activity/AppSnackbar";
 import { useTickingClock } from "./data/interval/Signals";
 
-export const queryClient = new QueryClient();
+type Props = {
+  queryClient: QueryClient;
+};
 
-function App() {
+function App(props: Props) {
+  const { queryClient } = props;
   const theme = useTheme();
   useWindowResize();
   useTickingClock();

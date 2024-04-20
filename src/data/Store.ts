@@ -68,7 +68,6 @@ export abstract class Store<
 
   clear = async () => {
     await this.store.clear();
-    await this.afterLoaded?.(await this.load());
   };
 
   export = async () => {
