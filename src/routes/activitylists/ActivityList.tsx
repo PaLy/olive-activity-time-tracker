@@ -23,15 +23,15 @@ import { ResizableList, SingleItemData } from "../../components/ResizableList";
 import AutoSizer from "react-virtualized-auto-sizer";
 import { useExpandedAll, useExpandedAllSignal } from "./state/Expanded";
 import { getActivitiesByOrder, OrderBy } from "../../data/activity/Algorithms";
-import { durationRefreshDisabled } from "../../data/interval/Signals";
 import { useActivities } from "../../data/activity/Operations";
 import { Activity } from "../../data/activity/Storage";
+import { useClockStore } from "../../data/interval/Signals";
 
 type Props = {
-  interval: Signal<ClosedInterval>;
-  header: Signal<string>;
-  filter: Signal<ActivityListFilter | undefined>;
-  orderBy: Signal<OrderBy>;
+  interval: ClosedInterval;
+  header: string;
+  filter?: ActivityListFilter;
+  orderBy: OrderBy;
 };
 
 export type ActivityListFilter = {
@@ -69,12 +69,11 @@ const List = (props: ListProps) => {
     innerRef.current!.style.minHeight = `${height}px`;
   }, [height]);
 
+  const freezeClock = useClockStore((state) => state.freeze);
+  const unfreezeClock = useClockStore((state) => state.unfreeze);
+
   return (
-    <Flipper
-      flipKey={flipKey}
-      onStart={() => (durationRefreshDisabled.value = true)}
-      onComplete={() => (durationRefreshDisabled.value = false)}
-    >
+    <Flipper flipKey={flipKey} onStart={freezeClock} onComplete={unfreezeClock}>
       <ResizableList
         itemData={itemData}
         width={width}
@@ -135,9 +134,8 @@ const useItemData = (props: Props) => {
           rowProps: { header, filter },
           rowData: {
             size: signal(
-              (filter.value
-                ? filter.value.initialHeight + FILTER_PADDING_TOP
-                : 0) + (largeAppBar ? 64 : 56),
+              (filter ? filter.initialHeight + FILTER_PADDING_TOP : 0) +
+                (largeAppBar ? 64 : 56),
             ),
           },
         } as SingleItemData<typeof Header>,
@@ -155,21 +153,23 @@ const useItemData = (props: Props) => {
 };
 
 const useFilteredActivities = (
-  orderBy: Signal<OrderBy>,
-  interval: Signal<ClosedInterval>,
+  orderBy: OrderBy,
+  interval: ClosedInterval,
   expandedAll: Signal<Set<string>>,
 ) => {
   const { data: activities = new Map<string, Activity>() } = useActivities();
+  const time = useClockStore((state) => state.time);
 
   return useMemo(
     () =>
       getActivitiesByOrder(
-        interval.value,
+        interval,
         expandedAll.value,
-        orderBy.value,
+        orderBy,
         activities,
+        time,
       ),
-    [activities, expandedAll.value, interval.value, orderBy.value],
+    [activities, expandedAll.value, interval, orderBy, time],
   );
 };
 
@@ -179,14 +179,14 @@ const Header = (props: HeaderProps) => {
   const { header, filter } = props;
   return (
     <>
-      <AppAppBar header={header.value} actions={<AppBarActions />} />
-      {filter.value && (
+      <AppAppBar header={header} actions={<AppBarActions />} />
+      {filter && (
         <Grid
           container
           style={{ padding: FILTER_PADDING_TOP, paddingBottom: 0 }}
           justifyContent={"center"}
         >
-          {filter.value?.element}
+          {filter?.element}
         </Grid>
       )}
     </>

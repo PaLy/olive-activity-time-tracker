@@ -8,7 +8,7 @@ import {
   ListItemIcon,
   ListItemText,
 } from "@mui/material";
-import { Signal, useComputed } from "@preact/signals-react";
+import { useComputed } from "@preact/signals-react";
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
 import StopIcon from "@mui/icons-material/Stop";
@@ -37,7 +37,7 @@ import {
 
 type ActivityItemProps = {
   activity: Activity;
-  interval: Signal<ClosedInterval>;
+  interval: ClosedInterval;
 };
 
 export const ActivityItem = (props: ActivityItemProps) => {
@@ -47,7 +47,7 @@ export const ActivityItem = (props: ActivityItemProps) => {
 
   return (
     <Flipped flipId={activity.id} onAppear={onActivityAppear}>
-      <div>
+      <div data-testid={"activity-item"}>
         <Component {...props} />
       </div>
     </Flipped>
@@ -182,7 +182,7 @@ const StartStopButton = (props: StartStopActivityProps) => {
 
 type ActivityRow2Props = {
   activity: Activity;
-  interval: Signal<ClosedInterval>;
+  interval: ClosedInterval;
 };
 
 const ActivityRow2 = (props: ActivityRow2Props) => {
@@ -195,7 +195,7 @@ const ActivityRow2 = (props: ActivityRow2Props) => {
   const cost = getCost(duration, showCost);
 
   return (
-    <>
+    <span data-testid={"activity-duration"}>
       {showPercentage && <>{durationPercentage} %</>}
       {showCost.show && <> • {cost}</>}
       {showDuration && (
@@ -203,7 +203,7 @@ const ActivityRow2 = (props: ActivityRow2Props) => {
           <br /> {humanizedDuration}
         </>
       )}
-    </>
+    </span>
   );
 };
 

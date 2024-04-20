@@ -15,12 +15,14 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { ScrollMemoryContext } from "./components/ScrollMemory";
 import { AppSnackbar } from "./routes/activity/AppSnackbar";
+import { useTickingClock } from "./data/interval/Signals";
 
 export const queryClient = new QueryClient();
 
 function App() {
   const theme = useTheme();
   useWindowResize();
+  useTickingClock();
 
   const scrollMemory = new Map<string, number>();
 

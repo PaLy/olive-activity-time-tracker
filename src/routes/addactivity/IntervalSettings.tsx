@@ -7,6 +7,9 @@ import {
 import { CreateActivityState } from "./AddActivityModal";
 import { DateTimeRangePicker } from "../../components/DateTimeRangePicker";
 import { useComputed } from "@preact/signals-react";
+import moment from "moment/moment";
+import { humanize } from "../../data/interval/Algorithms";
+import { useClockStore } from "../../data/interval/Signals";
 
 type Props = {
   state: CreateActivityState;
@@ -20,10 +23,10 @@ export const IntervalSettings = (props: Props) => {
     endTime,
     endTimeError,
     intervalToggle: toggle,
-    durationMs,
   } = state;
 
   const omitEndTimePicker = useComputed(() => toggle.value !== "finished");
+  const duration = useDuration(state);
 
   return (
     <>
@@ -54,7 +57,23 @@ export const IntervalSettings = (props: Props) => {
           omitEndTimePicker={omitEndTimePicker}
         />
       )}
-      <Typography sx={{ m: 1 }}>{durationMs}</Typography>
+      <Typography sx={{ m: 1 }}>{duration}</Typography>
     </>
   );
+};
+
+const useDuration = (state: CreateActivityState) => {
+  const { intervalToggle, dialogOpenedTime, startTime, endTime } = state;
+
+  const time = useClockStore((state) => state.time);
+
+  const inProgress = intervalToggle.value !== "finished";
+
+  const startTimeByToggle =
+    intervalToggle.value === "now" ? dialogOpenedTime.value : startTime.value;
+
+  const finalEndTime = inProgress ? time : endTime.value;
+  const finalStartTime = moment.min(startTimeByToggle, finalEndTime);
+
+  return humanize(finalEndTime.diff(finalStartTime), inProgress);
 };

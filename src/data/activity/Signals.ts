@@ -1,4 +1,3 @@
-import { Signal } from "@preact/signals-react";
 import { Activity } from "./Storage";
 import {
   ACTIVITY_FULL_NAME_SEPARATOR,
@@ -14,6 +13,7 @@ import { ClosedInterval } from "../interval/ClosedInterval";
 import { useActivities } from "./Operations";
 import { useMemo } from "react";
 import { produce } from "immer";
+import { useClockStore } from "../interval/Signals";
 
 export const useNonRootActivities = () => {
   const { data: activities = new Map<string, Activity>() } = useActivities();
@@ -77,18 +77,19 @@ export const useDepth = (activity: Activity) => {
 
 export const useDuration = (
   activity: Activity | undefined,
-  filter: Signal<ClosedInterval>,
+  filter: ClosedInterval,
 ) => {
   const { data: activities = new Map<string, Activity>() } = useActivities();
+  const time = useClockStore((state) => state.time);
   return useMemo(
-    () => (activity ? getDuration(activity, filter.value, activities) : 0),
-    [activities, activity, filter.value],
+    () => (activity ? getDuration(activity, filter, activities, time) : 0),
+    [activities, activity, filter, time],
   );
 };
 
 export const useDurationPercentage = (
   activity: Activity,
-  filter: Signal<ClosedInterval>,
+  filter: ClosedInterval,
 ) => {
   const parentActivity = useParentActivity(activity);
   const activityDuration = useDuration(activity, filter);
@@ -97,22 +98,23 @@ export const useDurationPercentage = (
 };
 
 export const useActivitiesOrderKey = (
-  filter: Signal<ClosedInterval>,
-  orderBy: Signal<OrderBy>,
+  filter: ClosedInterval,
+  orderBy: OrderBy,
   expandedAll: Set<string>,
 ) => {
   const { data: activities = new Map<string, Activity>() } = useActivities();
-
+  const time = useClockStore((state) => state.time);
   return useMemo(
     () =>
       // Should be joined by a character which is not used in any ID.
       getActivityIDsByOrder(
-        filter.value,
-        orderBy.value,
+        filter,
+        orderBy,
         expandedAll,
         activities,
+        time,
       ).join("$"),
-    [activities, expandedAll, filter.value, orderBy.value],
+    [activities, expandedAll, filter, orderBy, time],
   );
 };
 
@@ -134,12 +136,13 @@ export const useActivityPath = (activity: Activity, ancestor?: Activity) => {
 
 export const useChildrenCount = (
   activity: Activity,
-  filter: Signal<ClosedInterval>,
+  filter: ClosedInterval,
 ) => {
   const { data: activities = new Map<string, Activity>() } = useActivities();
+  const time = useClockStore((state) => state.time);
   return useMemo(
-    () => getChildActivities(activity, filter.value, activities).length,
-    [activities, activity, filter.value],
+    () => getChildActivities(activity, filter, activities, time).length,
+    [activities, activity, filter, time],
   );
 };
 
