@@ -8,13 +8,14 @@ import { Moment } from "moment";
 import { Chip, Grid, IconButton } from "@mui/material";
 import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
-import { Signal, useSignal } from "@preact/signals-react";
+import { useSignal } from "@preact/signals-react";
 
 export type ChipDatePickerProps = Omit<
   DatePickerProps<Moment>,
   "value" | "onChange" | "onClose" | "onOpen" | "open" | "slots" | "slotProps"
 > & {
-  value: Signal<Moment>;
+  value: Moment;
+  onChange: (value: Moment) => void;
   isMaxDate?: (value: Moment) => boolean;
   onBefore?: (value: Moment) => Moment;
   onNext?: (value: Moment) => Moment;
@@ -22,18 +23,25 @@ export type ChipDatePickerProps = Omit<
 };
 
 export const ChipDatePicker = (props: ChipDatePickerProps) => {
-  const { value, isMaxDate, onBefore, onNext, toLabel, ...datePickerProps } =
-    props;
+  const {
+    value,
+    onChange,
+    isMaxDate,
+    onBefore,
+    onNext,
+    toLabel,
+    ...datePickerProps
+  } = props;
   const open = useSignal(false);
   const onOpen = () => (open.value = true);
   const onClose = () => (open.value = false);
 
   return (
     <DatePicker
-      value={value.value}
+      value={value}
       onChange={(newValue) => {
         if (newValue) {
-          value.value = newValue;
+          onChange(newValue);
         }
       }}
       slots={{ field: MyChip }}

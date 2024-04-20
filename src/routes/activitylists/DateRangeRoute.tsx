@@ -1,56 +1,53 @@
-import { ActivityList, ActivityListFilter } from "./ActivityList";
-import { computed, signal } from "@preact/signals-react";
+import { ActivityList } from "./ActivityList";
 import { Grid } from "@mui/material";
 import moment from "moment";
 import humanizeDuration from "humanize-duration";
 import { ChipDayPicker } from "../../components/ChipDayPicker";
 import { OrderBy } from "../../data/activity/Algorithms";
+import { useState } from "react";
+import { ClosedInterval } from "../../data/interval/ClosedInterval";
 
-export const DateRangeRoute = () => (
-  <ActivityList
-    interval={interval}
-    header={humanizedDuration}
-    filter={filter}
-    orderBy={orderBy}
-  />
-);
+export const DateRangeRoute = () => {
+  const [start, setStart] = useState(moment().subtract(6, "days"));
+  const [end, setEnd] = useState(moment());
 
-const orderBy = signal(OrderBy.Duration);
+  const istart = start.clone().startOf("day").valueOf();
+  const iend = end.clone().add(1, "day").startOf("day").valueOf();
+  const interval = { start: istart, end: iend };
 
-const start = signal(moment().subtract(6, "days"));
-const end = signal(moment());
+  return (
+    <ActivityList
+      interval={interval}
+      header={humanizedDuration(interval)}
+      orderBy={OrderBy.Duration}
+      filter={{
+        element: (
+          <Grid
+            container
+            justifyContent={"center"}
+            sx={{ gap: 1 }}
+            alignItems={"center"}
+          >
+            <ChipDayPicker value={start} onChange={setStart} maxDate={end} />
+            —
+            <ChipDayPicker
+              value={end}
+              onChange={setEnd}
+              minDate={start}
+              disableFuture
+            />
+          </Grid>
+        ),
+        initialHeight: 40,
+      }}
+    />
+  );
+};
 
-const filter = computed<ActivityListFilter>(() => ({
-  element: (
-    <Grid
-      container
-      justifyContent={"center"}
-      sx={{ gap: 1 }}
-      alignItems={"center"}
-    >
-      <ChipDayPicker value={start} maxDate={end.value} />
-      —
-      <ChipDayPicker value={end} minDate={start.value} disableFuture />
-    </Grid>
-  ),
-  initialHeight: 40,
-}));
-
-const istart = computed(() => start.value.clone().startOf("day").valueOf());
-const iend = computed(() =>
-  end.value.clone().add(1, "day").startOf("day").valueOf(),
-);
-
-const interval = computed(() => ({
-  start: istart,
-  end: iend,
-}));
-
-const humanizedDuration = computed(() =>
-  humanizeDuration(interval.value.end.value - interval.value.start.value, {
+const humanizedDuration = (interval: ClosedInterval) =>
+  humanizeDuration(interval.end - interval.start, {
     delimiter: " ",
     // units and rounding are needed, because one month is not defined in full days
     units: ["y", "mo", "w", "d"],
     round: true,
-  }),
-);
+  });

@@ -2,6 +2,7 @@ import { Activity } from "./Storage";
 import { getIntervalsDuration, getLastEndTime } from "../interval/Algorithms";
 import { ClosedInterval } from "../interval/ClosedInterval";
 import { chain } from "lodash";
+import { Moment } from "moment";
 
 export const isSelfInProgress = (activity: Activity) => {
   return activity.intervals.some((interval) => !interval.end);
@@ -51,9 +52,10 @@ export const getDuration = (
   activity: Activity,
   filter: ClosedInterval,
   activities: Map<string, Activity>,
+  time: Moment,
 ) => {
   const allIntervals = getAllIntervals(activity, activities);
-  return getIntervalsDuration(allIntervals, filter);
+  return getIntervalsDuration(allIntervals, filter, time);
 };
 
 const getAllIntervals = (
@@ -68,12 +70,13 @@ const getChildActivitiesByDuration = (
   activity: Activity,
   filter: ClosedInterval,
   activities: Map<string, Activity>,
+  time: Moment,
 ) =>
   chain(activity.childIDs)
     .map((childID) => activities.get(childID)!)
     .map((child) => ({
       child,
-      duration: getDuration(child, filter, activities),
+      duration: getDuration(child, filter, activities, time),
     }))
     .filter(({ duration }) => duration > 0)
     .orderBy(
@@ -87,12 +90,17 @@ const getChildActivitiesByLastEndTime = (
   activity: Activity,
   filter: ClosedInterval,
   activities: Map<string, Activity>,
+  time: Moment,
 ) =>
   chain(activity.childIDs)
     .map((childID) => activities.get(childID)!)
     .map((child) => ({
       child,
-      lastEndTime: getLastEndTime(getAllIntervals(child, activities), filter),
+      lastEndTime: getLastEndTime(
+        getAllIntervals(child, activities),
+        filter,
+        time,
+      ),
     }))
     .filter(({ lastEndTime }) => lastEndTime !== undefined)
     .orderBy(
@@ -112,12 +120,18 @@ export const getChildActivitiesByOrder = (
   filter: ClosedInterval,
   orderBy: OrderBy,
   activities: Map<string, Activity>,
+  time: Moment,
 ) => {
   switch (orderBy) {
     case OrderBy.Duration:
-      return getChildActivitiesByDuration(activity, filter, activities);
+      return getChildActivitiesByDuration(activity, filter, activities, time);
     case OrderBy.LastEndTime:
-      return getChildActivitiesByLastEndTime(activity, filter, activities);
+      return getChildActivitiesByLastEndTime(
+        activity,
+        filter,
+        activities,
+        time,
+      );
   }
 };
 
@@ -125,12 +139,13 @@ export const getChildActivities = (
   activity: Activity,
   filter: ClosedInterval,
   activities: Map<string, Activity>,
+  time: Moment,
 ) =>
   chain(activity.childIDs)
     .map((childID) => activities.get(childID)!)
     .map((child) => ({
       child,
-      duration: getDuration(child, filter, activities),
+      duration: getDuration(child, filter, activities, time),
     }))
     .filter(({ duration }) => duration > 0)
     .map(({ child }) => child)
@@ -142,16 +157,25 @@ const getActivitiesByOrderRec = (
   expanded: Set<string>,
   orderBy: OrderBy,
   activities: Map<string, Activity>,
+  time: Moment,
 ): Activity[] => {
   return getChildActivitiesByOrder(
     activity,
     filter,
     orderBy,
     activities,
+    time,
   ).flatMap((child) => {
     if (expanded.has(child.id)) {
       return [child].concat(
-        getActivitiesByOrderRec(child, filter, expanded, orderBy, activities),
+        getActivitiesByOrderRec(
+          child,
+          filter,
+          expanded,
+          orderBy,
+          activities,
+          time,
+        ),
       );
     } else {
       return [child];
@@ -164,6 +188,7 @@ export const getActivitiesByOrder = (
   expanded: Set<string>,
   orderBy: OrderBy,
   activities: Map<string, Activity>,
+  time: Moment,
 ): Activity[] => {
   const rootActivity = activities.get("root");
   return rootActivity
@@ -173,6 +198,7 @@ export const getActivitiesByOrder = (
         expanded,
         orderBy,
         activities,
+        time,
       )
     : [];
 };
@@ -183,6 +209,7 @@ const getActivityIDsByOrderRec = (
   orderBy: OrderBy,
   expandedAll: Set<string>,
   activities: Map<string, Activity>,
+  time: Moment,
 ): string[] =>
   expandedAll.has(activity.id)
     ? [activity.id].concat(
@@ -191,6 +218,7 @@ const getActivityIDsByOrderRec = (
           filter,
           orderBy,
           activities,
+          time,
         ).flatMap((child) =>
           getActivityIDsByOrderRec(
             child,
@@ -198,6 +226,7 @@ const getActivityIDsByOrderRec = (
             orderBy,
             expandedAll,
             activities,
+            time,
           ),
         ),
       )
@@ -208,6 +237,7 @@ export const getActivityIDsByOrder = (
   orderBy: OrderBy,
   expandedAll: Set<string>,
   activities: Map<string, Activity>,
+  time: Moment,
 ): string[] => {
   const rootActivity = activities.get("root");
   return rootActivity
@@ -217,6 +247,7 @@ export const getActivityIDsByOrder = (
         orderBy,
         expandedAll,
         activities,
+        time,
       )
     : [];
 };
