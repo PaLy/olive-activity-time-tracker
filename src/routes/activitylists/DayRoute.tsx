@@ -8,7 +8,7 @@ import { useState } from "react";
  * TODO don't display play buttons? (if activity has started today, it will still have a play button)
  */
 export const DayRoute = () => {
-  const [day, setDay] = useState(moment());
+  const [day, setDay] = useState(yesterday());
   const start = day.startOf("day").valueOf();
   const end = day.endOf("day").valueOf();
 
@@ -20,12 +20,10 @@ export const DayRoute = () => {
       filter={{
         element: (
           <ChipDayPicker
-            maxDate={moment().subtract(1, "day")}
+            maxDate={yesterday()}
             value={day}
             onChange={setDay}
-            isMaxDate={(value) =>
-              value.isSame(moment().subtract(1, "day"), "day")
-            }
+            isMaxDate={(value) => value.isSame(yesterday(), "day")}
             onBefore={(value) => value.clone().subtract(1, "day")}
             onNext={(value) => value.clone().add(1, "day")}
           />
@@ -35,3 +33,5 @@ export const DayRoute = () => {
     />
   );
 };
+
+const yesterday = () => moment().subtract(1, "day");
