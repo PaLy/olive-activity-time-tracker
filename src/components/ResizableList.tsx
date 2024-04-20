@@ -10,9 +10,10 @@ import React, {
   RefObject,
   useContext,
   useEffect,
+  useMemo,
   useRef,
 } from "react";
-import { ReadonlySignal, Signal, useComputed } from "@preact/signals-react";
+import { Signal } from "@preact/signals-react";
 import { windowWidth } from "../utils/Window";
 import { ScrollMemoryContext } from "./ScrollMemory";
 import { useLocation } from "../routes/Router";
@@ -24,15 +25,13 @@ type ResizableListProps<Component extends ElementType> = Pick<
   itemData: ItemData<Component>;
 };
 
-type ItemData<Component extends ElementType> = Signal<
-  Array<{
-    RowComponent: Component;
-    rowProps: ComponentProps<Component>;
-    rowData: {
-      size: Signal<number>;
-    };
-  }>
->;
+type ItemData<Component extends ElementType> = Array<{
+  RowComponent: Component;
+  rowProps: ComponentProps<Component>;
+  rowData: {
+    size: Signal<number>;
+  };
+}>;
 
 export type SingleItemData<Component extends ElementType> = {
   RowComponent: Component;
@@ -66,8 +65,8 @@ export const ResizableList = <Component extends ElementType>(
       ref={variableSizeListRef}
       height={height}
       width={width}
-      itemSize={(index) => itemData.value[index].rowData.size.value}
-      itemCount={itemData.value.length}
+      itemSize={(index) => itemData[index].rowData.size.value}
+      itemCount={itemData.length}
       itemData={wrappedItemData}
       innerElementType={innerElementType}
       innerRef={innerRef}
@@ -87,26 +86,26 @@ const useWrappedItemData = <Component extends ElementType>(
   itemData: ItemData<Component>,
   listRef: RefObject<VariableSizeList<WrappedItemData<Component>>>,
 ) =>
-  useComputed(() =>
-    itemData.value.map((row) => ({
-      ...row,
-      rowData: {
-        ...row.rowData,
-        listRef: listRef,
-      },
-    })),
+  useMemo(
+    () =>
+      itemData.map((row) => ({
+        ...row,
+        rowData: {
+          ...row.rowData,
+          listRef: listRef,
+        },
+      })),
+    [itemData, listRef],
   );
 
-type WrappedItemData<Component extends ElementType> = ReadonlySignal<
-  Array<{
-    RowComponent: Component;
-    rowProps: ComponentProps<Component>;
-    rowData: {
-      size: Signal<number>;
-      listRef: RefObject<VariableSizeList<WrappedItemData<Component>>>;
-    };
-  }>
->;
+type WrappedItemData<Component extends ElementType> = Array<{
+  RowComponent: Component;
+  rowProps: ComponentProps<Component>;
+  rowData: {
+    size: Signal<number>;
+    listRef: RefObject<VariableSizeList<WrappedItemData<Component>>>;
+  };
+}>;
 
 type RowType<Component extends ElementType> = ComponentType<
   ListChildComponentProps<WrappedItemData<Component>>
@@ -120,7 +119,7 @@ const Row = <Component extends ElementType>(
     RowComponent,
     rowData: { size, listRef },
     rowProps,
-  } = data.value[index];
+  } = data[index];
 
   const rowRef = useRef<HTMLDivElement>(null);
   const windowWidthValue = windowWidth.value;

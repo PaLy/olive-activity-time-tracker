@@ -1,25 +1,31 @@
-import { signal, Signal, useComputed } from "@preact/signals-react";
+import { signal, Signal } from "@preact/signals-react";
 import { Box, Fab, Grid, Paper, useMediaQuery, useTheme } from "@mui/material";
 import { AppBarActions } from "./AppBarActions";
 import { ActivityItem } from "./ActivityItem";
-import {
-  rootActivity,
-  useActivitiesOrderKey,
-} from "../../data/activity/Signals";
+import { useActivitiesOrderKey } from "../../data/activity/Signals";
 import { ClosedInterval } from "../../data/interval/ClosedInterval";
 import { AppAppBar } from "../../AppBar";
 import { AppBottomNavigation } from "./BottomNavigation";
 import { Flipper } from "react-flip-toolkit";
-import { ElementType, forwardRef, ReactNode, useEffect, useRef } from "react";
+import {
+  ElementType,
+  forwardRef,
+  ReactNode,
+  useEffect,
+  useMemo,
+  useRef,
+} from "react";
 import { useNavigate } from "react-router-dom";
 import { useLocation } from "../Router";
 import AddIcon from "@mui/icons-material/Add";
 import { AddActivityModal } from "../addactivity/AddActivityModal";
 import { ResizableList, SingleItemData } from "../../components/ResizableList";
 import AutoSizer from "react-virtualized-auto-sizer";
-import { useExpandedAllSignal } from "./state/Expanded";
+import { useExpandedAll, useExpandedAllSignal } from "./state/Expanded";
 import { getActivitiesByOrder, OrderBy } from "../../data/activity/Algorithms";
 import { durationRefreshDisabled } from "../../data/interval/Signals";
+import { useActivities } from "../../data/activity/Operations";
+import { Activity } from "../../data/activity/Storage";
 
 type Props = {
   interval: Signal<ClosedInterval>;
@@ -56,7 +62,7 @@ const List = (props: ListProps) => {
   const { interval, orderBy } = props;
   const itemData = useItemData(otherProps);
   const innerRef = useRef<HTMLDivElement>();
-  const expandedAll = useExpandedAllSignal();
+  const expandedAll = useExpandedAll();
   const flipKey = useActivitiesOrderKey(interval, orderBy, expandedAll);
 
   useEffect(() => {
@@ -65,7 +71,7 @@ const List = (props: ListProps) => {
 
   return (
     <Flipper
-      flipKey={flipKey.value}
+      flipKey={flipKey}
       onStart={() => (durationRefreshDisabled.value = true)}
       onComplete={() => (durationRefreshDisabled.value = false)}
     >
@@ -116,12 +122,12 @@ const FILTER_PADDING_TOP = 16;
 const useItemData = (props: Props) => {
   const { header, filter, interval, orderBy } = props;
   const expandedAll = useExpandedAllSignal();
-  const activities = useActivities(orderBy, interval, expandedAll);
+  const activities = useFilteredActivities(orderBy, interval, expandedAll);
 
   const theme = useTheme();
   const largeAppBar = useMediaQuery(theme.breakpoints.up("sm"));
 
-  return useComputed(
+  return useMemo(
     () =>
       [
         {
@@ -135,31 +141,37 @@ const useItemData = (props: Props) => {
             ),
           },
         } as SingleItemData<typeof Header>,
-        ...activities.value.map(
+        ...activities.map(
           (activity) =>
             ({
               RowComponent: ActivityItem,
-              rowProps: { activity, interval, key: activity.value.id },
+              rowProps: { activity, interval, key: activity.id },
               rowData: { size: signal(92) },
             }) as SingleItemData<typeof ActivityItem>,
         ),
       ] as SingleItemData<ElementType>[],
+    [activities, filter, header, interval, largeAppBar],
   );
 };
 
-const useActivities = (
+const useFilteredActivities = (
   orderBy: Signal<OrderBy>,
   interval: Signal<ClosedInterval>,
   expandedAll: Signal<Set<string>>,
-) =>
-  useComputed(() =>
-    getActivitiesByOrder(
-      rootActivity,
-      interval.value,
-      expandedAll.value,
-      orderBy,
-    ),
+) => {
+  const { data: activities = new Map<string, Activity>() } = useActivities();
+
+  return useMemo(
+    () =>
+      getActivitiesByOrder(
+        interval.value,
+        expandedAll.value,
+        orderBy.value,
+        activities,
+      ),
+    [activities, expandedAll.value, interval.value, orderBy.value],
   );
+};
 
 type HeaderProps = Pick<Props, "header" | "filter">;
 

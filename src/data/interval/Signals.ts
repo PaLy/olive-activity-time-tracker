@@ -1,18 +1,11 @@
-import {
-  computed,
-  effect,
-  Signal,
-  signal,
-  useComputed,
-} from "@preact/signals-react";
-import { intervalStore } from "./Storage";
+import { effect, signal } from "@preact/signals-react";
 import moment from "moment/moment";
 
 import { humanize, intervalsGroupedByDay } from "./Algorithms";
 import { Interval, toSimpleClosedInterval } from "./Interval";
 import { Activity } from "../activity/Storage";
-
-export const intervals = computed(() => intervalStore.collection.value);
+import { useActivities } from "../activity/Operations";
+import { useMemo } from "react";
 
 export const durationRefreshTime = signal(moment());
 export const durationRefreshDisabled = signal(false);
@@ -38,21 +31,25 @@ effect(() => {
   }
 });
 
-export const useHumanizedDuration = (
-  duration: Signal<number>,
-  inProgress: Signal<boolean>,
-) => useComputed(() => humanize(duration.value, inProgress.value));
+export const useHumanizedDuration = (duration: number, inProgress: boolean) => {
+  return useMemo(() => humanize(duration, inProgress), [duration, inProgress]);
+};
 
 export const useIntervalDuration = (
-  interval: Signal<Omit<Interval, "id">>,
-  full: Signal<boolean>,
+  interval: Omit<Interval, "id">,
+  full: boolean,
 ) =>
-  useComputed(() => {
-    const inProgress = !interval.value.end;
+  useMemo(() => {
+    const inProgress = !interval.end;
     const { start, end } = toSimpleClosedInterval(interval);
     const duration = end - start;
-    return humanize(duration, inProgress, full.value);
-  });
+    return humanize(duration, inProgress, full);
+  }, [full, interval]);
 
-export const useIntervalsGroupedByDay = (activity: Signal<Activity>) =>
-  useComputed(() => intervalsGroupedByDay(activity));
+export const useIntervalsGroupedByDay = (activity: Activity) => {
+  const { data: activities = new Map<string, Activity>() } = useActivities();
+  return useMemo(
+    () => intervalsGroupedByDay(activity, activities),
+    [activities, activity],
+  );
+};

@@ -10,14 +10,13 @@ import { useMemo } from "react";
 import { Outlet, ScrollRestoration } from "react-router-dom";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterMoment } from "@mui/x-date-pickers/AdapterMoment";
-import { dbLoading } from "./data/Storage";
 import { useWindowResize } from "./utils/Window";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { ScrollMemoryContext } from "./components/ScrollMemory";
 import { AppSnackbar } from "./routes/activity/AppSnackbar";
 
-const queryClient = new QueryClient();
+export const queryClient = new QueryClient();
 
 function App() {
   const theme = useTheme();
@@ -47,7 +46,7 @@ function App() {
                 style={{ height: "100%", position: "relative" }}
                 disableGutters
               >
-                {dbLoading.value === "finished" ? <Outlet /> : null}
+                <Outlet />
               </Container>
             </Box>
           </ScrollMemoryContext.Provider>

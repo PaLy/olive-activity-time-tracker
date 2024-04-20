@@ -17,42 +17,42 @@ import {
 } from "../../data/interval/Signals";
 import { IntervalWithActivity } from "../../data/interval/Algorithms";
 import { useActivityPath } from "../../data/activity/Signals";
-import { ElementType, forwardRef, ReactNode, useImperativeHandle } from "react";
+import {
+  ElementType,
+  forwardRef,
+  ReactNode,
+  useImperativeHandle,
+  useMemo,
+  useRef,
+} from "react";
 import EditIcon from "@mui/icons-material/Edit";
 import { DeleteIntervalConfirmation } from "./DeleteIntervalConfirmation";
 import { Interval } from "../../data/interval/Interval";
-import {
-  computed,
-  ReadonlySignal,
-  signal,
-  Signal,
-  useComputed,
-  useSignal,
-} from "@preact/signals-react";
+import { computed, signal, Signal, useSignal } from "@preact/signals-react";
 import AutoSizer from "react-virtualized-auto-sizer";
 import moment from "moment";
 import { ResizableList, SingleItemData } from "../../components/ResizableList";
 
 export const ActivityRoute = () => {
-  const activity = useLoaderData() as Signal<Activity>;
+  const activity = useLoaderData() as Activity;
   const groupedIntervals = useIntervalsGroupedByDay(activity);
   const visibleStartIndex = useSignal(0);
   const rowData = useRowData(groupedIntervals, activity, visibleStartIndex);
 
-  const topInterval = useComputed(() => {
+  const topInterval = useMemo(() => {
     if (visibleStartIndex.value > 0) {
-      return rowData.value
+      return rowData
         .slice(visibleStartIndex.value)
         .find(
           (
             singleRowData,
           ): singleRowData is SingleItemData<typeof IntervalItem> =>
             singleRowData.RowComponent === IntervalItem,
-        )?.rowProps.intervalWithActivity.interval.value;
+        )?.rowProps.intervalWithActivity.interval;
     } else {
       return undefined;
     }
-  });
+  }, [rowData, visibleStartIndex.value]);
 
   return (
     <>
@@ -81,7 +81,7 @@ export const ActivityRoute = () => {
 };
 
 type InnerRefValue = {
-  setTopInterval: (topInterval: ReadonlySignal<Interval | undefined>) => void;
+  setTopInterval: (topInterval: Interval | undefined) => void;
 };
 
 const innerElementType = forwardRef<
@@ -91,40 +91,41 @@ const innerElementType = forwardRef<
     style: { [key: string]: unknown };
   }
 >(({ children, ...rest }, ref) => {
-  const topIntervalHolder = useSignal<Signal<Interval | undefined>>(
-    signal(undefined),
-  );
-  const topInterval = useComputed(() => topIntervalHolder.value.value);
+  const topIntervalRef = useRef<Interval | undefined>(undefined);
 
   useImperativeHandle(ref, () => ({
     setTopInterval: (topInterval) => {
-      topIntervalHolder.value = topInterval;
+      topIntervalRef.current = topInterval;
     },
   }));
 
   return (
     <Box {...rest} sx={{ mb: 1 }}>
-      <StickySubheader interval={topInterval} />
+      <StickySubheader interval={topIntervalRef.current} />
       {children}
     </Box>
   );
 });
 
 type StickySubheaderProps = {
-  interval: Signal<Interval | undefined>;
+  interval: Interval | undefined;
 };
 
 const StickySubheader = (props: StickySubheaderProps) => {
   const { interval } = props;
-  const definedInterval = useComputed(
-    () => interval.value ?? { id: "", start: moment(), end: moment() },
+  return (
+    <>
+      {interval && (
+        <SubheaderItem
+          interval={interval ?? { id: "", start: moment(), end: moment() }}
+        />
+      )}
+    </>
   );
-
-  return <>{interval.value && <SubheaderItem interval={definedInterval} />}</>;
 };
 
 type TopOfIntervalListProps = {
-  activity: Signal<Activity>;
+  activity: Activity;
 };
 
 const TopOfIntervalList = (props: TopOfIntervalListProps) => {
@@ -132,7 +133,7 @@ const TopOfIntervalList = (props: TopOfIntervalListProps) => {
   const path = useActivityPath(activity);
   return (
     <Box sx={{ pt: 1, pb: 1 }}>
-      <FullScreenModalHeader headline={path.value} />
+      <FullScreenModalHeader headline={path} />
       <Typography variant="h6" sx={{ pl: 2, pr: 2 }}>
         Intervals
       </Typography>
@@ -141,11 +142,11 @@ const TopOfIntervalList = (props: TopOfIntervalListProps) => {
 };
 
 const useRowData = (
-  groupedIntervals: ReadonlySignal<{ [key: string]: IntervalWithActivity[] }>,
-  activity: Signal<Activity>,
+  groupedIntervals: { [key: string]: IntervalWithActivity[] },
+  activity: Activity,
   visibleStartIndex: Signal<number>,
-) =>
-  useComputed(() => {
+) => {
+  return useMemo(() => {
     let index = 1;
     return [
       {
@@ -153,7 +154,7 @@ const useRowData = (
         rowProps: { activity },
         rowData: { size: signal(96) },
       },
-      ...Object.values(groupedIntervals.value).flatMap((intervals) => {
+      ...Object.values(groupedIntervals).flatMap((intervals) => {
         const finalIndex = index;
         const subheaderData: SingleItemData<typeof SubheaderItem> = {
           RowComponent: SubheaderItem,
@@ -176,10 +177,11 @@ const useRowData = (
         return items;
       }),
     ] as SingleItemData<ElementType>[];
-  });
+  }, [activity, groupedIntervals, visibleStartIndex.value]);
+};
 
 type SubheaderItemProps = {
-  interval: Signal<Interval>;
+  interval: Interval;
   stickyItemVisible?: Signal<boolean>;
 };
 
@@ -189,29 +191,25 @@ const SubheaderItem = (props: SubheaderItemProps) => {
     return null;
   } else {
     return (
-      <ListSubheader>
-        {interval.value.start.format("ddd, MMM D, YYYY")}
-      </ListSubheader>
+      <ListSubheader>{interval.start.format("ddd, MMM D, YYYY")}</ListSubheader>
     );
   }
 };
 
 type IntervalProps = {
-  activity: Signal<Activity>;
+  activity: Activity;
   intervalWithActivity: IntervalWithActivity;
 };
 
 const IntervalItem = (props: IntervalProps) => {
   const { activity, intervalWithActivity } = props;
   const { interval, activity: subActivity } = intervalWithActivity;
-  const { start } = interval.value;
-  const duration = useIntervalDuration(interval, useSignal(false));
+  const { start } = interval;
+  const duration = useIntervalDuration(interval, false);
 
   const subActivityPath = useActivityPath(subActivity, activity);
   const subActivitySuffix =
-    activity.value.id !== subActivity.value.id
-      ? ` (${subActivityPath.value})`
-      : "";
+    activity.id !== subActivity.id ? ` (${subActivityPath})` : "";
 
   const startValue = start.format(INTERVAL_FORMAT);
   const endValue = formatIntervalEnd(interval);
@@ -231,7 +229,7 @@ const IntervalItem = (props: IntervalProps) => {
         <IconButton
           aria-label={"edit interval"}
           component={Link}
-          to={`interval/${interval.value.id}`}
+          to={`interval/${interval.id}`}
         >
           <EditIcon />
         </IconButton>
@@ -242,8 +240,8 @@ const IntervalItem = (props: IntervalProps) => {
 
 const INTERVAL_FORMAT = "HH:mm:ss";
 
-const formatIntervalEnd = (interval: Signal<Interval>) => {
-  const { start, end } = interval.value;
+const formatIntervalEnd = (interval: Interval) => {
+  const { start, end } = interval;
   if (!end) {
     return "now";
   } else if (start.isSame(end, "day")) {

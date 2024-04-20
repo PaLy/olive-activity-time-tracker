@@ -1,4 +1,3 @@
-import { Signal } from "@preact/signals-react";
 import { Store } from "../Store";
 import { stringArray } from "../JsonSchema";
 import { JTDSchemaType } from "ajv/dist/jtd";
@@ -6,26 +5,50 @@ import { Interval } from "../interval/Interval";
 import { nanoid } from "nanoid";
 import moment from "moment";
 import {
+  getActivityByInterval,
   getDescendants,
   getNonRootAncestors,
-  getOwnIntervals,
   isSelfInProgress,
 } from "./Algorithms";
 import { intervalStore } from "../interval/Storage";
-import { activities, rootActivity } from "./Signals";
 import { setExpanded } from "./ActivityInListExpanded";
 
 export const STORE_NAME_ACTIVITIES = "activities";
 
-class ActivityStore extends Store<Activity> {
+class ActivityStore extends Store<StoredActivity, Activity> {
   constructor() {
     super({ name: STORE_NAME_ACTIVITIES });
   }
 
-  asValue = (activity: Activity) => activity;
-  asStoredValue = (activity: Activity) => activity;
+  asValue = async (activity: StoredActivity) => {
+    const intervals = await Promise.all(
+      activity.intervalIDs.map((id) => intervalStore.get(id)),
+    );
 
-  valueJsonSchema: JTDSchemaType<Activity[]> = {
+    for (const interval of intervals) {
+      if (interval === null) {
+        throw new Error("Interval not found");
+      }
+    }
+
+    return {
+      id: activity.id,
+      name: activity.name,
+      intervals: intervals as Interval[],
+      parentID: activity.parentID,
+      childIDs: activity.childIDs,
+    };
+  };
+
+  asStoredValue = (activity: Activity): StoredActivity => ({
+    id: activity.id,
+    name: activity.name,
+    intervalIDs: activity.intervals.map(({ id }) => id),
+    parentID: activity.parentID,
+    childIDs: activity.childIDs,
+  });
+
+  valueJsonSchema: JTDSchemaType<StoredActivity[]> = {
     elements: {
       properties: {
         id: { type: "string" },
@@ -37,52 +60,50 @@ class ActivityStore extends Store<Activity> {
     },
   };
 
-  override afterLoaded = async () => {
-    const rootChildIDs = [...this.collection.value.values()]
+  override afterLoaded = async (activities: Map<string, Activity>) => {
+    const rootChildIDs = Array.from(activities.values())
       .filter(
-        (activity) =>
-          activity.value.parentID === "root" && activity.value.id !== "root",
+        (activity) => activity.parentID === "root" && activity.id !== "root",
       )
-      .map((activity) => activity.value.id);
+      .map((activity) => activity.id);
 
-    const root = this.collection.value.get("root");
+    const root = activities.get("root");
     if (!root) {
-      await this.set("root", {
+      const newRoot = {
         id: "root",
         name: "",
         parentID: "root",
         childIDs: rootChildIDs,
-        intervalIDs: [],
-      });
+        intervals: [],
+      };
+      await this.set("root", newRoot);
+      activities.set("root", newRoot);
     } else {
-      await this.set("root", {
-        ...root.value,
+      const updatedRoot = {
+        ...root,
         childIDs: rootChildIDs,
-      });
+      };
+      await this.set("root", updatedRoot);
+      activities.set("root", updatedRoot);
     }
+    return activities;
   };
 
-  override asExportedValue = (activity: Activity) => {
+  override asExportedValue = (activity: StoredActivity) => {
     return activity.id === "root" ? null : activity;
   };
 
-  override fromExportedValue = (activity: Activity): [string, Activity] => [
-    activity.id,
-    activity,
-  ];
+  override fromExportedValue = (
+    activity: StoredActivity,
+  ): [string, StoredActivity] => [activity.id, activity];
 
-  removeInterval = async (
-    activity: Signal<Activity>,
-    interval: Signal<Interval>,
-  ) => {
+  removeInterval = async (activity: Activity, interval: Interval) => {
     try {
-      await intervalStore.remove(interval.value.id);
+      await intervalStore.remove(interval.id);
 
-      await this.set(activity.value.id, {
-        ...activity.value,
-        intervalIDs: activity.value.intervalIDs.filter(
-          (id) => id !== interval.value.id,
-        ),
+      await this.set(activity.id, {
+        ...activity,
+        intervals: activity.intervals.filter(({ id }) => id !== interval.id),
       });
     } catch (error) {
       throw new Error(`Failed to remove interval: ${error}`);
@@ -95,7 +116,7 @@ class ActivityStore extends Store<Activity> {
 
       await this.set(activity.id, {
         ...activity,
-        intervalIDs: [...activity.intervalIDs, interval.id],
+        intervals: [...activity.intervals, interval],
       });
     } catch (error) {
       throw new Error(`Failed to add interval: ${error}`);
@@ -104,9 +125,10 @@ class ActivityStore extends Store<Activity> {
 
   start = async (activity: Activity) => {
     try {
-      const activitiesToStop = getNonRootAncestors(activity)
-        .map((it) => it.value)
-        .filter(isSelfInProgress);
+      const activitiesToStop = getNonRootAncestors(
+        activity,
+        await this.load(),
+      ).filter(isSelfInProgress);
       await this.stopSelfActivities(activitiesToStop);
 
       await this.addInterval(activity, { id: nanoid(), start: moment() });
@@ -118,16 +140,17 @@ class ActivityStore extends Store<Activity> {
     });
   };
 
-  stop = async (activity: Signal<Activity>) => {
-    const activitiesToStop = [activity, ...getDescendants(activity)]
-      .map((it) => it.value)
-      .filter(isSelfInProgress);
-    const parentID = activity.value.parentID;
+  stop = async (activity: Activity) => {
+    const activitiesToStop = [
+      activity,
+      ...getDescendants(activity, await this.load()),
+    ].filter(isSelfInProgress);
+    const parentID = activity.parentID;
 
     try {
       await this.stopSelfActivities(activitiesToStop);
 
-      if (parentID !== rootActivity.value.id) {
+      if (parentID !== "root") {
         const parent = await this.get(parentID);
         if (parent && !isSelfInProgress(parent)) {
           await this.start(parent);
@@ -136,16 +159,14 @@ class ActivityStore extends Store<Activity> {
     } catch (error) {
       throw new Error(`Failed to stop activity: ${error}`);
     }
-    await setExpanded(activity.value.id, false).catch(() => {
+    await setExpanded(activity.id, false).catch(() => {
       // ignore
     });
   };
 
   private stopSelfActivities = (activities: Activity[]) =>
     intervalStore.stopIntervals(
-      activities.map(
-        (activity) => getOwnIntervals(activity).slice(-1)[0].value,
-      ),
+      activities.map((activity) => activity.intervals.slice(-1)[0]),
     );
 
   addActivity = async (activity: Activity) => {
@@ -153,21 +174,33 @@ class ActivityStore extends Store<Activity> {
     await activityStore.set(id, activity);
 
     const parentID = activity.parentID;
-    const parent = activities.value.get(parentID)!;
+    const parent = await this.get(parentID);
     await this.set(parentID, {
-      ...parent.value,
-      childIDs: [...parent.value.childIDs, id],
+      ...parent,
+      childIDs: [...parent.childIDs, id],
     });
 
     // TODO clear ancestors intervals which overlaps this activity interval + confirmation modal?
     // TODO forbid overlap with own intervals
-    return activities.value.get(id)!;
+    return activity;
+  };
+
+  getByInterval = async (intervalID: string) => {
+    return getActivityByInterval(intervalID, await this.load());
   };
 }
 
 export const activityStore = new ActivityStore();
 
 export type Activity = {
+  id: string;
+  name: string;
+  intervals: Interval[];
+  parentID: string;
+  childIDs: string[];
+};
+
+export type StoredActivity = {
   id: string;
   name: string;
   intervalIDs: string[];

@@ -3,6 +3,13 @@
 // expect(element).toHaveTextContent(/react/i)
 // learn more: https://github.com/testing-library/jest-dom
 import "@testing-library/jest-dom";
+import { enableMapSet } from "immer";
+import failOnConsole from "jest-fail-on-console";
+
+enableMapSet();
+failOnConsole();
+
+jest.setTimeout(10000);
 
 const noop = () => {};
 Object.defineProperty(window, "scrollTo", { value: noop, writable: true });

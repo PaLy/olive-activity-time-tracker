@@ -1,8 +1,7 @@
-import { effect, signal } from "@preact/signals-react";
 import {
-  Activity,
   activityStore,
   STORE_NAME_ACTIVITIES,
+  StoredActivity,
 } from "./activity/Storage";
 import {
   ExportedInterval,
@@ -29,40 +28,6 @@ import Ajv, { JTDSchemaType } from "ajv/dist/jtd";
 
 const stores = [intervalStore, activityStore] as const;
 
-export const dbLoading = signal<"not-started" | "in-progress" | "finished">(
-  "not-started",
-);
-effect(() => {
-  switch (dbLoading.value) {
-    case "not-started":
-      loadDB();
-      break;
-    case "finished":
-      dbLoadListeners.forEach((listener) => listener());
-      dbLoadListeners.length = 0;
-      break;
-  }
-});
-
-async function loadDB() {
-  dbLoading.value = "in-progress";
-  await Promise.all(stores.map((store) => store.load()));
-  dbLoading.value = "finished";
-}
-
-const dbLoadListeners: (() => void)[] = [];
-
-export async function afterDBLoaded<T>(callback: () => Promise<T>) {
-  await waitForDBLoaded();
-  return callback();
-}
-
-export async function waitForDBLoaded() {
-  if (dbLoading.value !== "finished") {
-    await new Promise((resolve) => dbLoadListeners.push(() => resolve(void 0)));
-  }
-}
-
 export async function clearDB() {
   await clearActivityInListExpanded();
   await clearSettings();
@@ -81,7 +46,7 @@ export async function exportDB() {
 }
 
 type DBData = {
-  [STORE_NAME_ACTIVITIES]: Activity[];
+  [STORE_NAME_ACTIVITIES]: StoredActivity[];
   [STORE_NAME_INTERVALS]: ExportedInterval[];
   [STORE_NAME_ACTIVITY_IN_LIST_EXPANDED]: ActivityInListExpanded;
   [STORE_NAME_SETTINGS]: Settings;

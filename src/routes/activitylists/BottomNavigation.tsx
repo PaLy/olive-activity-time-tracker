@@ -5,8 +5,8 @@ import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import DateRangeIcon from "@mui/icons-material/DateRange";
 import { Badge, Paper } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import { inProgressActivitiesCount } from "../../data/activity/Signals";
 import { useLocation } from "../Router";
+import { useInProgressActivitiesCount } from "../../data/activity/Signals";
 
 export const AppBottomNavigation = () => {
   const navigate = useNavigate();
@@ -17,6 +17,8 @@ export const AppBottomNavigation = () => {
     currentPagePathnameEndIndex === -1
       ? pathname
       : pathname.substring(0, currentPagePathnameEndIndex);
+
+  const inProgressActivitiesCount = useInProgressActivitiesCount();
 
   return (
     <Paper elevation={3} sx={{ position: "sticky", bottom: 0 }}>
@@ -42,7 +44,7 @@ export const AppBottomNavigation = () => {
             <Badge
               badgeContent={inProgressActivitiesCount}
               color="primary"
-              invisible={inProgressActivitiesCount.value === 0}
+              invisible={inProgressActivitiesCount === 0}
             >
               <TodayIcon />
             </Badge>

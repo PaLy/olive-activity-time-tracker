@@ -11,6 +11,7 @@ import {
 import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 import { clearDB } from "../../data/Storage";
 import { useEffect } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 
 const deleteFlowStep = signal<
   "not-started" | "confirm" | "in-progress" | "result"
@@ -35,29 +36,36 @@ export const DeleteDataButton = () => {
   );
 };
 
-const Confirmation = () => (
-  <Dialog open={deleteFlowStep.value === "confirm"}>
-    <DialogTitle>
-      Are you sure you want to delete all the data forever?
-    </DialogTitle>
-    <DialogContent>You cannot undo this action.</DialogContent>
-    <DialogActions>
-      <Button autoFocus onClick={() => (deleteFlowStep.value = "not-started")}>
-        No
-      </Button>
-      <Button
-        onClick={async () => {
-          deleteFlowStep.value = "in-progress";
-          await clearDB()
-            .catch((e) => (deleteError.value = "Failed to delete data"))
-            .then(() => (deleteFlowStep.value = "result"));
-        }}
-      >
-        Yes
-      </Button>
-    </DialogActions>
-  </Dialog>
-);
+const Confirmation = () => {
+  const queryClient = useQueryClient();
+  return (
+    <Dialog open={deleteFlowStep.value === "confirm"}>
+      <DialogTitle>
+        Are you sure you want to delete all the data forever?
+      </DialogTitle>
+      <DialogContent>You cannot undo this action.</DialogContent>
+      <DialogActions>
+        <Button
+          autoFocus
+          onClick={() => (deleteFlowStep.value = "not-started")}
+        >
+          No
+        </Button>
+        <Button
+          onClick={async () => {
+            deleteFlowStep.value = "in-progress";
+            await clearDB()
+              .catch((e) => (deleteError.value = "Failed to delete data"))
+              .then(() => (deleteFlowStep.value = "result"));
+            await queryClient.invalidateQueries();
+          }}
+        >
+          Yes
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
+};
 
 const Result = () => {
   useEffect(() => {

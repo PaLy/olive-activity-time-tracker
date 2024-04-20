@@ -16,7 +16,7 @@ import { Activity } from "../../data/activity/Storage";
 import { useActivityPath } from "../../data/activity/Signals";
 import { useIntervalDuration } from "../../data/interval/Signals";
 import { Moment } from "moment/moment";
-import { Signal, useComputed, useSignal } from "@preact/signals-react";
+import { Signal, useComputed } from "@preact/signals-react";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { deleteIntervalConfirmationData } from "./DeleteIntervalConfirmation";
 import { DateTimeRangePicker } from "../../components/DateTimeRangePicker";
@@ -24,8 +24,8 @@ import { useEditInterval } from "../../data/interval/Operations";
 import { openSnackbar } from "./AppSnackbar";
 
 export type EditIntervalLoaderData = {
-  activity: Signal<Activity>;
-  interval: Signal<Interval>;
+  activity: Activity;
+  interval: Interval;
   edit: Signal<{
     start: Signal<Moment>;
     startError: Signal<string>;
@@ -42,7 +42,7 @@ export const EditInterval = () => {
     start: edit.value.start.value,
     end: edit.value.end?.value,
   }));
-  const duration = useIntervalDuration(editedInterval, useSignal(true));
+  const duration = useIntervalDuration(editedInterval.value, true);
   const navigate = useNavigate();
 
   const omitEndTimePicker = useComputed(() => !edit.value.end.value);
