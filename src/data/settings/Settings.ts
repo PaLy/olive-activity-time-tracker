@@ -8,15 +8,17 @@ enum Keys {
   activityList = "activityList",
 }
 
-const store = localforage.createInstance({ name: STORE_NAME_SETTINGS });
+export const settingsStore = localforage.createInstance({
+  name: STORE_NAME_SETTINGS,
+});
 
 export const getActivityList = () =>
-  store
+  settingsStore
     .getItem<ActivityList>(Keys.activityList)
     .then((activityList) => activityList ?? DEFAULT_SETTINGS.activityList);
 
 export const setActivityList = (activityList: ActivityList) =>
-  store.setItem<ActivityList>(Keys.activityList, activityList);
+  settingsStore.setItem<ActivityList>(Keys.activityList, activityList);
 
 export type Settings = {
   activityList: ActivityList;
@@ -62,13 +64,13 @@ export const DEFAULT_SETTINGS: Settings = {
 
 export const exportSettings = async () => {
   const result: Record<string, unknown> = cloneDeep(DEFAULT_SETTINGS);
-  await store.iterate((value, key) => {
+  await settingsStore.iterate((value, key) => {
     result[key] = value;
   });
   return result as Settings;
 };
 
-export const clearSettings = () => store.clear();
+export const clearSettings = () => settingsStore.clear();
 
 export const importSettings = async (exportedSettings: Settings) => {
   if (exportedSettings.activityList) {

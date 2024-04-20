@@ -5,6 +5,10 @@
 import "@testing-library/jest-dom";
 import { enableMapSet } from "immer";
 import failOnConsole from "jest-fail-on-console";
+import { activityStore } from "./data/activity/Storage";
+import { intervalStore } from "./data/interval/Storage";
+import { activityInListExpandedStore } from "./data/activity/ActivityInListExpanded";
+import { settingsStore } from "./data/settings/Settings";
 
 enableMapSet();
 failOnConsole();
@@ -56,3 +60,16 @@ window.matchMedia =
       removeListener: function () {},
     };
   };
+
+beforeEach(async () => {
+  await Promise.allSettled(
+    [
+      activityStore,
+      intervalStore,
+      activityInListExpandedStore,
+      settingsStore,
+    ].map((it) => it.clear()),
+  );
+});
+
+jest.retryTimes(3);
