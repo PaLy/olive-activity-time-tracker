@@ -1,11 +1,9 @@
 import { useNavigate } from "react-router-dom";
-import { computed, signal, useSignal } from "@preact/signals-react";
+import { signal, useSignal } from "@preact/signals-react";
 import moment from "moment";
 import { IntervalSettings } from "./IntervalSettings";
 import { Name } from "./Name";
-import { durationRefreshTime } from "../../data/interval/Signals";
 import { Activity } from "../../data/activity/Storage";
-import { humanize } from "../../data/interval/Algorithms";
 import { FullScreenModalHeader } from "../../components/FullScreenModalHeader";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import SaveIcon from "@mui/icons-material/Save";
@@ -36,18 +34,6 @@ export const createCreateActivityState = (anyActivityLogged: boolean) => {
   const existingActivity = signal<Activity | null>(null);
   const existingActivityError = signal("");
 
-  const durationMs = computed(() => {
-    const inProgress = intervalToggle.value !== "finished";
-
-    const startTimeByToggle =
-      intervalToggle.value === "now" ? dialogOpenedTime.value : startTime.value;
-
-    const finalEndTime = inProgress ? durationRefreshTime.value : endTime.value;
-    const finalStartTime = moment.min(startTimeByToggle, finalEndTime);
-
-    return humanize(finalEndTime.diff(finalStartTime), inProgress);
-  });
-
   return {
     dialogOpenedTime,
     intervalToggle,
@@ -55,7 +41,6 @@ export const createCreateActivityState = (anyActivityLogged: boolean) => {
     startTimeError,
     endTime,
     endTimeError,
-    durationMs,
     nameToggle,
     name,
     nameError,

@@ -6,15 +6,19 @@ import { chain, orderBy } from "lodash";
 import { Activity } from "../activity/Storage";
 import { getDescendants } from "../activity/Algorithms";
 import { MAX_DATE_MS } from "../../utils/Date";
+import { Moment } from "moment";
 
 export const getIntervalsDuration = (
   intervals: Interval[],
   filter: ClosedInterval,
+  time: Moment,
 ) => {
   let durationMs = 0;
-  let curFilter = { start: filter.start.value, end: filter.end.value };
+  let curFilter = { start: filter.start, end: filter.end };
 
-  const simpleIntervals = intervals.map(toSimpleClosedInterval);
+  const simpleIntervals = intervals.map((it) =>
+    toSimpleClosedInterval(it, time),
+  );
 
   join(simpleIntervals).forEach((interval) => {
     const { start, end } = interval;
@@ -38,11 +42,12 @@ export const getIntervalsDuration = (
 export const getLastEndTime = (
   intervals: Interval[],
   filter: ClosedInterval,
+  time: Moment,
 ): number | undefined => {
   return chain(intervals)
-    .map(toSimpleClosedInterval)
+    .map((it) => toSimpleClosedInterval(it, time))
     .filter((interval) =>
-      overlaps(interval, { start: filter.start.value, end: filter.end.value }),
+      overlaps(interval, { start: filter.start, end: filter.end }),
     )
     .map((interval) => interval.end)
     .max()
