@@ -9,11 +9,14 @@ import { activityStore } from "./data/activity/Storage";
 import { intervalStore } from "./data/interval/Storage";
 import { activityInListExpandedStore } from "./data/activity/ActivityInListExpanded";
 import { settingsStore } from "./data/settings/Settings";
+import { configure } from "@testing-library/react";
 
 enableMapSet();
 failOnConsole();
 
 jest.setTimeout(10000);
+jest.retryTimes(2);
+configure({ asyncUtilTimeout: 3000 });
 
 const noop = () => {};
 Object.defineProperty(window, "scrollTo", { value: noop, writable: true });
@@ -71,5 +74,3 @@ beforeEach(async () => {
     ].map((it) => it.clear()),
   );
 });
-
-jest.retryTimes(3);

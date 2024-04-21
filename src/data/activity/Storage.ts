@@ -12,6 +12,7 @@ import {
 } from "./Algorithms";
 import { intervalStore } from "../interval/Storage";
 import { setExpanded } from "./ActivityInListExpanded";
+import { produce } from "immer";
 
 export const STORE_NAME_ACTIVITIES = "activities";
 
@@ -125,11 +126,11 @@ class ActivityStore extends Store<StoredActivity, Activity> {
 
   start = async (activity: Activity) => {
     try {
-      const activitiesToStop = getNonRootAncestors(
+      const inProgressAncestors = getNonRootAncestors(
         activity,
-        await this.load(),
+        this.cache!,
       ).filter(isSelfInProgress);
-      await this.stopSelfActivities(activitiesToStop);
+      await this.stopSelfActivities(inProgressAncestors);
 
       await this.addInterval(activity, { id: nanoid(), start: moment() });
     } catch (error) {
@@ -141,14 +142,14 @@ class ActivityStore extends Store<StoredActivity, Activity> {
   };
 
   stop = async (activity: Activity) => {
-    const activitiesToStop = [
+    const inProgressDescendants = [
       activity,
-      ...getDescendants(activity, await this.load()),
+      ...getDescendants(activity, this.cache!),
     ].filter(isSelfInProgress);
     const parentID = activity.parentID;
 
     try {
-      await this.stopSelfActivities(activitiesToStop);
+      await this.stopSelfActivities(inProgressDescendants);
 
       if (parentID !== "root") {
         const parent = await this.get(parentID);
@@ -159,15 +160,24 @@ class ActivityStore extends Store<StoredActivity, Activity> {
     } catch (error) {
       throw new Error(`Failed to stop activity: ${error}`);
     }
-    await setExpanded(activity.id, false).catch(() => {
+    setExpanded(activity.id, false).catch(() => {
       // ignore
     });
   };
 
-  private stopSelfActivities = (activities: Activity[]) =>
-    intervalStore.stopIntervals(
-      activities.map((activity) => activity.intervals.slice(-1)[0]),
-    );
+  private stopSelfActivities = async (activities: Activity[]) => {
+    for (const activity of activities) {
+      if (activity.intervals.length > 0) {
+        const end = moment();
+        await intervalStore.editInterval(activity.intervals.slice(-1)[0], {
+          end,
+        });
+        this.cache = produce(this.cache, (draft: Map<string, Activity>) => {
+          draft.get(activity.id)!.intervals.slice(-1)[0].end = end;
+        });
+      }
+    }
+  };
 
   addActivity = async (activity: Activity) => {
     const { id } = activity;
@@ -186,7 +196,7 @@ class ActivityStore extends Store<StoredActivity, Activity> {
   };
 
   getByInterval = async (intervalID: string) => {
-    return getActivityByInterval(intervalID, await this.load());
+    return getActivityByInterval(intervalID, this.cache!);
   };
 }
 

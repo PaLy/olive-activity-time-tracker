@@ -32,11 +32,19 @@ type StartStopActivityOptions = {};
 
 export const useStartActivity = (options?: StartStopActivityOptions) => {
   const invalidateActivities = useInvalidateActivities();
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (variables: { activity: Activity }) => {
       const { activity } = variables;
       await activityStore.start(activity);
-      await invalidateActivities();
+      Promise.all([
+        invalidateActivities(),
+        queryClient.invalidateQueries({
+          queryKey: ["activitiesInListExpanded"],
+        }),
+      ]).catch(() => {
+        // ignored
+      });
     },
     onError: openErrorSnackbar,
   });
@@ -44,20 +52,29 @@ export const useStartActivity = (options?: StartStopActivityOptions) => {
 
 function useInvalidateActivities() {
   const queryClient = useQueryClient();
-  return async () => {
-    await queryClient.invalidateQueries({ queryKey: ["activities"] });
-    await queryClient.invalidateQueries({ queryKey: ["activityByInterval"] });
-    await queryClient.invalidateQueries({ queryKey: ["activity"] });
-  };
+  return () =>
+    Promise.all([
+      queryClient.invalidateQueries({ queryKey: ["activities"] }),
+      queryClient.invalidateQueries({ queryKey: ["activityByInterval"] }),
+      queryClient.invalidateQueries({ queryKey: ["activity"] }),
+    ]);
 }
 
 export const useStopActivity = (options?: StartStopActivityOptions) => {
   const invalidateActivities = useInvalidateActivities();
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (variables: { activity: Activity }) => {
       const { activity } = variables;
       await activityStore.stop(activity);
-      await invalidateActivities();
+      Promise.all([
+        invalidateActivities(),
+        queryClient.invalidateQueries({
+          queryKey: ["activitiesInListExpanded"],
+        }),
+      ]).catch(() => {
+        // ignored
+      });
     },
     onError: openErrorSnackbar,
   });
