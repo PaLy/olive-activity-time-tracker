@@ -35,14 +35,19 @@ export async function clearDB() {
 }
 
 export async function exportDB() {
-  const data = {
-    [STORE_NAME_ACTIVITIES]: await activityStore.export(),
-    [STORE_NAME_INTERVALS]: await intervalStore.export(),
-    [STORE_NAME_ACTIVITY_IN_LIST_EXPANDED]:
-      await exportActivityInListExpanded(),
-    [STORE_NAME_SETTINGS]: await exportSettings(),
-  };
-  return JSON.stringify(data, null, 2);
+  try {
+    const data = {
+      [STORE_NAME_ACTIVITIES]: await activityStore.export(),
+      [STORE_NAME_INTERVALS]: await intervalStore.export(),
+      [STORE_NAME_ACTIVITY_IN_LIST_EXPANDED]:
+        await exportActivityInListExpanded(),
+      [STORE_NAME_SETTINGS]: await exportSettings(),
+    };
+    return JSON.stringify(data, null, 2);
+  } catch (error) {
+    console.error(error);
+    throw new Error(`Failed to export data.`);
+  }
 }
 
 type DBData = {
