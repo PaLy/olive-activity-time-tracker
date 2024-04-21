@@ -32,6 +32,7 @@ import { DeleteIntervalConfirmation } from "./DeleteIntervalConfirmation";
 import { Interval } from "../../data/interval/Interval";
 import AutoSizer from "react-virtualized-auto-sizer";
 import { ResizableList, SingleItemData } from "../../components/ResizableList";
+import { calendarTime } from "../../utils/Date";
 
 export const ActivityRoute = () => {
   const activity = useLoaderData() as Activity;
@@ -199,9 +200,7 @@ const SubheaderItem = (props: SubheaderItemProps) => {
   if (stickyItemVisible) {
     return null;
   } else {
-    return (
-      <ListSubheader>{interval.start.format("ddd, MMM D, YYYY")}</ListSubheader>
-    );
+    return <ListSubheader>{calendarTime(interval.start)}</ListSubheader>;
   }
 };
 
