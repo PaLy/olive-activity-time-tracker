@@ -67,15 +67,6 @@ class IntervalStore extends Store<StoredInterval, Interval, ExportedInterval> {
         throw new Error(`Failed to edit interval: ${error}`);
       });
   };
-
-  stopIntervals = (intervals: Interval[]) =>
-    Promise.allSettled(
-      intervals.map((interval) =>
-        this.editInterval(interval, { end: moment() }),
-      ),
-    ).catch((error) => {
-      throw new Error(`Failed to stop interval: ${error}`);
-    });
 }
 
 export const intervalStore = new IntervalStore();

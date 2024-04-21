@@ -47,7 +47,7 @@ export const ActivityItem = (props: ActivityItemProps) => {
 
   return (
     <Flipped flipId={activity.id} onAppear={onActivityAppear}>
-      <div data-testid={"activity-item"}>
+      <div data-testid={`activity-item-${activity.id}`}>
         <Component {...props} />
       </div>
     </Flipped>

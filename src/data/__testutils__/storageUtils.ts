@@ -2,7 +2,7 @@ import { Activity, activityStore } from "../activity/Storage";
 import { Interval } from "../interval/Interval";
 import moment from "moment";
 
-type PartialActivity = Partial<Omit<Activity, "intervals">> & {
+type PartialActivity = Partial<Omit<Activity, "intervals" | "childIDs">> & {
   intervals?: Partial<Interval>[];
 };
 
@@ -20,7 +20,7 @@ export const importActivities = async (activities: PartialActivity[]) => {
       ...partialActivity,
       intervals: [],
     };
-    await activityStore.set(id, activity);
+    await activityStore.addActivity(activity);
 
     const intervals = partialActivity.intervals ?? [];
 

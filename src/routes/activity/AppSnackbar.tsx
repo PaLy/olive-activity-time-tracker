@@ -50,4 +50,5 @@ export const openSnackbar = (options: Omit<SnackbarProps, "open">) => {
 
 export const openErrorSnackbar = (error: Error) => {
   openSnackbar({ message: error.message, severity: "error" });
+  console.error(error);
 };
