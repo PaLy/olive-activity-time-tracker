@@ -55,7 +55,7 @@ export const openErrorSnackbar = (error: Error | string) => {
   });
 };
 
-export const useOpenErrorSnackbar = (error: Error | null) => {
+export const useOpenErrorSnackbar = (error: Error | string | null) => {
   useEffect(() => {
     if (error) {
       openErrorSnackbar(error);
