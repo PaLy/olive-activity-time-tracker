@@ -1,4 +1,4 @@
-import { createHashRouter, useRouteError } from "react-router-dom";
+import { RouteObject, useRouteError } from "react-router-dom";
 import App from "./App";
 import { TodayRoute } from "./routes/activitylists/TodayRoute";
 import { DayRoute } from "./routes/activitylists/DayRoute";
@@ -22,79 +22,78 @@ const ErrorBoundary = () => {
   return <>Not Found</>;
 };
 
-export const createRouter = (queryClient: QueryClient) =>
-  createHashRouter([
-    {
-      path: "/",
-      element: <App queryClient={queryClient} />,
-      errorElement: <ErrorBoundary />,
-      children: [
-        {
-          index: true,
-          element: <TodayRoute />,
-        },
-        {
-          path: "today/*",
-          element: <TodayRoute />,
-        },
-        {
-          path: "day/*",
-          element: <DayRoute />,
-        },
-        {
-          path: "month/*",
-          element: <MonthRoute />,
-        },
-        {
-          path: "range/*",
-          element: <DateRangeRoute />,
-        },
-        {
-          path: "activities/:activityID",
-          element: <ActivityRoute />,
-          loader: async ({ params }) => {
-            const { activityID } = params;
-            if (activityID) {
-              const activity = await fetchActivity(queryClient, activityID);
-              if (activity) {
-                return activity;
-              }
+export const createRoutes = (queryClient: QueryClient): RouteObject[] => [
+  {
+    path: "/",
+    element: <App queryClient={queryClient} />,
+    errorElement: <ErrorBoundary />,
+    children: [
+      {
+        index: true,
+        element: <TodayRoute />,
+      },
+      {
+        path: "today/*",
+        element: <TodayRoute />,
+      },
+      {
+        path: "day/*",
+        element: <DayRoute />,
+      },
+      {
+        path: "month/*",
+        element: <MonthRoute />,
+      },
+      {
+        path: "range/*",
+        element: <DateRangeRoute />,
+      },
+      {
+        path: "activities/:activityID",
+        element: <ActivityRoute />,
+        loader: async ({ params }) => {
+          const { activityID } = params;
+          if (activityID) {
+            const activity = await fetchActivity(queryClient, activityID);
+            if (activity) {
+              return activity;
             }
-            throw new Error("Activity does not exist.");
-          },
-          children: [
-            {
-              path: "interval/:intervalID",
-              element: <EditInterval />,
-              loader: async ({ params }) => {
-                const { intervalID } = params;
-                if (intervalID) {
-                  const activity = await fetchActivityByInterval(
-                    queryClient,
-                    intervalID,
-                  );
-                  const interval = activity?.intervals.find(
-                    (it) => it.id === intervalID,
-                  );
-                  if (interval && activity) {
-                    const data: EditIntervalLoaderData = {
-                      activity,
-                      interval,
-                      edit: signal({
-                        start: signal(interval.start),
-                        startError: signal(""),
-                        end: signal(interval.end),
-                        endError: signal(""),
-                      }),
-                    };
-                    return data;
-                  }
-                }
-                throw new Error("Interval does not exist.");
-              },
-            },
-          ],
+          }
+          throw new Error("Activity does not exist.");
         },
-      ],
-    },
-  ]);
+        children: [
+          {
+            path: "interval/:intervalID",
+            element: <EditInterval />,
+            loader: async ({ params }) => {
+              const { intervalID } = params;
+              if (intervalID) {
+                const activity = await fetchActivityByInterval(
+                  queryClient,
+                  intervalID,
+                );
+                const interval = activity?.intervals.find(
+                  (it) => it.id === intervalID,
+                );
+                if (interval && activity) {
+                  const data: EditIntervalLoaderData = {
+                    activity,
+                    interval,
+                    edit: signal({
+                      start: signal(interval.start),
+                      startError: signal(""),
+                      end: signal(interval.end),
+                      endError: signal(""),
+                    }),
+                  };
+                  return data;
+                }
+              }
+              throw new Error("Interval does not exist.");
+            },
+          },
+        ],
+      },
+    ],
+  },
+];
