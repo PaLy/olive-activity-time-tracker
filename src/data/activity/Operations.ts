@@ -7,6 +7,7 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 import { openErrorSnackbar } from "../../routes/activity/AppSnackbar";
+import { useInvalidateExpanded } from "../../routes/activitylists/state/Expanded";
 
 type RemoveActivityIntervalOptions = {
   onSuccess?: () => void;
@@ -32,17 +33,12 @@ type StartStopActivityOptions = {};
 
 export const useStartActivity = (options?: StartStopActivityOptions) => {
   const invalidateActivities = useInvalidateActivities();
-  const queryClient = useQueryClient();
+  const invalidateExpanded = useInvalidateExpanded();
   return useMutation({
     mutationFn: async (variables: { activity: Activity }) => {
       const { activity } = variables;
       await activityStore.start(activity);
-      Promise.all([
-        invalidateActivities(),
-        queryClient.invalidateQueries({
-          queryKey: ["activitiesInListExpanded"],
-        }),
-      ]).catch(() => {
+      Promise.all([invalidateActivities(), invalidateExpanded()]).catch(() => {
         // ignored
       });
     },
@@ -62,17 +58,12 @@ function useInvalidateActivities() {
 
 export const useStopActivity = (options?: StartStopActivityOptions) => {
   const invalidateActivities = useInvalidateActivities();
-  const queryClient = useQueryClient();
+  const invalidateExpanded = useInvalidateExpanded();
   return useMutation({
     mutationFn: async (variables: { activity: Activity }) => {
       const { activity } = variables;
       await activityStore.stop(activity);
-      Promise.all([
-        invalidateActivities(),
-        queryClient.invalidateQueries({
-          queryKey: ["activitiesInListExpanded"],
-        }),
-      ]).catch(() => {
+      Promise.all([invalidateActivities(), invalidateExpanded()]).catch(() => {
         // ignored
       });
     },
