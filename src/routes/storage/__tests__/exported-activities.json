@@ -1,0 +1,65 @@
+  {
+  "activities": [
+    {
+      "id": "DDAUnEhvrlSqp3YAj4ibm",
+      "name": "Code Review",
+      "intervalIDs": [
+        "44MslacRm1wErm1uiCHzH"
+      ],
+      "parentID": "szjSwN7GL7SWXJOj-Os1V",
+      "childIDs": []
+    },
+    {
+      "id": "Q0blXEbFmgcT-BlY6Rn2d",
+      "name": "Tasks",
+      "intervalIDs": [
+        "OQomPEA8RV-KXCigrANWf"
+      ],
+      "parentID": "szjSwN7GL7SWXJOj-Os1V",
+      "childIDs": []
+    },
+    {
+      "id": "szjSwN7GL7SWXJOj-Os1V",
+      "name": "Work",
+      "intervalIDs": [
+        "Z9uQ06YjeJ6GHuOkDJQzD"
+      ],
+      "parentID": "root",
+      "childIDs": [
+        "Q0blXEbFmgcT-BlY6Rn2d",
+        "DDAUnEhvrlSqp3YAj4ibm"
+      ]
+    }
+  ],
+  "intervals": [
+    {
+      "id": "44MslacRm1wErm1uiCHzH",
+      "start": "2024-03-28T16:50:44.490Z",
+      "end": "2024-03-28T16:51:01.176Z"
+    },
+    {
+      "id": "OQomPEA8RV-KXCigrANWf",
+      "start": "2024-03-28T16:50:21.428Z",
+      "end": "2024-03-28T16:50:42.508Z"
+    },
+    {
+      "id": "Z9uQ06YjeJ6GHuOkDJQzD",
+      "start": "2024-03-28T16:49:51.264Z",
+      "end": "2024-03-28T16:51:01.176Z"
+    }
+  ],
+  "activityInListExpanded": [
+    "szjSwN7GL7SWXJOj-Os1V"
+  ],
+  "settings": {
+    "activityList": {
+      "showPercentage": true,
+      "showCost": {
+        "show": false,
+        "perHour": "10",
+        "currency": "EUR"
+      },
+      "showDuration": true
+    }
+  }
+}
