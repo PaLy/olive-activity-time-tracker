@@ -57,9 +57,10 @@ export const useIntervalDuration = (
 };
 
 export const useIntervalsGroupedByDay = (activity: Activity) => {
-  const { data: activities = new Map<string, Activity>() } = useActivities();
-  return useMemo(
-    () => intervalsGroupedByDay(activity, activities),
-    [activities, activity],
+  const { data, isLoading } = useActivities();
+  const groupedIntervals = useMemo(
+    () => (data ? intervalsGroupedByDay(activity, data) : undefined),
+    [data, activity],
   );
+  return { groupedIntervals, isLoading };
 };

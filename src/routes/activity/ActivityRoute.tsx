@@ -1,5 +1,6 @@
 import {
   Box,
+  CircularProgress,
   IconButton,
   ListItem,
   ListItemIcon,
@@ -35,7 +36,7 @@ import { ResizableList, SingleItemData } from "../../components/ResizableList";
 
 export const ActivityRoute = () => {
   const activity = useLoaderData() as Activity;
-  const groupedIntervals = useIntervalsGroupedByDay(activity);
+  const { groupedIntervals, isLoading } = useIntervalsGroupedByDay(activity);
   const visibleStartIndex = useSignal(0);
   const rowData = useRowData(groupedIntervals, activity, visibleStartIndex);
 
@@ -57,28 +58,47 @@ export const ActivityRoute = () => {
   return (
     <>
       <Paper square sx={{ height: "100%" }}>
-        <AutoSizer>
-          {({ width, height }) => (
-            <ResizableList
-              height={height}
-              width={width}
-              itemData={rowData}
-              innerElementType={innerElementType}
-              innerRef={(ref: InnerRefValue | null) =>
-                ref?.setTopInterval(topInterval)
-              }
-              onItemsRendered={(props) =>
-                (visibleStartIndex.value = props.visibleStartIndex)
-              }
-            />
-          )}
-        </AutoSizer>
+        {isLoading ? (
+          <Loading />
+        ) : (
+          <AutoSizer>
+            {({ width, height }) => (
+              <ResizableList
+                height={height}
+                width={width}
+                itemData={rowData}
+                innerElementType={innerElementType}
+                innerRef={(ref: InnerRefValue | null) =>
+                  ref?.setTopInterval(topInterval)
+                }
+                onItemsRendered={(props) =>
+                  (visibleStartIndex.value = props.visibleStartIndex)
+                }
+              />
+            )}
+          </AutoSizer>
+        )}
       </Paper>
       <Outlet />
       <DeleteIntervalConfirmation />
     </>
   );
 };
+
+function Loading() {
+  return (
+    <Box
+      sx={{
+        display: "flex",
+        height: "100%",
+        justifyContent: "center",
+        alignItems: "center",
+      }}
+    >
+      <CircularProgress />
+    </Box>
+  );
+}
 
 type InnerRefValue = {
   setTopInterval: (topInterval: Interval | undefined) => void;
@@ -142,7 +162,7 @@ const TopOfIntervalList = (props: TopOfIntervalListProps) => {
 };
 
 const useRowData = (
-  groupedIntervals: { [key: string]: IntervalWithActivity[] },
+  groupedIntervals: { [key: string]: IntervalWithActivity[] } = {},
   activity: Activity,
   visibleStartIndex: Signal<number>,
 ) => {
