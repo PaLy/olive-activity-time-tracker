@@ -163,7 +163,7 @@ const useCreateActivity = () => {
       await addInterval({ activity, interval: newInterval });
       return activity;
     } else {
-      throw new Error("Invalid state");
+      throw new Error("Invalid state.");
     }
   };
 };

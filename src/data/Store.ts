@@ -45,7 +45,8 @@ export abstract class Store<
         this.cache = await this.afterLoaded?.(result);
         return this.cache;
       } catch (error) {
-        throw new Error(`Failed to load items: ${error}`);
+        console.error(error);
+        throw new Error(`Failed to load items.`);
       }
     }
   };
@@ -59,7 +60,8 @@ export abstract class Store<
         });
       }
     } catch (error) {
-      throw new Error(`Failed to set item: ${error}`);
+      console.error(error);
+      throw new Error(`Failed to set item.`);
     }
     return value;
   };
@@ -71,10 +73,11 @@ export abstract class Store<
     } else {
       try {
         const storedValue: StoredValue | null = await this.store.getItem(key);
-        if (storedValue === null) throw new Error(`Item not found: ${key}`);
+        if (storedValue === null) throw new Error(`Item not found: ${key}.`);
         return await this.asValue(storedValue);
       } catch (error) {
-        throw new Error(`Failed to get item: ${error}`);
+        console.error(error);
+        throw new Error(`Failed to get item.`);
       }
     }
   };

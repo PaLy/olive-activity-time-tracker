@@ -64,7 +64,8 @@ class IntervalStore extends Store<StoredInterval, Interval, ExportedInterval> {
     await intervalStore
       .set(interval.id, { ...interval, ...edit })
       .catch((error) => {
-        throw new Error(`Failed to edit interval: ${error}`);
+        console.error(error);
+        throw new Error(`Failed to edit interval.`);
       });
   };
 }

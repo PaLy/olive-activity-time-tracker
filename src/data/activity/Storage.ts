@@ -28,7 +28,7 @@ class ActivityStore extends Store<StoredActivity, Activity> {
 
     for (const interval of intervals) {
       if (interval === null) {
-        throw new Error("Interval not found");
+        throw new Error("Interval not found.");
       }
     }
 
@@ -107,7 +107,8 @@ class ActivityStore extends Store<StoredActivity, Activity> {
         intervals: activity.intervals.filter(({ id }) => id !== interval.id),
       });
     } catch (error) {
-      throw new Error(`Failed to remove interval: ${error}`);
+      console.error(error);
+      throw new Error(`Failed to remove interval.`);
     }
   };
 
@@ -120,7 +121,8 @@ class ActivityStore extends Store<StoredActivity, Activity> {
         intervals: [...activity.intervals, interval],
       });
     } catch (error) {
-      throw new Error(`Failed to add interval: ${error}`);
+      console.error(error);
+      throw new Error(`Failed to add interval.`);
     }
   };
 
@@ -134,10 +136,11 @@ class ActivityStore extends Store<StoredActivity, Activity> {
 
       await this.addInterval(activity, { id: nanoid(), start: moment() });
     } catch (error) {
-      throw new Error(`Failed to start activity: ${error}`);
+      console.error(error);
+      throw new Error(`Failed to start activity.`);
     }
-    await setExpanded(activity.id, true).catch(() => {
-      // ignore
+    await setExpanded(activity.id, true).catch((error) => {
+      console.error(error);
     });
   };
 
@@ -158,10 +161,11 @@ class ActivityStore extends Store<StoredActivity, Activity> {
         }
       }
     } catch (error) {
-      throw new Error(`Failed to stop activity: ${error}`);
+      console.error(error);
+      throw new Error(`Failed to stop activity.`);
     }
-    setExpanded(activity.id, false).catch(() => {
-      // ignore
+    await setExpanded(activity.id, false).catch((error) => {
+      console.error(error);
     });
   };
 

@@ -15,7 +15,8 @@ export const setExpanded = async (activityID: string, expanded: boolean) => {
       await activityInListExpandedStore.setItem(activityID, true);
     }
   } catch (error) {
-    throw new Error(`Failed to set expanded: ${error}`);
+    console.error(error);
+    throw new Error(`Failed to set expanded.`);
   }
 };
 
