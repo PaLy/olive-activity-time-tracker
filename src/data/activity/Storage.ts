@@ -68,26 +68,13 @@ class ActivityStore extends Store<StoredActivity, Activity> {
       )
       .map((activity) => activity.id);
 
-    const root = activities.get("root");
-    if (!root) {
-      const newRoot = {
-        id: "root",
-        name: "",
-        parentID: "root",
-        childIDs: rootChildIDs,
-        intervals: [],
-      };
-      await this.set("root", newRoot);
-      activities.set("root", newRoot);
-    } else {
-      const updatedRoot = {
-        ...root,
-        childIDs: rootChildIDs,
-      };
-      await this.set("root", updatedRoot);
-      activities.set("root", updatedRoot);
-    }
-    return activities;
+    activities.set("root", {
+      id: "root",
+      name: "",
+      parentID: "root",
+      childIDs: rootChildIDs,
+      intervals: [],
+    });
   };
 
   override asExportedValue = (activity: StoredActivity) => {
@@ -130,7 +117,7 @@ class ActivityStore extends Store<StoredActivity, Activity> {
     try {
       const inProgressAncestors = getNonRootAncestors(
         activity,
-        this.cache!,
+        await this.load(),
       ).filter(isSelfInProgress);
       await this.stopSelfActivities(inProgressAncestors);
 
@@ -147,7 +134,7 @@ class ActivityStore extends Store<StoredActivity, Activity> {
   stop = async (activity: Activity) => {
     const inProgressDescendants = [
       activity,
-      ...getDescendants(activity, this.cache!),
+      ...getDescendants(activity, await this.load()),
     ].filter(isSelfInProgress);
     const parentID = activity.parentID;
 
@@ -176,9 +163,13 @@ class ActivityStore extends Store<StoredActivity, Activity> {
         await intervalStore.editInterval(activity.intervals.slice(-1)[0], {
           end,
         });
-        this.cache = produce(this.cache, (draft: Map<string, Activity>) => {
-          draft.get(activity.id)!.intervals.slice(-1)[0].end = end;
-        });
+        const updatedActivity = produce(
+          await this.get(activity.id),
+          (draft) => {
+            draft.intervals.slice(-1)[0].end = end;
+          },
+        );
+        await this.set(activity.id, updatedActivity);
       }
     }
   };
@@ -200,7 +191,7 @@ class ActivityStore extends Store<StoredActivity, Activity> {
   };
 
   getByInterval = async (intervalID: string) => {
-    return getActivityByInterval(intervalID, this.cache!);
+    return getActivityByInterval(intervalID, await this.load());
   };
 }
 

@@ -45,4 +45,25 @@ describe("ActivityRoute", () => {
       expect(await screen.findByText("Parent")).toBeVisible();
     });
   });
+
+  it("can delete an interval", async () => {
+    await importActivities([
+      {
+        id: "1",
+        name: "Test",
+        intervals: [{ id: "1", start: moment() }],
+      },
+    ]);
+    renderApp();
+    await userEvent.click(await screen.findByRole("link", { name: "T" }));
+    await userEvent.click(
+      await screen.findByRole("link", { name: "edit interval" }),
+    );
+    await userEvent.click(
+      await screen.findByRole("button", { name: "delete" }),
+    );
+    await userEvent.click(await screen.findByRole("button", { name: "yes" }));
+    await userEvent.click(await screen.findByRole("button", { name: "back" }));
+    expect(screen.queryByText("Test")).not.toBeInTheDocument();
+  });
 });
