@@ -2,7 +2,6 @@ import moment from "moment/moment";
 import { humanize, intervalsGroupedByDay } from "./Algorithms";
 import { Interval, toSimpleClosedInterval } from "./Interval";
 import { Activity } from "../activity/Storage";
-import { useActivities } from "../activity/Operations";
 import { useEffect, useMemo } from "react";
 import { create } from "zustand";
 import { produce } from "immer";
@@ -56,11 +55,13 @@ export const useIntervalDuration = (
   }, [full, interval, time]);
 };
 
-export const useIntervalsGroupedByDay = (activity: Activity) => {
-  const { data, isLoading } = useActivities();
+export const useIntervalsGroupedByDay = (
+  activity: Activity,
+  activities: Map<string, Activity>,
+) => {
   const groupedIntervals = useMemo(
-    () => (data ? intervalsGroupedByDay(activity, data) : undefined),
-    [data, activity],
+    () => intervalsGroupedByDay(activity, activities),
+    [activities, activity],
   );
-  return { groupedIntervals, isLoading };
+  return { groupedIntervals };
 };

@@ -19,6 +19,7 @@ type RemoveActivityIntervalOptions = {
 export const useRemoveActivityInterval = (
   options?: RemoveActivityIntervalOptions,
 ) => {
+  const invalidateActivities = useInvalidateActivities();
   return useMutation({
     mutationFn: async (variables: {
       activity: Activity;
@@ -26,6 +27,9 @@ export const useRemoveActivityInterval = (
     }) => {
       const { activity, interval } = variables;
       await activityStore.removeInterval(activity, interval);
+      invalidateActivities().catch((error) => {
+        console.error(error);
+      });
     },
     onSuccess: options?.onSuccess,
     onError: openErrorSnackbar,
@@ -41,9 +45,11 @@ export const useStartActivity = (options?: StartStopActivityOptions) => {
     mutationFn: async (variables: { activity: Activity }) => {
       const { activity } = variables;
       await activityStore.start(activity);
-      Promise.all([invalidateActivities(), invalidateExpanded()]).catch(() => {
-        // ignored
-      });
+      Promise.all([invalidateActivities(), invalidateExpanded()]).catch(
+        (error) => {
+          console.error(error);
+        },
+      );
     },
     onError: openErrorSnackbar,
   });
@@ -55,7 +61,6 @@ function useInvalidateActivities() {
     Promise.all([
       queryClient.invalidateQueries({ queryKey: ["activities"] }),
       queryClient.invalidateQueries({ queryKey: ["activityByInterval"] }),
-      queryClient.invalidateQueries({ queryKey: ["activity"] }),
     ]);
 }
 
@@ -66,9 +71,11 @@ export const useStopActivity = (options?: StartStopActivityOptions) => {
     mutationFn: async (variables: { activity: Activity }) => {
       const { activity } = variables;
       await activityStore.stop(activity);
-      Promise.all([invalidateActivities(), invalidateExpanded()]).catch(() => {
-        // ignored
-      });
+      Promise.all([invalidateActivities(), invalidateExpanded()]).catch(
+        (error) => {
+          console.error(error);
+        },
+      );
     },
     onError: openErrorSnackbar,
   });
@@ -108,13 +115,6 @@ export const useActivities = () => {
   });
   useOpenErrorSnackbar(result.error);
   return result;
-};
-
-export const fetchActivity = (client: QueryClient, activityID: string) => {
-  return client.fetchQuery({
-    queryKey: ["activity", activityID],
-    queryFn: () => activityStore.get(activityID),
-  });
 };
 
 export const fetchActivityByInterval = (
