@@ -9,7 +9,7 @@ import {
   Paper,
   Typography,
 } from "@mui/material";
-import { Link, Outlet, useLoaderData } from "react-router-dom";
+import { Link, Outlet, useParams } from "react-router-dom";
 import { Activity } from "../../data/activity/Storage";
 import { FullScreenModalHeader } from "../../components/FullScreenModalHeader";
 import {
@@ -33,10 +33,41 @@ import { Interval } from "../../data/interval/Interval";
 import AutoSizer from "react-virtualized-auto-sizer";
 import { ResizableList, SingleItemData } from "../../components/ResizableList";
 import { calendarTime } from "../../utils/Date";
+import { useActivities } from "../../data/activity/Operations";
+import { useOpenErrorSnackbar } from "../../components/AppSnackbar";
 
 export const ActivityRoute = () => {
-  const activity = useLoaderData() as Activity;
-  const { groupedIntervals, isLoading } = useIntervalsGroupedByDay(activity);
+  const { activityID = "" } = useParams<{ activityID: string }>();
+  const { data: activities, isLoading } = useActivities();
+  const activity = activities?.get(activityID);
+
+  useOpenErrorSnackbar(!isLoading && !activity ? "Activity not found." : null);
+
+  return (
+    <>
+      <Paper square sx={{ height: "100%" }}>
+        {isLoading ? (
+          <Loading />
+        ) : activities && activity ? (
+          <Content activity={activity} activities={activities} />
+        ) : (
+          <></>
+        )}
+      </Paper>
+      <Outlet />
+      <DeleteIntervalConfirmation />
+    </>
+  );
+};
+
+type ContentProps = {
+  activities: Map<string, Activity>;
+  activity: Activity;
+};
+
+const Content = (props: ContentProps) => {
+  const { activities, activity } = props;
+  const { groupedIntervals } = useIntervalsGroupedByDay(activity, activities);
   const [visibleStartIndex, setVisibleStartIndex] = useState(0);
   const rowData = useRowData(groupedIntervals, activity, visibleStartIndex);
 
@@ -56,32 +87,22 @@ export const ActivityRoute = () => {
   }, [rowData, visibleStartIndex]);
 
   return (
-    <>
-      <Paper square sx={{ height: "100%" }}>
-        {isLoading ? (
-          <Loading />
-        ) : (
-          <AutoSizer>
-            {({ width, height }) => (
-              <ResizableList
-                height={height}
-                width={width}
-                itemData={rowData}
-                innerElementType={innerElementType}
-                innerRef={(ref: InnerRefValue | null) =>
-                  ref?.setTopInterval(topInterval)
-                }
-                onItemsRendered={(props) => {
-                  setVisibleStartIndex(props.visibleStartIndex);
-                }}
-              />
-            )}
-          </AutoSizer>
-        )}
-      </Paper>
-      <Outlet />
-      <DeleteIntervalConfirmation />
-    </>
+    <AutoSizer>
+      {({ width, height }) => (
+        <ResizableList
+          height={height}
+          width={width}
+          itemData={rowData}
+          innerElementType={innerElementType}
+          innerRef={(ref: InnerRefValue | null) =>
+            ref?.setTopInterval(topInterval)
+          }
+          onItemsRendered={(props) => {
+            setVisibleStartIndex(props.visibleStartIndex);
+          }}
+        />
+      )}
+    </AutoSizer>
   );
 };
 

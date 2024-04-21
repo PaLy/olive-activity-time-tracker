@@ -10,10 +10,7 @@ import {
   EditIntervalLoaderData,
 } from "./routes/activity/EditInterval";
 import { signal } from "@preact/signals-react";
-import {
-  fetchActivity,
-  fetchActivityByInterval,
-} from "./data/activity/Operations";
+import { fetchActivityByInterval } from "./data/activity/Operations";
 import { QueryClient } from "@tanstack/react-query";
 
 const ErrorBoundary = () => {
@@ -51,16 +48,6 @@ export const createRoutes = (queryClient: QueryClient): RouteObject[] => [
       {
         path: "activities/:activityID",
         element: <ActivityRoute />,
-        loader: async ({ params }) => {
-          const { activityID } = params;
-          if (activityID) {
-            const activity = await fetchActivity(queryClient, activityID);
-            if (activity) {
-              return activity;
-            }
-          }
-          throw new Error("Activity does not exist.");
-        },
         children: [
           {
             path: "interval/:intervalID",
