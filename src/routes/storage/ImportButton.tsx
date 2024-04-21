@@ -46,10 +46,10 @@ const useHandleFileChange = () => {
       } catch (e) {
         console.error(e);
         // TODO delete data?
-        error.value = "Something went wrong";
+        error.value = "Failed to import data.";
       }
     } else {
-      error.value = "Invalid file";
+      error.value = "Invalid file.";
     }
     resultOpen.value = true;
     event.target.value = "";
@@ -79,7 +79,7 @@ const Result = () => {
         severity={error.value ? "error" : "success"}
         sx={{ width: "100%" }}
       >
-        {error.value || "Data successfully imported"}
+        {error.value || "Data successfully imported."}
       </Alert>
     </Snackbar>
   );
