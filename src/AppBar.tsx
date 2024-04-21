@@ -1,8 +1,7 @@
 import { AppBar, IconButton, Toolbar, Typography } from "@mui/material";
 import { ReactNode } from "react";
 import MenuIcon from "@mui/icons-material/Menu";
-import { useNavigate } from "react-router-dom";
-import { useLocation } from "./routes/Router";
+import { useLocation, useNavigate } from "./routes/Router";
 import { AppDrawer } from "./AppDrawer";
 
 type AppAppBarProps = {

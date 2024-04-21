@@ -1,4 +1,3 @@
-import { useNavigate } from "react-router-dom";
 import { signal, useSignal } from "@preact/signals-react";
 import moment from "moment";
 import { IntervalSettings } from "./IntervalSettings";
@@ -9,7 +8,7 @@ import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import SaveIcon from "@mui/icons-material/Save";
 import { Interval } from "../../data/interval/Interval";
 import { nanoid } from "nanoid";
-import { useLocation } from "../Router";
+import { useLocation, useNavigate } from "../Router";
 import { FullScreenModal } from "../../components/FullScreenModal";
 import { Box } from "@mui/material";
 import { useExpandChildrenPathToRoot } from "../activitylists/state/Expanded";

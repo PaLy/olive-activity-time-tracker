@@ -15,8 +15,7 @@ import {
   useMemo,
   useRef,
 } from "react";
-import { useNavigate } from "react-router-dom";
-import { useLocation } from "../Router";
+import { useLocation, useNavigate } from "../Router";
 import AddIcon from "@mui/icons-material/Add";
 import { AddActivityModal } from "../addactivity/AddActivityModal";
 import { ResizableList, SingleItemData } from "../../components/ResizableList";

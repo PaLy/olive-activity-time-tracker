@@ -6,7 +6,7 @@ import {
   Typography,
 } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "../routes/Router";
 
 type Props = {
   headline?: string;
