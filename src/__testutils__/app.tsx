@@ -1,9 +1,19 @@
 import { render } from "@testing-library/react";
-import { RouterProvider } from "react-router-dom";
-import { createRouter } from "../router";
+import { createMemoryRouter, RouterProvider } from "react-router-dom";
+import { createRoutes } from "../router";
 import { QueryClient } from "@tanstack/react-query";
 
-export const renderApp = () =>
-  render(
-    <RouterProvider router={createRouter(new QueryClient())}></RouterProvider>,
+type RenderAppOptions = {
+  route?: string;
+};
+
+export const renderApp = (options?: RenderAppOptions) => {
+  const { route = "/" } = options ?? {};
+  return render(
+    <RouterProvider
+      router={createMemoryRouter(createRoutes(new QueryClient()), {
+        initialEntries: [route],
+      })}
+    ></RouterProvider>,
   );
+};

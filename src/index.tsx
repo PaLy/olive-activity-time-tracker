@@ -4,15 +4,17 @@ import "@fontsource/roboto/500.css";
 import "@fontsource/roboto/700.css";
 import { createRoot } from "react-dom/client";
 import reportWebVitals from "./reportWebVitals";
-import { RouterProvider } from "react-router-dom";
+import { createHashRouter, RouterProvider } from "react-router-dom";
 import { enableMapSet } from "immer";
-import { createRouter } from "./router";
+import { createRoutes } from "./router";
 import { QueryClient } from "@tanstack/react-query";
 
 enableMapSet();
 
 const root = createRoot(document.getElementById("root")!);
-root.render(<RouterProvider router={createRouter(new QueryClient())} />);
+root.render(
+  <RouterProvider router={createHashRouter(createRoutes(new QueryClient()))} />,
+);
 
 // If you want to start measuring performance in your app, pass a function
 // to log results (for example: reportWebVitals(console.log))
