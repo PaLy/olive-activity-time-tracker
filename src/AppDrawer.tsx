@@ -70,6 +70,7 @@ const DrawerItem = (props: DrawerItemProps) => {
   return (
     <ListItem disablePadding>
       <ListItemButton
+        aria-label={text}
         onClick={(event) => {
           navigate(`${mainScreenPath}${routePath}`, { replace: true });
           event.stopPropagation();
