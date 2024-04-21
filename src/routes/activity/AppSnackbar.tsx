@@ -48,9 +48,11 @@ export const openSnackbar = (options: Omit<SnackbarProps, "open">) => {
   appSnackbarProps.value = { ...options, open: true };
 };
 
-export const openErrorSnackbar = (error: Error) => {
-  openSnackbar({ message: error.message, severity: "error" });
-  console.error(error);
+export const openErrorSnackbar = (error: Error | string) => {
+  openSnackbar({
+    message: typeof error === "string" ? error : error.message,
+    severity: "error",
+  });
 };
 
 export const useOpenErrorSnackbar = (error: Error | null) => {

@@ -15,7 +15,7 @@ export const getDescendants = (
   activity.childIDs
     .map((childID) => {
       const child = activities.get(childID);
-      if (!child) throw new Error(`Child with ID ${childID} not found`);
+      if (!child) throw new Error(`Activity ${childID} not found.`);
       return child;
     })
     .flatMap((child) => [child, ...getDescendants(child, activities)]) ?? [];
@@ -30,7 +30,7 @@ const getAncestors = (
   activities: Map<string, Activity>,
 ): Activity[] => {
   const parent = activities.get(activity.parentID);
-  if (!parent) throw new Error(`Parent with ID ${activity.parentID} not found`);
+  if (!parent) throw new Error(`Activity ${activity.parentID} not found.`);
   return parent.id === "root"
     ? [parent]
     : [parent, ...getAncestors(parent, activities)];

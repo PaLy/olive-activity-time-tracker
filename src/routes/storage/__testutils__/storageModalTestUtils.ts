@@ -20,7 +20,7 @@ export const storageModal = {
 
       await userEvent.upload(input, file);
       expect(
-        await screen.findByText("Data successfully imported"),
+        await screen.findByText("Data successfully imported."),
       ).toBeVisible();
     },
   },
