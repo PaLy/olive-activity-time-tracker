@@ -5,13 +5,15 @@ import {
   getActivityList,
   setActivityList,
 } from "../data/settings/Settings";
+import { useOpenErrorSnackbar } from "../routes/activity/AppSnackbar";
 
 export const useActivityListSettings = () => {
-  const { data } = useQuery({
+  const { data, error } = useQuery({
     queryKey: ["activityListSettings"],
     queryFn: () => getActivityList(),
     initialData: DEFAULT_SETTINGS.activityList,
   });
+  useOpenErrorSnackbar(error);
   return data;
 };
 
