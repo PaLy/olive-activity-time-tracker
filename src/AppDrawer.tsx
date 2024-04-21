@@ -1,6 +1,5 @@
 import { ReactNode } from "react";
-import { useNavigate } from "react-router-dom";
-import { useLocation } from "./routes/Router";
+import { useLocation, useNavigate } from "./routes/Router";
 import {
   Box,
   Drawer,

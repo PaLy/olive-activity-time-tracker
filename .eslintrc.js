@@ -10,7 +10,7 @@ module.exports = {
         paths: [
           {
             name: "react-router-dom",
-            importNames: ["useLocation"],
+            importNames: ["useLocation", "useNavigate"],
             message:
               "Please use useLocation from /src/routes/Router.tsx instead.",
           },

@@ -9,7 +9,7 @@ import {
   Slide,
   Typography,
 } from "@mui/material";
-import { useLoaderData, useNavigate } from "react-router-dom";
+import { useLoaderData } from "react-router-dom";
 import SaveIcon from "@mui/icons-material/Save";
 import { Interval } from "../../data/interval/Interval";
 import { Activity } from "../../data/activity/Storage";
@@ -22,6 +22,7 @@ import { deleteIntervalConfirmationData } from "./DeleteIntervalConfirmation";
 import { DateTimeRangePicker } from "../../components/DateTimeRangePicker";
 import { useEditInterval } from "../../data/interval/Operations";
 import { openSnackbar } from "./AppSnackbar";
+import { useNavigate } from "../Router";
 
 export type EditIntervalLoaderData = {
   activity: Activity;

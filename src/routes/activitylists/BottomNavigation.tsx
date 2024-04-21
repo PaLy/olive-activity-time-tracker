@@ -4,8 +4,7 @@ import TodayIcon from "@mui/icons-material/Today";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import DateRangeIcon from "@mui/icons-material/DateRange";
 import { Badge, Paper } from "@mui/material";
-import { useNavigate } from "react-router-dom";
-import { useLocation } from "../Router";
+import { useLocation, useNavigate } from "../Router";
 import { useInProgressActivitiesCount } from "../../data/activity/Signals";
 
 export const AppBottomNavigation = () => {

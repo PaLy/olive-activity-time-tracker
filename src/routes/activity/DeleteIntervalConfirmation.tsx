@@ -1,4 +1,3 @@
-import { useNavigate } from "react-router-dom";
 import {
   Button,
   Dialog,
@@ -10,6 +9,7 @@ import { useRemoveActivityInterval } from "../../data/activity/Operations";
 import { batch, signal } from "@preact/signals-react";
 import { EditIntervalLoaderData } from "./EditInterval";
 import { openSnackbar } from "./AppSnackbar";
+import { useNavigate } from "../Router";
 
 export const deleteIntervalConfirmationData =
   signal<EditIntervalLoaderData | null>(null);
