@@ -1,4 +1,3 @@
-import { signal } from "@preact/signals-react";
 import { Box, Fab, Grid, Paper, useMediaQuery, useTheme } from "@mui/material";
 import { AppBarActions } from "./AppBarActions";
 import { ActivityItem } from "./ActivityItem";
@@ -132,10 +131,9 @@ const useItemData = (props: Props) => {
           RowComponent: Header,
           rowProps: { header, filter },
           rowData: {
-            size: signal(
+            size:
               (filter ? filter.initialHeight + FILTER_PADDING_TOP : 0) +
-                (largeAppBar ? 64 : 56),
-            ),
+              (largeAppBar ? 64 : 56),
           },
         } as SingleItemData<typeof Header>,
         ...activities.map(
@@ -143,7 +141,7 @@ const useItemData = (props: Props) => {
             ({
               RowComponent: ActivityItem,
               rowProps: { activity, interval, key: activity.id },
-              rowData: { size: signal(92) },
+              rowData: { size: 92 },
             }) as SingleItemData<typeof ActivityItem>,
         ),
       ] as SingleItemData<ElementType>[],

@@ -13,7 +13,6 @@ import React, {
   useMemo,
   useRef,
 } from "react";
-import { Signal } from "@preact/signals-react";
 import { windowWidth } from "../utils/Window";
 import { ScrollMemoryContext } from "./ScrollMemory";
 import { useLocation } from "../routes/Router";
@@ -29,7 +28,7 @@ type ItemData<Component extends ElementType> = Array<{
   RowComponent: Component;
   rowProps: ComponentProps<Component>;
   rowData: {
-    size: Signal<number>;
+    size: number;
   };
 }>;
 
@@ -37,7 +36,7 @@ export type SingleItemData<Component extends ElementType> = {
   RowComponent: Component;
   rowProps: ComponentProps<Component>;
   rowData: {
-    size: Signal<number>;
+    size: number;
   };
 };
 
@@ -55,7 +54,13 @@ export const ResizableList = <Component extends ElementType>(
   const variableSizeListRef =
     useRef<VariableSizeList<WrappedItemData<Component>>>(null);
 
-  const wrappedItemData = useWrappedItemData(itemData, variableSizeListRef);
+  const computedRowHeights = useRef(new Map<number, number>());
+
+  const wrappedItemData = useWrappedItemData(
+    itemData,
+    variableSizeListRef,
+    computedRowHeights,
+  );
 
   const { pathname: scrollID } = useLocation();
   const scrollMemory = useContext(ScrollMemoryContext);
@@ -65,7 +70,9 @@ export const ResizableList = <Component extends ElementType>(
       ref={variableSizeListRef}
       height={height}
       width={width}
-      itemSize={(index) => itemData[index].rowData.size.value}
+      itemSize={(index) =>
+        computedRowHeights.current.get(index) ?? itemData[index].rowData.size
+      }
       itemCount={itemData.length}
       itemData={wrappedItemData}
       innerElementType={innerElementType}
@@ -85,6 +92,7 @@ export const ResizableList = <Component extends ElementType>(
 const useWrappedItemData = <Component extends ElementType>(
   itemData: ItemData<Component>,
   listRef: RefObject<VariableSizeList<WrappedItemData<Component>>>,
+  computedRowHeights: React.MutableRefObject<Map<number, number>>,
 ) =>
   useMemo(
     () =>
@@ -92,18 +100,20 @@ const useWrappedItemData = <Component extends ElementType>(
         ...row,
         rowData: {
           ...row.rowData,
-          listRef: listRef,
+          listRef,
+          computedRowHeights,
         },
       })),
-    [itemData, listRef],
+    [computedRowHeights, itemData, listRef],
   );
 
 type WrappedItemData<Component extends ElementType> = Array<{
   RowComponent: Component;
   rowProps: ComponentProps<Component>;
   rowData: {
-    size: Signal<number>;
+    size: number;
     listRef: RefObject<VariableSizeList<WrappedItemData<Component>>>;
+    computedRowHeights: React.MutableRefObject<Map<number, number>>;
   };
 }>;
 
@@ -117,7 +127,7 @@ const Row = <Component extends ElementType>(
   const { index, style, data } = props;
   const {
     RowComponent,
-    rowData: { size, listRef },
+    rowData: { size, listRef, computedRowHeights },
     rowProps,
   } = data[index];
 
@@ -125,9 +135,14 @@ const Row = <Component extends ElementType>(
   const windowWidthValue = windowWidth.value;
 
   useEffect(() => {
-    size.value = rowRef.current?.getBoundingClientRect().height ?? size.value;
+    const height = rowRef.current?.getBoundingClientRect().height;
+    if (height !== undefined) {
+      computedRowHeights.current.set(index, height);
+    } else {
+      computedRowHeights.current.delete(index);
+    }
     listRef.current?.resetAfterIndex(index);
-  }, [index, listRef, size, windowWidthValue]);
+  }, [computedRowHeights, index, listRef, size, windowWidthValue]);
 
   return (
     <div style={style}>

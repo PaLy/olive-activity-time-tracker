@@ -25,25 +25,24 @@ import {
   useImperativeHandle,
   useMemo,
   useRef,
+  useState,
 } from "react";
 import EditIcon from "@mui/icons-material/Edit";
 import { DeleteIntervalConfirmation } from "./DeleteIntervalConfirmation";
 import { Interval } from "../../data/interval/Interval";
-import { computed, signal, Signal, useSignal } from "@preact/signals-react";
 import AutoSizer from "react-virtualized-auto-sizer";
-import moment from "moment";
 import { ResizableList, SingleItemData } from "../../components/ResizableList";
 
 export const ActivityRoute = () => {
   const activity = useLoaderData() as Activity;
   const { groupedIntervals, isLoading } = useIntervalsGroupedByDay(activity);
-  const visibleStartIndex = useSignal(0);
+  const [visibleStartIndex, setVisibleStartIndex] = useState(0);
   const rowData = useRowData(groupedIntervals, activity, visibleStartIndex);
 
   const topInterval = useMemo(() => {
-    if (visibleStartIndex.value > 0) {
+    if (visibleStartIndex > 0) {
       return rowData
-        .slice(visibleStartIndex.value)
+        .slice(visibleStartIndex)
         .find(
           (
             singleRowData,
@@ -53,7 +52,7 @@ export const ActivityRoute = () => {
     } else {
       return undefined;
     }
-  }, [rowData, visibleStartIndex.value]);
+  }, [rowData, visibleStartIndex]);
 
   return (
     <>
@@ -71,9 +70,9 @@ export const ActivityRoute = () => {
                 innerRef={(ref: InnerRefValue | null) =>
                   ref?.setTopInterval(topInterval)
                 }
-                onItemsRendered={(props) =>
-                  (visibleStartIndex.value = props.visibleStartIndex)
-                }
+                onItemsRendered={(props) => {
+                  setVisibleStartIndex(props.visibleStartIndex);
+                }}
               />
             )}
           </AutoSizer>
@@ -133,15 +132,7 @@ type StickySubheaderProps = {
 
 const StickySubheader = (props: StickySubheaderProps) => {
   const { interval } = props;
-  return (
-    <>
-      {interval && (
-        <SubheaderItem
-          interval={interval ?? { id: "", start: moment(), end: moment() }}
-        />
-      )}
-    </>
-  );
+  return <>{interval && <SubheaderItem interval={interval} />}</>;
 };
 
 type TopOfIntervalListProps = {
@@ -164,7 +155,7 @@ const TopOfIntervalList = (props: TopOfIntervalListProps) => {
 const useRowData = (
   groupedIntervals: { [key: string]: IntervalWithActivity[] } = {},
   activity: Activity,
-  visibleStartIndex: Signal<number>,
+  visibleStartIndex: number,
 ) => {
   return useMemo(() => {
     let index = 1;
@@ -172,7 +163,7 @@ const useRowData = (
       {
         RowComponent: TopOfIntervalList,
         rowProps: { activity },
-        rowData: { size: signal(96) },
+        rowData: { size: 96 },
       },
       ...Object.values(groupedIntervals).flatMap((intervals) => {
         const finalIndex = index;
@@ -180,34 +171,32 @@ const useRowData = (
           RowComponent: SubheaderItem,
           rowProps: {
             interval: intervals[0].interval,
-            stickyItemVisible: computed(
-              () => visibleStartIndex.value === finalIndex,
-            ),
+            stickyItemVisible: visibleStartIndex === finalIndex,
           },
-          rowData: { size: signal(48) },
+          rowData: { size: 48 },
         };
         const intervalsRowData: SingleItemData<typeof IntervalItem>[] =
           intervals.map((intervalWithActivity) => ({
             RowComponent: IntervalItem,
             rowProps: { activity, intervalWithActivity },
-            rowData: { size: signal(60) },
+            rowData: { size: 60 },
           }));
         const items = [subheaderData, ...intervalsRowData];
         index += items.length;
         return items;
       }),
     ] as SingleItemData<ElementType>[];
-  }, [activity, groupedIntervals, visibleStartIndex.value]);
+  }, [activity, groupedIntervals, visibleStartIndex]);
 };
 
 type SubheaderItemProps = {
   interval: Interval;
-  stickyItemVisible?: Signal<boolean>;
+  stickyItemVisible?: boolean;
 };
 
 const SubheaderItem = (props: SubheaderItemProps) => {
   const { interval, stickyItemVisible } = props;
-  if (stickyItemVisible?.value) {
+  if (stickyItemVisible) {
     return null;
   } else {
     return (
