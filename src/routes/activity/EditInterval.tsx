@@ -21,7 +21,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import { deleteIntervalConfirmationData } from "./DeleteIntervalConfirmation";
 import { DateTimeRangePicker } from "../../components/DateTimeRangePicker";
 import { useEditInterval } from "../../data/interval/Operations";
-import { openSnackbar } from "./AppSnackbar";
+import { openSnackbar } from "../../components/AppSnackbar";
 import { useNavigate } from "../Router";
 
 export type EditIntervalLoaderData = {

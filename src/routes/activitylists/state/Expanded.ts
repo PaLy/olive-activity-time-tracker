@@ -10,7 +10,7 @@ import { useParentActivities } from "../../../data/activity/Signals";
 import {
   openErrorSnackbar,
   useOpenErrorSnackbar,
-} from "../../activity/AppSnackbar";
+} from "../../../components/AppSnackbar";
 import { produce } from "immer";
 
 export function useExpanded(activity: Activity) {
