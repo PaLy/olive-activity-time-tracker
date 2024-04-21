@@ -52,3 +52,11 @@ export const openErrorSnackbar = (error: Error) => {
   openSnackbar({ message: error.message, severity: "error" });
   console.error(error);
 };
+
+export const useOpenErrorSnackbar = (error: Error | null) => {
+  useEffect(() => {
+    if (error) {
+      openErrorSnackbar(error);
+    }
+  }, [error]);
+};

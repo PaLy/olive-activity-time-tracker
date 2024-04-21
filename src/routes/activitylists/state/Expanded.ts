@@ -1,5 +1,4 @@
 import { Activity } from "../../../data/activity/Storage";
-import { ReadonlySignal, signal } from "@preact/signals-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   getAllExpanded,
@@ -8,37 +7,33 @@ import {
 } from "../../../data/activity/ActivityInListExpanded";
 import { useActivities } from "../../../data/activity/Operations";
 import { useParentActivities } from "../../../data/activity/Signals";
+import {
+  openErrorSnackbar,
+  useOpenErrorSnackbar,
+} from "../../activity/AppSnackbar";
+import { produce } from "immer";
 
 export function useExpanded(activity: Activity) {
   const { id } = activity;
-  const { data } = useQuery({
+  const { data, error } = useQuery({
     queryKey: ["activityInListExpanded", { id }],
     queryFn: () => getExpanded(id),
     initialData: false,
   });
-
+  useOpenErrorSnackbar(error);
   return data;
 }
 
 export function useExpandedAll() {
-  const { data } = useQuery({
+  const { data, error } = useQuery({
     queryKey: ["activitiesInListExpanded"],
     queryFn: async () => {
-      expandedAllSignal.value = new Set(
-        ["root"].concat(await getAllExpanded()),
-      );
-      return expandedAllSignal.value;
+      return new Set(["root"].concat(await getAllExpanded()));
     },
     initialData: new Set(["root"]),
   });
+  useOpenErrorSnackbar(error);
   return data;
-}
-
-const expandedAllSignal = signal(new Set<string>());
-
-export function useExpandedAllSignal(): ReadonlySignal<Set<string>> {
-  useExpandedAll();
-  return expandedAllSignal;
 }
 
 type SetExpandedVariables = {
@@ -54,12 +49,20 @@ export function useSetExpanded() {
       const { activity, expanded } = variables;
       const { id } = activity;
       queryClient.setQueryData(["activityInListExpanded", { id }], expanded);
+      queryClient.setQueryData<Set<string>>(
+        ["activitiesInListExpanded"],
+        (previous = new Set()) =>
+          produce(previous, (draft) => {
+            if (expanded) {
+              draft.add(id);
+            } else {
+              draft.delete(id);
+            }
+          }),
+      );
       await setExpanded(id, expanded);
-      await queryClient.invalidateQueries({
-        queryKey: ["activitiesInListExpanded"],
-        exact: true,
-      });
     },
+    onError: openErrorSnackbar,
   });
 
   return mutate;
