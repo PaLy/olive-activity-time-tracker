@@ -6,7 +6,10 @@ import {
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
-import { openErrorSnackbar } from "../../routes/activity/AppSnackbar";
+import {
+  openErrorSnackbar,
+  useOpenErrorSnackbar,
+} from "../../routes/activity/AppSnackbar";
 import { useInvalidateExpanded } from "../../routes/activitylists/state/Expanded";
 
 type RemoveActivityIntervalOptions = {
@@ -99,10 +102,12 @@ export const useAddInterval = () => {
 };
 
 export const useActivities = () => {
-  return useQuery({
+  const result = useQuery({
     queryKey: ["activities"],
     queryFn: () => activityStore.load(),
   });
+  useOpenErrorSnackbar(result.error);
+  return result;
 };
 
 export const fetchActivity = (client: QueryClient, activityID: string) => {

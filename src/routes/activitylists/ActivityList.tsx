@@ -1,4 +1,4 @@
-import { signal, Signal } from "@preact/signals-react";
+import { signal } from "@preact/signals-react";
 import { Box, Fab, Grid, Paper, useMediaQuery, useTheme } from "@mui/material";
 import { AppBarActions } from "./AppBarActions";
 import { ActivityItem } from "./ActivityItem";
@@ -20,7 +20,7 @@ import AddIcon from "@mui/icons-material/Add";
 import { AddActivityModal } from "../addactivity/AddActivityModal";
 import { ResizableList, SingleItemData } from "../../components/ResizableList";
 import AutoSizer from "react-virtualized-auto-sizer";
-import { useExpandedAll, useExpandedAllSignal } from "./state/Expanded";
+import { useExpandedAll } from "./state/Expanded";
 import { getActivitiesByOrder, OrderBy } from "../../data/activity/Algorithms";
 import { useActivities } from "../../data/activity/Operations";
 import { Activity } from "../../data/activity/Storage";
@@ -119,7 +119,7 @@ const FILTER_PADDING_TOP = 16;
 
 const useItemData = (props: Props) => {
   const { header, filter, interval, orderBy } = props;
-  const expandedAll = useExpandedAllSignal();
+  const expandedAll = useExpandedAll();
   const activities = useFilteredActivities(orderBy, interval, expandedAll);
 
   const theme = useTheme();
@@ -154,21 +154,15 @@ const useItemData = (props: Props) => {
 const useFilteredActivities = (
   orderBy: OrderBy,
   interval: ClosedInterval,
-  expandedAll: Signal<Set<string>>,
+  expandedAll: Set<string>,
 ) => {
   const { data: activities = new Map<string, Activity>() } = useActivities();
   const time = useClockStore((state) => state.time);
 
   return useMemo(
     () =>
-      getActivitiesByOrder(
-        interval,
-        expandedAll.value,
-        orderBy,
-        activities,
-        time,
-      ),
-    [activities, expandedAll.value, interval, orderBy, time],
+      getActivitiesByOrder(interval, expandedAll, orderBy, activities, time),
+    [activities, expandedAll, interval, orderBy, time],
   );
 };
 
