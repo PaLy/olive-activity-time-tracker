@@ -5,6 +5,7 @@ import { saveAs } from "file-saver";
 import { signal } from "@preact/signals-react";
 import moment from "moment";
 import { useEffect } from "react";
+import { openErrorSnackbar } from "../../components/AppSnackbar";
 
 export const ExportButton = () => {
   return (
@@ -14,19 +15,24 @@ export const ExportButton = () => {
         startIcon={<FileDownloadIcon />}
         onClick={async () => {
           // TODO warning about in-progress activities
-          const json = await exportDB();
-          const dateTime = moment().format("YYYYMMDDHHmm");
-          const filename = `activities_${dateTime}.json`;
-          if (window.Android) {
-            const result = window.Android.export(json, filename);
-            if (result === "error") {
-              androidError.value = true;
+          try {
+            const json = await exportDB();
+            const dateTime = moment().format("YYYYMMDDHHmm");
+            const filename = `activities_${dateTime}.json`;
+            if (window.Android) {
+              const result = window.Android.export(json, filename);
+              if (result === "error") {
+                androidError.value = true;
+              }
+            } else {
+              const blob = new Blob([json], {
+                type: "application/json;charset=utf-8",
+              });
+              saveAs(blob, filename);
             }
-          } else {
-            const blob = new Blob([json], {
-              type: "application/json;charset=utf-8",
-            });
-            saveAs(blob, filename);
+          } catch (error) {
+            console.error(error);
+            openErrorSnackbar("Failed to export data.");
           }
         }}
       >

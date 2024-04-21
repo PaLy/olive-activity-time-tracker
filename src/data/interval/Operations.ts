@@ -1,7 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
 import { Interval } from "./Interval";
 import { IntervalEdit, intervalStore } from "./Storage";
-import { openErrorSnackbar } from "../../routes/activity/AppSnackbar";
+import { openErrorSnackbar } from "../../components/AppSnackbar";
 
 type EditIntervalOptions = {
   onSuccess?: () => void;

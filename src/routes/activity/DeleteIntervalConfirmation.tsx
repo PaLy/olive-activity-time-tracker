@@ -8,7 +8,7 @@ import {
 import { useRemoveActivityInterval } from "../../data/activity/Operations";
 import { batch, signal } from "@preact/signals-react";
 import { EditIntervalLoaderData } from "./EditInterval";
-import { openSnackbar } from "./AppSnackbar";
+import { openSnackbar } from "../../components/AppSnackbar";
 import { useNavigate } from "../Router";
 
 export const deleteIntervalConfirmationData =

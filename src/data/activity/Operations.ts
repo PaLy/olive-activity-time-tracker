@@ -9,7 +9,7 @@ import {
 import {
   openErrorSnackbar,
   useOpenErrorSnackbar,
-} from "../../routes/activity/AppSnackbar";
+} from "../../components/AppSnackbar";
 import { useInvalidateExpanded } from "../../routes/activitylists/state/Expanded";
 
 type RemoveActivityIntervalOptions = {
