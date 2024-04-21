@@ -9,7 +9,7 @@ export abstract class Store<
 > {
   private store;
   name;
-  protected cache: Map<string, Value> | undefined;
+  private cache: Promise<Map<string, Value>> | undefined;
 
   constructor(args: { name: string }) {
     const { name } = args;
@@ -25,40 +25,50 @@ export abstract class Store<
   ) => [key: string, StoredValue];
   abstract valueJsonSchema: JTDSchemaType<ExportedValue[]>;
 
-  afterLoaded = async (
-    items: Map<string, Value>,
-  ): Promise<Map<string, Value>> => items;
+  afterLoaded = async (items: Map<string, Value>) => {};
 
-  load = async () => {
-    if (this.cache) {
-      return this.cache;
-    } else {
-      const storedValues = new Map<string, StoredValue>();
-      const result = new Map<string, Value>();
-      try {
-        await this.store.iterate((storedValue: StoredValue, key) => {
-          storedValues.set(key, storedValue);
-        });
-        for (const [key, storedValue] of storedValues.entries()) {
-          result.set(key, await this.asValue(storedValue));
+  load = async (opts?: { refresh?: boolean }): Promise<Map<string, Value>> => {
+    if (!this.cache || opts?.refresh) {
+      this.cache = (async () => {
+        const storedValues = new Map<string, StoredValue>();
+        const result = new Map<string, Value>();
+        try {
+          await this.store.iterate((storedValue: StoredValue, key) => {
+            storedValues.set(key, storedValue);
+          });
+          for (const [key, storedValue] of storedValues.entries()) {
+            result.set(key, await this.asValue(storedValue));
+          }
+          await this.afterLoaded(result);
+          return result;
+        } catch (error) {
+          this.cache = undefined;
+          console.error(error);
+          throw new Error(`Failed to load items.`);
         }
-        this.cache = await this.afterLoaded?.(result);
-        return this.cache;
-      } catch (error) {
-        console.error(error);
-        throw new Error(`Failed to load items.`);
-      }
+      })();
     }
+    return this.cache;
+  };
+
+  private updateCache = async (recipe: (draft: Map<string, Value>) => void) => {
+    const cache = await this.load();
+    this.cache = (async () => {
+      try {
+        return produce(cache, recipe);
+      } catch (error) {
+        this.cache = undefined;
+        throw error;
+      }
+    })();
   };
 
   set = async (key: string, value: Value) => {
     try {
       await this.store.setItem(key, this.asStoredValue(value));
-      if (this.cache) {
-        this.cache = produce(this.cache, (draft: Map<string, Value>) => {
-          draft.set(key, value);
-        });
-      }
+      await this.updateCache((draft: Map<string, Value>) => {
+        draft.set(key, value);
+      });
     } catch (error) {
       console.error(error);
       throw new Error(`Failed to set item.`);
@@ -67,31 +77,25 @@ export abstract class Store<
   };
 
   get = async (key: string) => {
-    const cachedValue = this.cache?.get(key);
-    if (cachedValue) {
+    const cache = await this.load();
+    const cachedValue = cache.get(key);
+    if (cachedValue !== undefined) {
       return cachedValue;
     } else {
-      try {
-        const storedValue: StoredValue | null = await this.store.getItem(key);
-        if (storedValue === null) throw new Error(`Item not found: ${key}.`);
-        return await this.asValue(storedValue);
-      } catch (error) {
-        console.error(error);
-        throw new Error(`Failed to get item.`);
-      }
+      throw new Error(`Item not found: ${key}.`);
     }
   };
 
   remove = async (key: string) => {
     await this.store.removeItem(key);
-    this.cache = produce(this.cache!, (draft: Map<string, Value>) => {
+    await this.updateCache((draft: Map<string, Value>) => {
       draft.delete(key);
     });
   };
 
   clear = async () => {
     await this.store.clear();
-    this.cache = undefined;
+    await this.load({ refresh: true });
   };
 
   export = async () => {
@@ -111,8 +115,9 @@ export abstract class Store<
   import = async (data: ExportedValue[]) => {
     await Promise.all(
       data.map((value) => this.store.setItem(...this.fromExportedValue(value))),
-    ).catch(() => {
-      // TODO clean so far imported?
+    ).catch((error) => {
+      console.error(error);
+      throw new Error(`Failed to import items.`);
     });
   };
 }

@@ -75,6 +75,7 @@ export async function importDB(json: string) {
       activityStore.import(dbData[STORE_NAME_ACTIVITIES]),
       intervalStore.import(dbData[STORE_NAME_INTERVALS]),
     ]);
+    await Promise.all(stores.map((store) => store.load({ refresh: true })));
     return { valid: true };
   } else {
     return { errors: `${parse.message}::${parse.position}`, valid: false };

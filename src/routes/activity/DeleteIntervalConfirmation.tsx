@@ -41,11 +41,13 @@ const Content = () => {
       <DialogActions>
         <Button
           autoFocus
+          aria-label={"no"}
           onClick={() => (deleteIntervalConfirmationData.value = null)}
         >
           No
         </Button>
         <Button
+          aria-label={"yes"}
           onClick={() => {
             deleteActivityInterval({
               activity: activity!,
