@@ -3,14 +3,17 @@ import FileUploadIcon from "@mui/icons-material/FileUpload";
 import { ChangeEvent, useEffect } from "react";
 import { importDB } from "../../data/Storage";
 import { signal } from "@preact/signals-react";
+import { useQueryClient } from "@tanstack/react-query";
 
 export const ImportButton = () => {
+  const handleFileChange = useHandleFileChange();
   return (
     <>
       <Button
         variant={"outlined"}
         component="label"
         startIcon={<FileUploadIcon />}
+        aria-label={"Import"}
       >
         Import
         <input
@@ -25,27 +28,32 @@ export const ImportButton = () => {
   );
 };
 
-const handleFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
-  resultOpen.value = false;
-  const file = event.target.files?.[0];
-  if (file) {
-    const fileText = await file.text();
-    try {
-      const { valid, errors } = await importDB(fileText);
-      if (!valid) {
-        error.value = "Invalid JSON";
-        console.error("Invalid JSON:", errors);
+const useHandleFileChange = () => {
+  const queryClient = useQueryClient();
+
+  return async (event: ChangeEvent<HTMLInputElement>) => {
+    resultOpen.value = false;
+    const file = event.target.files?.[0];
+    if (file) {
+      const fileText = await file.text();
+      try {
+        const { valid, errors } = await importDB(fileText);
+        if (!valid) {
+          error.value = "Invalid JSON";
+          console.error("Invalid JSON:", errors);
+        }
+        await queryClient.invalidateQueries();
+      } catch (e) {
+        console.error(e);
+        // TODO delete data?
+        error.value = "Something went wrong";
       }
-    } catch (e) {
-      console.error(e);
-      // TODO delete data?
-      error.value = "Something went wrong";
+    } else {
+      error.value = "Invalid file";
     }
-  } else {
-    error.value = "Invalid file";
-  }
-  resultOpen.value = true;
-  event.target.value = "";
+    resultOpen.value = true;
+    event.target.value = "";
+  };
 };
 
 const resultOpen = signal(false);
