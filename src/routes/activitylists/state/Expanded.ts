@@ -97,3 +97,12 @@ export function useExpandChildrenPathToRoot() {
     }
   };
 }
+
+export function useInvalidateExpanded() {
+  const queryClient = useQueryClient();
+  return () =>
+    Promise.all([
+      queryClient.invalidateQueries({ queryKey: ["activitiesInListExpanded"] }),
+      queryClient.invalidateQueries({ queryKey: ["activityInListExpanded"] }),
+    ]);
+}
