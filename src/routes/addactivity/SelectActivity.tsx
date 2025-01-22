@@ -56,7 +56,7 @@ export const SelectActivity = (props: Props) => {
   );
 };
 
-const filter = createFilterOptions<Activity>();
+const filter = createFilterOptions<Activity>({ trim: true });
 
 const useOptions = () => {
   const nonRootActivities = useNonRootActivities();
