@@ -27,7 +27,7 @@ export const importActivities = async (activities: PartialActivity[]) => {
     for (let j = 0; j < intervals.length; j++) {
       const interval = intervals[j];
       const intervalID = interval.id ?? `${id}-${j}`;
-      await activityStore.addInterval(activity, {
+      await activityStore.addInterval(id, {
         id: intervalID,
         start: moment(),
         ...interval,

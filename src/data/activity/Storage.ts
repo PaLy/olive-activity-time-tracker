@@ -99,8 +99,10 @@ class ActivityStore extends Store<StoredActivity, Activity> {
     }
   };
 
-  addInterval = async (activity: Activity, interval: Interval) => {
+  addInterval = async (activityID: string, interval: Interval) => {
     try {
+      const activity = await this.get(activityID);
+
       await intervalStore.set(interval.id, interval);
 
       await this.set(activity.id, {
@@ -121,7 +123,7 @@ class ActivityStore extends Store<StoredActivity, Activity> {
       ).filter(isSelfInProgress);
       await this.stopSelfActivities(inProgressAncestors);
 
-      await this.addInterval(activity, { id: nanoid(), start: moment() });
+      await this.addInterval(activity.id, { id: nanoid(), start: moment() });
     } catch (error) {
       console.error(error);
       throw new Error(`Failed to start activity.`);
@@ -204,8 +206,10 @@ class ActivityStore extends Store<StoredActivity, Activity> {
 
       await this.set(activity.id, {
         ...activity,
-        intervals: activity.intervals.map(({ id }) =>
-          id === interval.id ? { ...interval, ...edit } : interval,
+        intervals: activity.intervals.map((activityInterval) =>
+          activityInterval.id === interval.id
+            ? { ...interval, ...edit }
+            : activityInterval,
         ),
       });
     } catch (error) {
