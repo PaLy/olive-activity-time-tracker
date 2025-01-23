@@ -94,7 +94,7 @@ export const useAddInterval = () => {
       interval: Interval;
     }) => {
       const { activity, interval } = variables;
-      await activityStore.addInterval(activity, interval);
+      await activityStore.addInterval(activity.id, interval);
       await invalidateActivities();
     },
     onError: openErrorSnackbar,
