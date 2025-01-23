@@ -107,5 +107,7 @@ export function useInvalidateExpanded() {
     Promise.all([
       queryClient.invalidateQueries({ queryKey: ["activitiesInListExpanded"] }),
       queryClient.invalidateQueries({ queryKey: ["activityInListExpanded"] }),
-    ]);
+    ]).catch((error) => {
+      console.error(error);
+    });
 }

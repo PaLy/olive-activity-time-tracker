@@ -20,7 +20,7 @@ import { Signal, useComputed } from "@preact/signals-react";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { deleteIntervalConfirmationData } from "./DeleteIntervalConfirmation";
 import { DateTimeRangePicker } from "../../components/DateTimeRangePicker";
-import { useEditInterval } from "../../data/interval/Operations";
+import { useEditInterval } from "../../data/activity/Operations";
 import { openSnackbar } from "../../components/AppSnackbar";
 import { useNavigate } from "../Router";
 
@@ -108,7 +108,7 @@ export const EditInterval = () => {
 };
 
 const useSave = (args: EditIntervalLoaderData) => {
-  const { interval, edit } = args;
+  const { interval, activity, edit } = args;
   const navigate = useNavigate();
 
   const { mutate, isPending } = useEditInterval({
@@ -123,6 +123,7 @@ const useSave = (args: EditIntervalLoaderData) => {
       // TODO validate intervals + update ancestors
       mutate({
         interval,
+        activity,
         edit: { start: edit.value.start.value, end: edit.value.end.value },
       });
     },
