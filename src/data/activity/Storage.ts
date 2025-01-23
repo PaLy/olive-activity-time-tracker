@@ -10,7 +10,7 @@ import {
   getNonRootAncestors,
   isSelfInProgress,
 } from "./Algorithms";
-import { intervalStore } from "../interval/Storage";
+import { IntervalEdit, intervalStore } from "../interval/Storage";
 import { setExpanded } from "./ActivityInListExpanded";
 import { produce } from "immer";
 
@@ -192,6 +192,26 @@ class ActivityStore extends Store<StoredActivity, Activity> {
 
   getByInterval = async (intervalID: string) => {
     return getActivityByInterval(intervalID, await this.load());
+  };
+
+  editInterval = async (
+    activity: Activity,
+    interval: Interval,
+    edit: IntervalEdit,
+  ) => {
+    try {
+      await intervalStore.editInterval(interval, edit);
+
+      await this.set(activity.id, {
+        ...activity,
+        intervals: activity.intervals.map(({ id }) =>
+          id === interval.id ? { ...interval, ...edit } : interval,
+        ),
+      });
+    } catch (error) {
+      console.error(error);
+      throw new Error(`Failed to edit interval.`);
+    }
   };
 }
 

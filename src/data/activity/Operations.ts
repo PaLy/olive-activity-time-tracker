@@ -11,6 +11,7 @@ import {
   useOpenErrorSnackbar,
 } from "../../components/AppSnackbar";
 import { useInvalidateExpanded } from "../../routes/activitylists/state/Expanded";
+import { IntervalEdit } from "../interval/Storage";
 
 type RemoveActivityIntervalOptions = {
   onSuccess?: () => void;
@@ -27,9 +28,7 @@ export const useRemoveActivityInterval = (
     }) => {
       const { activity, interval } = variables;
       await activityStore.removeInterval(activity, interval);
-      invalidateActivities().catch((error) => {
-        console.error(error);
-      });
+      await invalidateActivities();
     },
     onSuccess: options?.onSuccess,
     onError: openErrorSnackbar,
@@ -45,11 +44,7 @@ export const useStartActivity = (options?: StartStopActivityOptions) => {
     mutationFn: async (variables: { activity: Activity }) => {
       const { activity } = variables;
       await activityStore.start(activity);
-      Promise.all([invalidateActivities(), invalidateExpanded()]).catch(
-        (error) => {
-          console.error(error);
-        },
-      );
+      await Promise.all([invalidateActivities(), invalidateExpanded()]);
     },
     onError: openErrorSnackbar,
   });
@@ -61,7 +56,9 @@ function useInvalidateActivities() {
     Promise.all([
       queryClient.invalidateQueries({ queryKey: ["activities"] }),
       queryClient.invalidateQueries({ queryKey: ["activityByInterval"] }),
-    ]);
+    ]).catch((error) => {
+      console.error(error);
+    });
 }
 
 export const useStopActivity = (options?: StartStopActivityOptions) => {
@@ -71,11 +68,7 @@ export const useStopActivity = (options?: StartStopActivityOptions) => {
     mutationFn: async (variables: { activity: Activity }) => {
       const { activity } = variables;
       await activityStore.stop(activity);
-      Promise.all([invalidateActivities(), invalidateExpanded()]).catch(
-        (error) => {
-          console.error(error);
-        },
-      );
+      await Promise.all([invalidateActivities(), invalidateExpanded()]);
     },
     onError: openErrorSnackbar,
   });
@@ -104,6 +97,28 @@ export const useAddInterval = () => {
       await activityStore.addInterval(activity, interval);
       await invalidateActivities();
     },
+    onError: openErrorSnackbar,
+  });
+};
+
+type EditIntervalOptions = {
+  onSuccess?: () => void;
+  onError?: (error: Error) => void;
+};
+
+export const useEditInterval = (options?: EditIntervalOptions) => {
+  const invalidateActivities = useInvalidateActivities();
+  return useMutation({
+    mutationFn: async (variables: {
+      interval: Interval;
+      activity: Activity;
+      edit: IntervalEdit;
+    }) => {
+      const { interval, activity, edit } = variables;
+      await activityStore.editInterval(activity, interval, edit);
+      await invalidateActivities();
+    },
+    onSuccess: options?.onSuccess,
     onError: openErrorSnackbar,
   });
 };
