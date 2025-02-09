@@ -1,6 +1,5 @@
 import { screen, waitFor } from "@testing-library/react";
 import { userEvent } from "@testing-library/user-event";
-import { activityStore } from "../../../data/activity/Storage";
 import { renderApp } from "../../../__testutils__/app";
 
 describe("AddActivityModal", () => {
