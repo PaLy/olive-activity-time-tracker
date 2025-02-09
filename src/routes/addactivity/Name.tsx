@@ -52,7 +52,7 @@ export const Name = (props: Props) => {
             autoFocus
             label="Name"
             sx={{ m: 1 }}
-            value={name}
+            value={name.value}
             onChange={(event) => {
               name.value = event.target.value;
               nameError.value = "";
@@ -76,6 +76,9 @@ export const Name = (props: Props) => {
             label={"Activity"}
             error={existingActivityError}
             getOptionDisabled={(activity) => inProgressActivities.has(activity)}
+            onUserInputChange={(newInputValue) => {
+              name.value = newInputValue;
+            }}
           />
         </Box>
       )}

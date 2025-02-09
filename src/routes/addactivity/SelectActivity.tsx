@@ -14,10 +14,18 @@ type Props = {
   autoFocus?: boolean;
   error?: Signal<string>;
   getOptionDisabled?: (activity: Activity) => boolean;
+  onUserInputChange?: (newInputValue: string) => void;
 };
 
 export const SelectActivity = (props: Props) => {
-  const { activity, label, error, autoFocus, getOptionDisabled } = props;
+  const {
+    activity,
+    label,
+    error,
+    autoFocus,
+    getOptionDisabled,
+    onUserInputChange,
+  } = props;
 
   const activityFullNames = useActivityFullNames();
   const options = useOptions();
@@ -26,10 +34,23 @@ export const SelectActivity = (props: Props) => {
     <Autocomplete
       sx={{ m: 1 }}
       value={activity.value}
-      onChange={(event, newValue) => {
+      onChange={(_, newValue) => {
         activity.value = newValue;
         if (error) {
           error.value = "";
+        }
+        if (activity.value) {
+          onUserInputChange?.("");
+        }
+      }}
+      onInputChange={(_, newInputValue, reason) => {
+        switch (reason) {
+          case "input":
+            onUserInputChange?.(newInputValue);
+            break;
+          case "clear":
+            onUserInputChange?.("");
+            break;
         }
       }}
       filterOptions={filter}
