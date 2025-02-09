@@ -7,7 +7,7 @@ import {
   useMediaQuery,
 } from "@mui/material";
 import { useMemo } from "react";
-import { Outlet, ScrollRestoration } from "react-router-dom";
+import { Outlet, ScrollRestoration } from "react-router";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterMoment } from "@mui/x-date-pickers/AdapterMoment";
 import { useWindowResize } from "./utils/Window";

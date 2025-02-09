@@ -25,6 +25,7 @@ export abstract class Store<
   ) => [key: string, StoredValue];
   abstract valueJsonSchema: JTDSchemaType<ExportedValue[]>;
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   afterLoaded = async (items: Map<string, Value>) => {};
 
   load = async (opts?: { refresh?: boolean }): Promise<Map<string, Value>> => {
@@ -102,7 +103,7 @@ export abstract class Store<
     const result: ExportedValue[] = [];
 
     // TODO error handling
-    await this.store.iterate((storedValue: StoredValue, key) => {
+    await this.store.iterate((storedValue: StoredValue) => {
       const exportedValue = this.asExportedValue(storedValue);
       if (exportedValue) {
         result.push(exportedValue);

@@ -140,7 +140,7 @@ const useItemData = (props: Props) => {
           (activity) =>
             ({
               RowComponent: ActivityItem,
-              rowProps: { activity, interval, key: activity.id },
+              rowProps: { activity, interval },
               rowData: { size: 92 },
             }) as SingleItemData<typeof ActivityItem>,
         ),

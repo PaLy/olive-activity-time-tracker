@@ -80,10 +80,10 @@ const Content = () => {
             ),
           onClick: async () => {
             if (checkValid(state)) {
+              navigate(-1);
               const activity = await createActivity(state);
               // TODO handle error
               expandPathToRoot(activity);
-              navigate(-1);
             }
           },
           children: intervalToggle.value === "finished" ? "Save" : "Start",

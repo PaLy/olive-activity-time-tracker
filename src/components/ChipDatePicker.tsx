@@ -45,7 +45,7 @@ export const ChipDatePicker = (props: ChipDatePickerProps) => {
         }
       }}
       slots={{ field: MyChip }}
-      // @ts-ignore
+      // @ts-expect-error unknown error
       slotProps={{ field: { onOpen, isMaxDate, onBefore, onNext, toLabel } }}
       open={open.value}
       onClose={onClose}
@@ -60,6 +60,7 @@ const MyChip = (
     Moment | null,
     Moment,
     FieldSection,
+    boolean,
     unknown
   > & {
     onOpen?: () => void;

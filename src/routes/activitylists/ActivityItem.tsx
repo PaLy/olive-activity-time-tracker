@@ -25,7 +25,7 @@ import {
 } from "../../data/activity/Signals";
 import { ClosedInterval } from "../../data/interval/ClosedInterval";
 import { Flipped } from "react-flip-toolkit";
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 import { useExpanded, useSetExpanded } from "./state/Expanded";
 import { useActivityListSettings } from "../../asyncState/ActivityList";
 import { ShowCost } from "../../data/settings/Settings";

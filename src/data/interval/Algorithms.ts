@@ -14,7 +14,7 @@ export const getIntervalsDuration = (
   time: Moment,
 ) => {
   let durationMs = 0;
-  let curFilter = { start: filter.start, end: filter.end };
+  const curFilter = { start: filter.start, end: filter.end };
 
   const simpleIntervals = intervals.map((it) =>
     toSimpleClosedInterval(it, time),

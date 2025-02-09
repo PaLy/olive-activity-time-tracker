@@ -35,9 +35,7 @@ export const useRemoveActivityInterval = (
   });
 };
 
-type StartStopActivityOptions = {};
-
-export const useStartActivity = (options?: StartStopActivityOptions) => {
+export const useStartActivity = () => {
   const invalidateActivities = useInvalidateActivities();
   const invalidateExpanded = useInvalidateExpanded();
   return useMutation({
@@ -61,7 +59,7 @@ function useInvalidateActivities() {
     });
 }
 
-export const useStopActivity = (options?: StartStopActivityOptions) => {
+export const useStopActivity = () => {
   const invalidateActivities = useInvalidateActivities();
   const invalidateExpanded = useInvalidateExpanded();
   return useMutation({

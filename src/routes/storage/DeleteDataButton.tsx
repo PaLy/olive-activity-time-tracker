@@ -55,7 +55,7 @@ const Confirmation = () => {
           onClick={async () => {
             deleteFlowStep.value = "in-progress";
             await clearDB()
-              .catch((e) => (deleteError.value = "Failed to delete data"))
+              .catch(() => (deleteError.value = "Failed to delete data"))
               .then(() => (deleteFlowStep.value = "result"));
             await queryClient.invalidateQueries();
           }}
