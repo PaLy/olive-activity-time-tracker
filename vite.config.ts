@@ -19,10 +19,6 @@ export default defineConfig({
   test: {
     globals: true,
     environment: "jsdom",
-    coverage: {
-      provider: "c8",
-      reporter: ["text", "json", "html"],
-    },
     setupFiles: ["src/setupTests.ts"],
     testTimeout: 10000,
     retry: 2,
