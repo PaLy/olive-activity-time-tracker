@@ -5,8 +5,14 @@ import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
 import android.view.KeyEvent
+import android.webkit.WebResourceRequest
+import android.webkit.WebResourceResponse
 import android.webkit.WebView
 import androidx.activity.ComponentActivity
+import androidx.webkit.WebViewAssetLoader
+import androidx.webkit.WebViewAssetLoader.AssetsPathHandler
+import androidx.webkit.WebViewClientCompat
+
 
 class MainActivity : ComponentActivity() {
     lateinit var myWebView: WebView
@@ -32,9 +38,18 @@ class MainActivity : ComponentActivity() {
 
         myWebView.webChromeClient = MyWebChromeClient(this)
 
+        val assetLoader = WebViewAssetLoader.Builder()
+            .addPathHandler("/assets/", AssetsPathHandler(this))
+            .build()
+        myWebView.webViewClient = object : WebViewClientCompat() {
+            override fun shouldInterceptRequest(view: WebView?, request: WebResourceRequest): WebResourceResponse? {
+                return assetLoader.shouldInterceptRequest(request.url)
+            }
+        }
+
         myWebView.addJavascriptInterface(WebAppInterface(context), "Android")
 
-        myWebView.loadUrl("file:///android_asset/www/index.html")
+        myWebView.loadUrl("https://appassets.androidplatform.net/assets/www/index.html")
     }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {

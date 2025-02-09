@@ -1,6 +1,7 @@
 import { readFileSync } from "fs";
 import { screen } from "@testing-library/react";
 import { userEvent } from "@testing-library/user-event";
+import { vi } from "vitest";
 
 export const storageModal = {
   userEvent: {
@@ -9,7 +10,7 @@ export const storageModal = {
       const file = new File([new Blob([fileText])], "activities.json", {
         type: "text/json",
       });
-      File.prototype.text = jest.fn().mockResolvedValueOnce(fileText);
+      File.prototype.text = vi.fn().mockResolvedValueOnce(fileText);
 
       const input = await screen
         .findByRole("button", { name: "Import" })

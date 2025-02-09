@@ -13,7 +13,7 @@ import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
 import StopIcon from "@mui/icons-material/Stop";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
-import { duration } from "moment";
+import dayjs from "dayjs";
 import { useHumanizedDuration } from "../../data/interval/Signals";
 import { Activity } from "../../data/activity/Storage";
 import {
@@ -210,7 +210,8 @@ const ActivityRow2 = (props: ActivityRow2Props) => {
 const getCost = (durationMs: number, showCost: ShowCost) => {
   const { perHour, currency } = showCost;
   const cost =
-    Math.round(duration(durationMs).asHours() * Number(perHour) * 100) / 100;
+    Math.round(dayjs.duration(durationMs).asHours() * Number(perHour) * 100) /
+    100;
 
   return Intl.NumberFormat(undefined, {
     style: "currency",
