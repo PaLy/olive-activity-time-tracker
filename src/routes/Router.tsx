@@ -6,7 +6,7 @@ import {
   useLocation as useRRDLocation,
   // eslint-disable-next-line no-restricted-imports
   useNavigate as useRRDNavigate,
-} from "react-router-dom";
+} from "react-router";
 
 export const useLocation = () => {
   const { pathname, ...other } = useRRDLocation();

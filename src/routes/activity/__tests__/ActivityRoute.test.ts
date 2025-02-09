@@ -79,13 +79,13 @@ describe("ActivityRoute", () => {
         intervals: [
           {
             id: "1",
-            start: moment("2025-01-23 08:00:00"),
-            end: moment("2025-01-23 08:30:00"),
+            start: moment().hour(8).startOf("hour"),
+            end: moment().hour(8).minute(30).startOf("minute"),
           },
           {
             id: "2",
-            start: moment("2025-01-23 10:00:00"),
-            end: moment("2025-01-23 10:30:00"),
+            start: moment().hour(10).startOf("hour"),
+            end: moment().hour(10).minute(30).startOf("minute"),
           },
         ],
       },

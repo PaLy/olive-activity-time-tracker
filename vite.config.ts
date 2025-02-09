@@ -9,7 +9,10 @@ export default defineConfig({
     !process.env.VITEST
       ? checker({
           typescript: true,
-          eslint: { lintCommand: 'eslint "./src/**/*.{ts,tsx}"' },
+          eslint: {
+            useFlatConfig: true,
+            lintCommand: 'eslint "./src/**/*.{ts,tsx}"',
+          },
         })
       : undefined,
   ],

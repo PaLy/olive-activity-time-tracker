@@ -12,6 +12,7 @@ import { configure } from "@testing-library/react";
 import dayjs from "dayjs";
 import duration from "dayjs/plugin/duration";
 import { MockInstance, vi } from "vitest";
+import mediaQuery from "css-mediaquery";
 
 dayjs.extend(duration);
 
@@ -55,15 +56,20 @@ afterAll(() => {
   );
 });
 
-window.matchMedia =
-  window.matchMedia ||
-  function () {
-    return {
-      matches: false,
-      addListener: function () {},
-      removeListener: function () {},
-    };
-  };
+function createMatchMedia(width: unknown) {
+  return (query: string) => ({
+    matches: mediaQuery.match(query, {
+      width,
+    }),
+    addEventListener: () => {},
+    removeEventListener: () => {},
+  });
+}
+
+beforeAll(() => {
+  // @ts-expect-error just a mock
+  window.matchMedia = createMatchMedia(window.innerWidth);
+});
 
 beforeEach(async () => {
   await Promise.allSettled(

@@ -9,7 +9,7 @@ import {
   Paper,
   Typography,
 } from "@mui/material";
-import { Link, Outlet, useParams } from "react-router-dom";
+import { Link, Outlet, useParams } from "react-router";
 import { Activity } from "../../data/activity/Storage";
 import { FullScreenModalHeader } from "../../components/FullScreenModalHeader";
 import {

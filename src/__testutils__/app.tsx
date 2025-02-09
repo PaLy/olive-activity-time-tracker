@@ -1,5 +1,5 @@
 import { render } from "@testing-library/react";
-import { createMemoryRouter, RouterProvider } from "react-router-dom";
+import { createMemoryRouter, RouterProvider } from "react-router";
 import { createRoutes } from "../router";
 import { QueryClient } from "@tanstack/react-query";
 

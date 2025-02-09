@@ -9,7 +9,7 @@ import {
   Slide,
   Typography,
 } from "@mui/material";
-import { useLoaderData } from "react-router-dom";
+import { useLoaderData } from "react-router";
 import SaveIcon from "@mui/icons-material/Save";
 import { Interval } from "../../data/interval/Interval";
 import { Activity } from "../../data/activity/Storage";

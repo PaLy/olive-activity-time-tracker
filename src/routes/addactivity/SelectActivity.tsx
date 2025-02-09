@@ -61,8 +61,10 @@ export const SelectActivity = (props: Props) => {
       getOptionLabel={(option) =>
         activityFullNames.get(option.id) ?? option.name
       }
-      renderOption={(props, option) => (
-        <li {...props}>{activityFullNames.get(option.id) ?? option.name}</li>
+      renderOption={({ key, ...props }, option) => (
+        <li key={key} {...props}>
+          {activityFullNames.get(option.id) ?? option.name}
+        </li>
       )}
       renderInput={(params) => (
         <TextField
