@@ -10,7 +10,6 @@ import { useMemo } from "react";
 import { Outlet, ScrollRestoration } from "react-router";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterMoment } from "@mui/x-date-pickers/AdapterMoment";
-import { useWindowResize } from "./utils/Window";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { ScrollMemoryContext } from "./components/ScrollMemory";
@@ -24,7 +23,6 @@ type Props = {
 function App(props: Props) {
   const { queryClient } = props;
   const theme = useTheme();
-  useWindowResize();
   useTickingClock();
 
   const scrollMemory = new Map<string, number>();
