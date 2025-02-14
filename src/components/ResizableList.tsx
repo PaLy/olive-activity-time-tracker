@@ -13,7 +13,6 @@ import React, {
   useMemo,
   useRef,
 } from "react";
-import { windowWidth } from "../utils/Window";
 import { ScrollMemoryContext } from "./ScrollMemory";
 import { useLocation } from "../routes/Router";
 
@@ -132,17 +131,20 @@ const Row = <Component extends ElementType>(
   } = data[index];
 
   const rowRef = useRef<HTMLDivElement>(null);
-  const windowWidthValue = windowWidth.value;
 
   useEffect(() => {
-    const height = rowRef.current?.getBoundingClientRect().height;
-    if (height !== undefined) {
-      computedRowHeights.current.set(index, height);
-    } else {
-      computedRowHeights.current.delete(index);
+    const rowHeight = computedRowHeights.current.get(index) ?? size;
+    const componentHeight = rowRef.current?.getBoundingClientRect().height;
+
+    if (rowHeight !== componentHeight) {
+      if (componentHeight !== undefined) {
+        computedRowHeights.current.set(index, componentHeight);
+      } else {
+        computedRowHeights.current.delete(index);
+      }
+      listRef.current?.resetAfterIndex(index);
     }
-    listRef.current?.resetAfterIndex(index);
-  }, [computedRowHeights, index, listRef, size, windowWidthValue]);
+  });
 
   return (
     <div style={style}>
