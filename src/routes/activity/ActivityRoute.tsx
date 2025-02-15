@@ -97,8 +97,8 @@ const Content = (props: ContentProps) => {
           innerRef={(ref: InnerRefValue | null) =>
             ref?.setTopInterval(topInterval)
           }
-          onItemsRendered={(props) => {
-            setVisibleStartIndex(props.visibleStartIndex);
+          onItemsRendered={({ visibleStartIndex }) => {
+            setVisibleStartIndex(visibleStartIndex);
           }}
         />
       )}
@@ -147,6 +147,7 @@ const innerElementType = forwardRef<
     </Box>
   );
 });
+innerElementType.displayName = "innerElementType";
 
 type StickySubheaderProps = {
   interval: Interval | undefined;

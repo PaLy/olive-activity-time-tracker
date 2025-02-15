@@ -33,7 +33,7 @@ export const Name = () => {
   );
 
   const inProgressActivities = useInProgressActivities();
-  const anyActivityLogged = useAnyActivityLogged();
+  const { anyActivityLogged } = useAnyActivityLogged();
 
   return (
     <>

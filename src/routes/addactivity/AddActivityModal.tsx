@@ -12,8 +12,8 @@ import { Box } from "@mui/material";
 import { useExpandChildrenPathToRoot } from "../activitylists/state/Expanded";
 import { useAnyActivityLogged } from "../../data/activity/Signals";
 import { useAddActivity, useAddInterval } from "../../data/activity/Operations";
-import { useEffect } from "react";
 import { useCreateActivityStore } from "./Store";
+import { useEffectOnceAfter } from "../../utils/ReactLifecycle";
 
 export const AddActivityModal = () => {
   const { pathname } = useLocation();
@@ -25,7 +25,7 @@ export const AddActivityModal = () => {
 };
 
 const Content = () => {
-  const anyActivityLogged = useAnyActivityLogged();
+  const { anyActivityLogged, isLoading } = useAnyActivityLogged();
   const init = useCreateActivityStore((state) => state.init);
   const isInitialized = useCreateActivityStore((state) => state.isInitialized);
   const reset = useCreateActivityStore((state) => state.reset);
@@ -35,10 +35,10 @@ const Content = () => {
   const expandPathToRoot = useExpandChildrenPathToRoot();
   const createActivity = useCreateActivity();
 
-  useEffect(() => {
+  useEffectOnceAfter(!isLoading, () => {
     init(anyActivityLogged);
     return reset;
-  }, []);
+  });
 
   return (
     isInitialized() && (
