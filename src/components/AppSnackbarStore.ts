@@ -32,5 +32,5 @@ export const useOpenErrorSnackbar = (error: Error | string | null) => {
     if (error) {
       openErrorSnackbar(error);
     }
-  }, [error]);
+  }, [error, openErrorSnackbar]);
 };

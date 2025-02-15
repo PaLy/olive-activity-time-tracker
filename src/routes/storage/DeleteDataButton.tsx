@@ -101,7 +101,7 @@ const Result = () => {
 
   useEffect(() => {
     return reset;
-  }, []);
+  }, [reset]);
 
   return (
     <Snackbar

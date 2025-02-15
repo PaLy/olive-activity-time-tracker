@@ -63,7 +63,7 @@ const AndroidError = () => {
 
   useEffect(() => {
     return clearAndroidError;
-  }, []);
+  }, [clearAndroidError]);
 
   return (
     <Snackbar

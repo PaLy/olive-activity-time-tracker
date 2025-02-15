@@ -158,6 +158,7 @@ export const useParentActivities = () => {
 };
 
 export const useAnyActivityLogged = () => {
-  const { data: activities = new Map<string, Activity>() } = useActivities();
-  return activities.size > 1;
+  const { data: activities = new Map<string, Activity>(), isLoading } =
+    useActivities();
+  return { anyActivityLogged: activities.size > 1, isLoading };
 };

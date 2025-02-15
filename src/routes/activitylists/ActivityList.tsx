@@ -113,6 +113,7 @@ const innerElementType = forwardRef<
     </Box>
   </div>
 ));
+innerElementType.displayName = "innerElementType";
 
 const FILTER_PADDING_TOP = 16;
 

@@ -11,7 +11,7 @@ export const AppSnackbar = () => {
 
   useEffect(() => {
     return reset;
-  }, []);
+  }, [reset]);
 
   return (
     <Snackbar
