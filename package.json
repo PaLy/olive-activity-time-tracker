@@ -70,6 +70,7 @@
     "predeploy-to-android": "npm run build",
     "deploy-to-android": "rm -rf android/app/src/main/assets/www && mv dist android/app/src/main/assets/www",
     "test": "vitest",
+    "test-coverage": "vitest --coverage",
     "check-updates": "npx npm-check-updates",
     "upgrade": "npx npm-check-updates -u",
     "all-prettier": "npx prettier . --write",

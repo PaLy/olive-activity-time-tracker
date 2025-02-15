@@ -1,4 +1,4 @@
-import { render } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import { createMemoryRouter, RouterProvider } from "react-router";
 import { createRoutes } from "../router";
 import { QueryClient } from "@tanstack/react-query";
@@ -16,4 +16,11 @@ export const renderApp = (options?: RenderAppOptions) => {
       })}
     ></RouterProvider>,
   );
+};
+
+export const element = {
+  find: {
+    switch: async (name: RegExp) =>
+      within(await screen.findByRole("switch", { name })).getByRole("checkbox"),
+  },
 };
