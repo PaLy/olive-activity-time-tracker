@@ -122,6 +122,7 @@ type SettingsSwitchProps = {
 };
 
 const SettingsSwitch = (props: SettingsSwitchProps) => {
+  const { onChange, label, checked } = props;
   return (
     <Grid
       container
@@ -129,11 +130,13 @@ const SettingsSwitch = (props: SettingsSwitchProps) => {
       alignItems={"center"}
       sx={{ pb: 1 }}
     >
-      <div>{props.label}</div>
+      <div>{label}</div>
       <Switch
+        aria-label={label}
+        role={"switch"}
         color="primary"
-        checked={props.checked}
-        onChange={(event, checked) => props.onChange(checked)}
+        checked={checked}
+        onChange={(event, checked) => onChange(checked)}
       />
     </Grid>
   );
