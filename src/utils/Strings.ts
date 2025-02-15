@@ -1,15 +1,11 @@
-import { Signal, useComputed } from "@preact/signals-react";
-
-export const useInitials = (name: Signal<string>) =>
-  useComputed(() =>
-    name.value
-      .split(" ")
-      .filter(createLongWordsFilter())
-      .slice(0, 2)
-      .map((word) => word[0])
-      .join("")
-      .toLocaleUpperCase(),
-  );
+export const getInitials = (name: string) =>
+  name
+    .split(" ")
+    .filter(createLongWordsFilter())
+    .slice(0, 2)
+    .map((word) => word[0])
+    .join("")
+    .toLocaleUpperCase();
 
 const createLongWordsFilter = () => {
   let removalsLeft: number | undefined = undefined;

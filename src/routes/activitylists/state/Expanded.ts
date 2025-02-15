@@ -7,11 +7,11 @@ import {
 } from "../../../data/activity/ActivityInListExpanded";
 import { useActivities } from "../../../data/activity/Operations";
 import { useParentActivities } from "../../../data/activity/Signals";
-import {
-  openErrorSnackbar,
-  useOpenErrorSnackbar,
-} from "../../../components/AppSnackbar";
 import { produce } from "immer";
+import {
+  useAppSnackbarStore,
+  useOpenErrorSnackbar,
+} from "../../../components/AppSnackbarStore";
 
 export function useExpanded(activity: Activity) {
   const { id } = activity;
@@ -42,6 +42,7 @@ type SetExpandedVariables = {
 };
 
 export function useSetExpanded() {
+  const openErrorSnackbar = useAppSnackbarStore((state) => state.openError);
   const queryClient = useQueryClient();
 
   const { mutate } = useMutation({

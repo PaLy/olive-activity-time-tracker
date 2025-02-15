@@ -12,12 +12,12 @@ import {
   Typography,
 } from "@mui/material";
 import { produce } from "immer";
-import { useSignal } from "@preact/signals-react";
 import {
   useActivityListSettings,
   useSetActivityListSettings,
 } from "../../asyncState/ActivityList";
 import { Currency } from "../../data/settings/Settings";
+import { useState } from "react";
 
 export const SettingsModal = () => {
   const { pathname } = useLocation();
@@ -61,8 +61,8 @@ type Settings = ReturnType<typeof useSettings>;
 
 const CostSettings = (props: Settings) => {
   const { activityListSettings, setShowCost, setPerHour, setCurrency } = props;
-  const costError = useSignal("");
-  const costErrorValue = useSignal<string | undefined>(undefined);
+  const [costError, setCostError] = useState("");
+  const [costErrorValue, setCostErrorValue] = useState<string>();
 
   return (
     <>
@@ -82,22 +82,20 @@ const CostSettings = (props: Settings) => {
             id="standard-basic"
             label="Per hour"
             variant="standard"
-            value={
-              costErrorValue.value ?? activityListSettings.showCost.perHour
-            }
+            value={costErrorValue ?? activityListSettings.showCost.perHour}
             onChange={(event) => {
               const { value } = event.target;
               if (!value || !isFinite(Number(value))) {
-                costError.value = "Please set a number";
-                costErrorValue.value = value;
+                setCostError("Please set a number");
+                setCostErrorValue(value);
               } else {
-                costError.value = "";
-                costErrorValue.value = undefined;
+                setCostError("");
+                setCostErrorValue(undefined);
                 setPerHour(value);
               }
             }}
-            error={!!costError.value}
-            helperText={costError.value}
+            error={!!costError}
+            helperText={costError}
           />
           <Select
             value={activityListSettings.showCost.currency}

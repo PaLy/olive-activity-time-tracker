@@ -1,13 +1,16 @@
 import { DateTimePicker, renderTimeViewClock } from "@mui/x-date-pickers";
-import { Signal } from "@preact/signals-react";
 import { Moment } from "moment";
 
 type Props = {
-  startTime: Signal<Moment>;
-  startTimeError: Signal<string>;
-  endTime: Signal<Moment> | Signal<Moment | undefined>;
-  endTimeError: Signal<string>;
-  omitEndTimePicker: Signal<boolean>;
+  startTime: Moment;
+  startTimeError: string;
+  endTime: Moment | undefined;
+  endTimeError: string;
+  omitEndTimePicker: boolean;
+  setStartTime: (startTime: Moment) => void;
+  setStartTimeError: (error: string) => void;
+  setEndTime: (endTime: Moment) => void;
+  setEndTimeError: (error: string) => void;
 };
 
 export const DateTimeRangePicker = (props: Props) => {
@@ -17,6 +20,10 @@ export const DateTimeRangePicker = (props: Props) => {
     endTime,
     endTimeError,
     omitEndTimePicker,
+    setStartTime,
+    setStartTimeError,
+    setEndTime,
+    setEndTimeError,
   } = props;
 
   return (
@@ -24,13 +31,13 @@ export const DateTimeRangePicker = (props: Props) => {
       <DateTimePicker
         sx={{ m: 1 }}
         label="Start"
-        value={startTime.value}
+        value={startTime}
         onChange={(value) => {
           if (value) {
-            startTime.value = value;
+            setStartTime(value);
           }
         }}
-        maxDateTime={endTime.value}
+        maxDateTime={endTime}
         disableFuture
         ampm={false}
         viewRenderers={{
@@ -40,30 +47,30 @@ export const DateTimeRangePicker = (props: Props) => {
         format={DATE_TIME_PICKER_FORMAT}
         onError={(error) => {
           switch (true) {
-            case error === "maxTime" && omitEndTimePicker.value:
+            case error === "maxTime" && omitEndTimePicker:
             case error === "disableFuture":
-              startTimeError.value = "Please select a past time";
+              setStartTimeError("Please select a past time");
               return;
-            case error === "maxTime" && !omitEndTimePicker.value:
-              startTimeError.value = "Please select a time before the end time";
+            case error === "maxTime" && !omitEndTimePicker:
+              setStartTimeError("Please select a time before the end time");
               return;
             default:
-              startTimeError.value = error ?? "";
+              setStartTimeError(error ?? "");
           }
         }}
-        slotProps={{ textField: { helperText: startTimeError.value } }}
+        slotProps={{ textField: { helperText: startTimeError } }}
       />
-      {!omitEndTimePicker.value && (
+      {!omitEndTimePicker && (
         <DateTimePicker
           sx={{ m: 1 }}
           label="End"
-          value={endTime.value}
+          value={endTime}
           onChange={(value) => {
             if (value) {
-              endTime.value = value;
+              setEndTime(value);
             }
           }}
-          minDateTime={startTime.value}
+          minDateTime={startTime}
           disableFuture
           ampm={false}
           viewRenderers={{
@@ -74,17 +81,16 @@ export const DateTimeRangePicker = (props: Props) => {
           onError={(error) => {
             switch (true) {
               case error === "disableFuture":
-                endTimeError.value = "Please select a past time";
+                setEndTimeError("Please select a past time");
                 return;
               case error === "minTime":
-                endTimeError.value =
-                  "Please select a time after the start time";
+                setEndTimeError("Please select a time after the start time");
                 return;
               default:
-                endTimeError.value = error ?? "";
+                setEndTimeError(error ?? "");
             }
           }}
-          slotProps={{ textField: { helperText: endTimeError.value } }}
+          slotProps={{ textField: { helperText: endTimeError } }}
         />
       )}
     </>

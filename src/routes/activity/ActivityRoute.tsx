@@ -34,7 +34,7 @@ import AutoSizer from "react-virtualized-auto-sizer";
 import { ResizableList, SingleItemData } from "../../components/ResizableList";
 import { calendarTime } from "../../utils/Date";
 import { useActivities } from "../../data/activity/Operations";
-import { useOpenErrorSnackbar } from "../../components/AppSnackbar";
+import { useOpenErrorSnackbar } from "../../components/AppSnackbarStore";
 
 export const ActivityRoute = () => {
   const { activityID = "" } = useParams<{ activityID: string }>();

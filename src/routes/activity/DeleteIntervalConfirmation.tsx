@@ -6,30 +6,36 @@ import {
   DialogTitle,
 } from "@mui/material";
 import { useRemoveActivityInterval } from "../../data/activity/Operations";
-import { batch, signal } from "@preact/signals-react";
-import { EditIntervalLoaderData } from "./EditInterval";
-import { openSnackbar } from "../../components/AppSnackbar";
 import { useNavigate } from "../Router";
+import { useAppSnackbarStore } from "../../components/AppSnackbarStore";
+import { useActivityStore } from "./Store";
 
-export const deleteIntervalConfirmationData =
-  signal<EditIntervalLoaderData | null>(null);
-
-export const DeleteIntervalConfirmation = () => (
-  <Dialog open={deleteIntervalConfirmationData.value !== null}>
-    <Content />
-  </Dialog>
-);
+export const DeleteIntervalConfirmation = () => {
+  const open = useActivityStore((state) =>
+    state.isDeleteIntervalConfirmationOpen(),
+  );
+  return (
+    <Dialog open={open}>
+      <Content />
+    </Dialog>
+  );
+};
 
 const Content = () => {
-  const { activity, interval } = deleteIntervalConfirmationData.value ?? {};
+  const closeDeleteIntervalConfirmation = useActivityStore(
+    (state) => state.closeDeleteIntervalConfirmation,
+  );
+  const deleteIntervalConfirmationData = useActivityStore(
+    (state) => state.deleteIntervalConfirmationData,
+  );
+  const { activity, interval } = deleteIntervalConfirmationData ?? {};
+  const openSuccessSnackbar = useAppSnackbarStore((state) => state.openSuccess);
   const navigate = useNavigate();
 
   const { mutate: deleteActivityInterval } = useRemoveActivityInterval({
     onSuccess: () => {
-      batch(() => {
-        deleteIntervalConfirmationData.value = null;
-        openSnackbar({ message: "Interval successfully deleted" });
-      });
+      closeDeleteIntervalConfirmation();
+      openSuccessSnackbar("Interval successfully deleted");
       navigate(-1);
     },
   });
@@ -42,7 +48,7 @@ const Content = () => {
         <Button
           autoFocus
           aria-label={"no"}
-          onClick={() => (deleteIntervalConfirmationData.value = null)}
+          onClick={closeDeleteIntervalConfirmation}
         >
           No
         </Button>
