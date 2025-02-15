@@ -3,11 +3,12 @@ import {
   VariableSizeList,
   VariableSizeListProps,
 } from "react-window";
-import React, {
+import {
   ComponentProps,
   ComponentType,
   ElementType,
   RefObject,
+  useCallback,
   useContext,
   useEffect,
   useMemo,
@@ -15,6 +16,7 @@ import React, {
 } from "react";
 import { ScrollMemoryContext } from "./ScrollMemory";
 import { useLocation } from "../routes/Router";
+import { useDebounceCallback } from "usehooks-ts";
 
 type ResizableListProps<Component extends ElementType> = Pick<
   VariableSizeListProps<ItemData<Component>>,
@@ -91,28 +93,31 @@ export const ResizableList = <Component extends ElementType>(
 const useWrappedItemData = <Component extends ElementType>(
   itemData: ItemData<Component>,
   listRef: RefObject<VariableSizeList<WrappedItemData<Component>> | null>,
-  computedRowHeights: React.MutableRefObject<Map<number, number>>,
-) =>
-  useMemo(
+  computedRowHeights: RefObject<Map<number, number>>,
+) => {
+  const resetListAfterIndex = useResetListAfterIndex(listRef);
+
+  return useMemo(
     () =>
       itemData.map((row) => ({
         ...row,
         rowData: {
           ...row.rowData,
-          listRef,
+          resetListAfterIndex,
           computedRowHeights,
         },
       })),
-    [computedRowHeights, itemData, listRef],
+    [computedRowHeights, itemData, resetListAfterIndex],
   );
+};
 
 type WrappedItemData<Component extends ElementType> = Array<{
   RowComponent: Component;
   rowProps: ComponentProps<Component>;
   rowData: {
     size: number;
-    listRef: RefObject<VariableSizeList<WrappedItemData<Component>> | null>;
-    computedRowHeights: React.MutableRefObject<Map<number, number>>;
+    resetListAfterIndex: (index: number) => void;
+    computedRowHeights: RefObject<Map<number, number>>;
   };
 }>;
 
@@ -126,7 +131,7 @@ const Row = <Component extends ElementType>(
   const { index, style, data } = props;
   const {
     RowComponent,
-    rowData: { size, listRef, computedRowHeights },
+    rowData: { size, resetListAfterIndex, computedRowHeights },
     rowProps,
   } = data[index];
 
@@ -134,15 +139,15 @@ const Row = <Component extends ElementType>(
 
   useEffect(() => {
     const rowHeight = computedRowHeights.current.get(index) ?? size;
-    const componentHeight = rowRef.current?.getBoundingClientRect().height;
+    const componentHeight = rowRef.current!.getBoundingClientRect().height;
 
     if (rowHeight !== componentHeight) {
-      if (componentHeight !== undefined) {
-        computedRowHeights.current.set(index, componentHeight);
-      } else {
-        computedRowHeights.current.delete(index);
+      if (process.env.NODE_ENV === "development") {
+        console.log(`Resetting list after index ${index}.`);
+        console.log(`Height changed from ${rowHeight} to ${componentHeight}.`);
       }
-      listRef.current?.resetAfterIndex(index);
+      computedRowHeights.current.set(index, componentHeight);
+      resetListAfterIndex(index);
     }
   });
 
@@ -152,5 +157,27 @@ const Row = <Component extends ElementType>(
         <RowComponent {...rowProps} />
       </div>
     </div>
+  );
+};
+
+const useResetListAfterIndex = <T,>(
+  listRef: RefObject<VariableSizeList<T> | null>,
+) => {
+  const indexRef = useRef(Number.MAX_SAFE_INTEGER);
+
+  const reset = useDebounceCallback(() => {
+    if (indexRef.current !== Number.MAX_SAFE_INTEGER) {
+      const index = indexRef.current;
+      indexRef.current = Number.MAX_SAFE_INTEGER;
+      listRef.current?.resetAfterIndex(index);
+    }
+  }, 10);
+
+  return useCallback(
+    (index: number) => {
+      indexRef.current = Math.min(indexRef.current, index);
+      reset();
+    },
+    [reset],
   );
 };

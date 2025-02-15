@@ -186,7 +186,7 @@ const useRowData = (
       {
         RowComponent: TopOfIntervalList,
         rowProps: { activity },
-        rowData: { size: 96 },
+        rowData: { size: 104 },
       },
       ...Object.values(groupedIntervals).flatMap((intervals) => {
         const finalIndex = index;
@@ -202,7 +202,7 @@ const useRowData = (
           intervals.map((intervalWithActivity) => ({
             RowComponent: IntervalItem,
             rowProps: { activity, intervalWithActivity },
-            rowData: { size: 60 },
+            rowData: { size: 60.03125 },
           }));
         const items = [subheaderData, ...intervalsRowData];
         index += items.length;
@@ -219,11 +219,11 @@ type SubheaderItemProps = {
 
 const SubheaderItem = (props: SubheaderItemProps) => {
   const { interval, stickyItemVisible } = props;
-  if (stickyItemVisible) {
-    return null;
-  } else {
-    return <ListSubheader>{calendarTime(interval.start)}</ListSubheader>;
-  }
+  return (
+    <ListSubheader style={{ opacity: stickyItemVisible ? 0 : 1 }}>
+      {calendarTime(interval.start)}
+    </ListSubheader>
+  );
 };
 
 type IntervalProps = {
