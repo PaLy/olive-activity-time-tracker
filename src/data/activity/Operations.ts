@@ -6,12 +6,12 @@ import {
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
-import {
-  openErrorSnackbar,
-  useOpenErrorSnackbar,
-} from "../../components/AppSnackbar";
 import { useInvalidateExpanded } from "../../routes/activitylists/state/Expanded";
 import { IntervalEdit } from "../interval/Storage";
+import {
+  useAppSnackbarStore,
+  useOpenErrorSnackbar,
+} from "../../components/AppSnackbarStore";
 
 type RemoveActivityIntervalOptions = {
   onSuccess?: () => void;
@@ -20,6 +20,7 @@ type RemoveActivityIntervalOptions = {
 export const useRemoveActivityInterval = (
   options?: RemoveActivityIntervalOptions,
 ) => {
+  const openErrorSnackbar = useAppSnackbarStore((state) => state.openError);
   const invalidateActivities = useInvalidateActivities();
   return useMutation({
     mutationFn: async (variables: {
@@ -36,6 +37,7 @@ export const useRemoveActivityInterval = (
 };
 
 export const useStartActivity = () => {
+  const openErrorSnackbar = useAppSnackbarStore((state) => state.openError);
   const invalidateActivities = useInvalidateActivities();
   const invalidateExpanded = useInvalidateExpanded();
   return useMutation({
@@ -60,6 +62,7 @@ function useInvalidateActivities() {
 }
 
 export const useStopActivity = () => {
+  const openErrorSnackbar = useAppSnackbarStore((state) => state.openError);
   const invalidateActivities = useInvalidateActivities();
   const invalidateExpanded = useInvalidateExpanded();
   return useMutation({
@@ -73,6 +76,7 @@ export const useStopActivity = () => {
 };
 
 export const useAddActivity = () => {
+  const openErrorSnackbar = useAppSnackbarStore((state) => state.openError);
   const invalidateActivities = useInvalidateActivities();
   return useMutation({
     mutationFn: async (variables: { activity: Activity }) => {
@@ -85,6 +89,7 @@ export const useAddActivity = () => {
 };
 
 export const useAddInterval = () => {
+  const openErrorSnackbar = useAppSnackbarStore((state) => state.openError);
   const invalidateActivities = useInvalidateActivities();
   return useMutation({
     mutationFn: async (variables: {
@@ -105,6 +110,7 @@ type EditIntervalOptions = {
 };
 
 export const useEditInterval = (options?: EditIntervalOptions) => {
+  const openErrorSnackbar = useAppSnackbarStore((state) => state.openError);
   const invalidateActivities = useInvalidateActivities();
   return useMutation({
     mutationFn: async (variables: {

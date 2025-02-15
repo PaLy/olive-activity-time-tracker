@@ -1,4 +1,4 @@
-import { useInitials } from "../../utils/Strings";
+import { getInitials } from "../../utils/Strings";
 import {
   Avatar,
   IconButton,
@@ -8,7 +8,6 @@ import {
   ListItemIcon,
   ListItemText,
 } from "@mui/material";
-import { useComputed } from "@preact/signals-react";
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
 import StopIcon from "@mui/icons-material/Stop";
@@ -34,6 +33,7 @@ import {
   useStartActivity,
   useStopActivity,
 } from "../../data/activity/Operations";
+import { useMemo } from "react";
 
 type ActivityItemProps = {
   activity: Activity;
@@ -130,9 +130,8 @@ type ActivityAvatarProps = {
 };
 
 const ActivityAvatar = (props: ActivityAvatarProps) => {
-  const { id } = props.activity;
-  const name = useComputed(() => props.activity.name);
-  const initials = useInitials(name);
+  const { id, name } = props.activity;
+  const initials = useMemo(() => getInitials(name), [name]);
   return (
     <ListItemAvatar>
       <Avatar

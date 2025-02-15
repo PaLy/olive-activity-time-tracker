@@ -1,64 +1,30 @@
-import { signal } from "@preact/signals-react";
 import { Alert, Snackbar } from "@mui/material";
 import { useEffect } from "react";
-import { AlertColor } from "@mui/material/Alert/Alert";
+import { useAppSnackbarStore } from "./AppSnackbarStore";
 
 export const AppSnackbar = () => {
+  const open = useAppSnackbarStore((state) => state.open);
+  const severity = useAppSnackbarStore((state) => state.severity);
+  const message = useAppSnackbarStore((state) => state.message);
+  const reset = useAppSnackbarStore((state) => state.reset);
+  const close = useAppSnackbarStore((state) => state.close);
+
   useEffect(() => {
-    return () => {
-      appSnackbarProps.value = defaultSnackbarProps;
-    };
+    return reset;
   }, []);
 
   return (
     <Snackbar
-      open={appSnackbarProps.value.open}
+      open={open}
       autoHideDuration={6000}
-      onClose={onClose}
+      onClose={close}
       TransitionProps={{
-        onExited: () => (appSnackbarProps.value = defaultSnackbarProps),
+        onExited: reset,
       }}
     >
-      <Alert
-        onClose={onClose}
-        severity={appSnackbarProps.value.severity}
-        sx={{ width: "100%" }}
-      >
-        {appSnackbarProps.value.message}
+      <Alert onClose={close} severity={severity} sx={{ width: "100%" }}>
+        {message}
       </Alert>
     </Snackbar>
   );
-};
-
-type SnackbarProps = {
-  open: boolean;
-  message: string;
-  severity?: AlertColor;
-};
-
-const defaultSnackbarProps: SnackbarProps = { open: false, message: "" };
-
-const appSnackbarProps = signal(defaultSnackbarProps);
-
-const onClose = () => {
-  appSnackbarProps.value = { ...appSnackbarProps.value, open: false };
-};
-
-export const openSnackbar = (options: Omit<SnackbarProps, "open">) => {
-  appSnackbarProps.value = { ...options, open: true };
-};
-
-export const openErrorSnackbar = (error: Error | string) => {
-  openSnackbar({
-    message: typeof error === "string" ? error : error.message,
-    severity: "error",
-  });
-};
-
-export const useOpenErrorSnackbar = (error: Error | string | null) => {
-  useEffect(() => {
-    if (error) {
-      openErrorSnackbar(error);
-    }
-  }, [error]);
 };

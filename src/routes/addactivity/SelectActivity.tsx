@@ -1,5 +1,4 @@
 import { Autocomplete, createFilterOptions, TextField } from "@mui/material";
-import { Signal } from "@preact/signals-react";
 import { Activity } from "../../data/activity/Storage";
 import { chain } from "lodash";
 import {
@@ -9,10 +8,14 @@ import {
 import { useMemo } from "react";
 
 type Props = {
-  activity: Signal<Activity | null>;
+  activity: Activity | null;
+  setActivity: (activity: Activity | null) => void;
   label: string;
   autoFocus?: boolean;
-  error?: Signal<string>;
+  error?: {
+    value: string;
+    set: (error: string) => void;
+  };
   getOptionDisabled?: (activity: Activity) => boolean;
   onUserInputChange?: (newInputValue: string) => void;
 };
@@ -20,8 +23,9 @@ type Props = {
 export const SelectActivity = (props: Props) => {
   const {
     activity,
+    setActivity,
     label,
-    error,
+    error: { value: error, set: setError } = {},
     autoFocus,
     getOptionDisabled,
     onUserInputChange,
@@ -33,13 +37,13 @@ export const SelectActivity = (props: Props) => {
   return (
     <Autocomplete
       sx={{ m: 1 }}
-      value={activity.value}
+      value={activity}
       onChange={(_, newValue) => {
-        activity.value = newValue;
+        setActivity(newValue);
         if (error) {
-          error.value = "";
+          setError?.("");
         }
-        if (activity.value) {
+        if (activity) {
           onUserInputChange?.("");
         }
       }}
@@ -71,8 +75,8 @@ export const SelectActivity = (props: Props) => {
           {...params}
           autoFocus={autoFocus}
           label={label}
-          error={!!error?.value}
-          helperText={error?.value ?? ""}
+          error={!!error}
+          helperText={error ?? ""}
         />
       )}
     />

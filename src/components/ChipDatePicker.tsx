@@ -8,7 +8,7 @@ import { Moment } from "moment";
 import { Chip, Grid, IconButton } from "@mui/material";
 import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
-import { useSignal } from "@preact/signals-react";
+import { useState } from "react";
 
 export type ChipDatePickerProps = Omit<
   DatePickerProps<Moment>,
@@ -32,9 +32,9 @@ export const ChipDatePicker = (props: ChipDatePickerProps) => {
     toLabel,
     ...datePickerProps
   } = props;
-  const open = useSignal(false);
-  const onOpen = () => (open.value = true);
-  const onClose = () => (open.value = false);
+  const [open, setOpen] = useState(false);
+  const onOpen = () => setOpen(true);
+  const onClose = () => setOpen(false);
 
   return (
     <DatePicker
@@ -47,7 +47,7 @@ export const ChipDatePicker = (props: ChipDatePickerProps) => {
       slots={{ field: MyChip }}
       // @ts-expect-error unknown error
       slotProps={{ field: { onOpen, isMaxDate, onBefore, onNext, toLabel } }}
-      open={open.value}
+      open={open}
       onClose={onClose}
       onOpen={onOpen}
       {...datePickerProps}

@@ -5,7 +5,7 @@ import {
   getActivityList,
   setActivityList,
 } from "../data/settings/Settings";
-import { useOpenErrorSnackbar } from "../components/AppSnackbar";
+import { useOpenErrorSnackbar } from "../components/AppSnackbarStore";
 
 export const useActivityListSettings = () => {
   const { data, error } = useQuery({

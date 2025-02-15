@@ -9,7 +9,6 @@ import {
   EditInterval,
   EditIntervalLoaderData,
 } from "./routes/activity/EditInterval";
-import { signal } from "@preact/signals-react";
 import { fetchActivityByInterval } from "./data/activity/Operations";
 import { QueryClient } from "@tanstack/react-query";
 
@@ -63,17 +62,10 @@ export const createRoutes = (queryClient: QueryClient): RouteObject[] => [
                   (it) => it.id === intervalID,
                 );
                 if (interval && activity) {
-                  const data: EditIntervalLoaderData = {
+                  return {
                     activity,
                     interval,
-                    edit: signal({
-                      start: signal(interval.start),
-                      startError: signal(""),
-                      end: signal(interval.end),
-                      endError: signal(""),
-                    }),
-                  };
-                  return data;
+                  } satisfies EditIntervalLoaderData;
                 }
               }
               throw new Error("Interval does not exist.");

@@ -1,4 +1,3 @@
-import { signal } from "@preact/signals-react";
 import {
   Alert,
   Button,
@@ -12,21 +11,45 @@ import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 import { clearDB } from "../../data/Storage";
 import { useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
+import { create } from "zustand/index";
 
-const deleteFlowStep = signal<
-  "not-started" | "confirm" | "in-progress" | "result"
->("not-started");
-const deleteError = signal("");
-const closeDeleteSnackbar = () => (deleteFlowStep.value = "not-started");
+type DeleteState = {
+  step: "not-started" | "confirm" | "in-progress" | "result";
+  error: string;
+  reset: () => void;
+  clearError: () => void;
+  isSnackbarOpen: () => boolean;
+  closeSnackbar: () => void;
+  start: () => void;
+  cancel: () => void;
+  confirm: () => void;
+  finish: () => void;
+  setError: (error: string) => void;
+};
+
+const useDeleteStore = create<DeleteState>((set, get) => ({
+  step: "not-started",
+  error: "",
+  reset: () => set({ step: "not-started", error: "" }),
+  clearError: () => set({ error: "" }),
+  closeSnackbar: () => set({ step: "not-started" }),
+  isSnackbarOpen: () => get().step === "result",
+  start: () => set({ step: "confirm" }),
+  cancel: () => set({ step: "not-started" }),
+  confirm: () => set({ step: "in-progress" }),
+  finish: () => set({ step: "result" }),
+  setError: (error: string) => set({ error }),
+}));
 
 export const DeleteDataButton = () => {
+  const start = useDeleteStore((state) => state.start);
   return (
     <>
       <Button
         variant={"text"}
         color={"error"}
         startIcon={<DeleteForeverIcon />}
-        onClick={() => (deleteFlowStep.value = "confirm")}
+        onClick={start}
       >
         Delete data
       </Button>
@@ -37,26 +60,28 @@ export const DeleteDataButton = () => {
 };
 
 const Confirmation = () => {
+  const step = useDeleteStore((state) => state.step);
+  const cancel = useDeleteStore((state) => state.cancel);
+  const confirm = useDeleteStore((state) => state.confirm);
+  const finish = useDeleteStore((state) => state.finish);
+  const setError = useDeleteStore((state) => state.setError);
   const queryClient = useQueryClient();
   return (
-    <Dialog open={deleteFlowStep.value === "confirm"}>
+    <Dialog open={step === "confirm"}>
       <DialogTitle>
         Are you sure you want to delete all the data forever?
       </DialogTitle>
       <DialogContent>You cannot undo this action.</DialogContent>
       <DialogActions>
-        <Button
-          autoFocus
-          onClick={() => (deleteFlowStep.value = "not-started")}
-        >
+        <Button autoFocus onClick={cancel}>
           No
         </Button>
         <Button
           onClick={async () => {
-            deleteFlowStep.value = "in-progress";
+            confirm();
             await clearDB()
-              .catch(() => (deleteError.value = "Failed to delete data"))
-              .then(() => (deleteFlowStep.value = "result"));
+              .catch(() => setError("Failed to delete data"))
+              .then(finish);
             await queryClient.invalidateQueries();
           }}
         >
@@ -68,26 +93,29 @@ const Confirmation = () => {
 };
 
 const Result = () => {
+  const error = useDeleteStore((state) => state.error);
+  const reset = useDeleteStore((state) => state.reset);
+  const clearError = useDeleteStore((state) => state.clearError);
+  const closeSnackbar = useDeleteStore((state) => state.closeSnackbar);
+  const isSnackbarOpen = useDeleteStore((state) => state.isSnackbarOpen);
+
   useEffect(() => {
-    return () => {
-      closeDeleteSnackbar();
-      deleteError.value = "";
-    };
+    return reset;
   }, []);
 
   return (
     <Snackbar
-      open={deleteFlowStep.value === "result"}
+      open={isSnackbarOpen()}
       autoHideDuration={6000}
-      onClose={closeDeleteSnackbar}
-      TransitionProps={{ onExited: () => (deleteError.value = "") }}
+      onClose={closeSnackbar}
+      TransitionProps={{ onExited: clearError }}
     >
       <Alert
-        onClose={closeDeleteSnackbar}
-        severity={deleteError.value ? "error" : "success"}
+        onClose={closeSnackbar}
+        severity={error ? "error" : "success"}
         sx={{ width: "100%" }}
       >
-        {deleteError.value || "Data successfully deleted"}
+        {error || "Data successfully deleted"}
       </Alert>
     </Snackbar>
   );
