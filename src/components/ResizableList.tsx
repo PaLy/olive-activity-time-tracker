@@ -90,7 +90,7 @@ export const ResizableList = <Component extends ElementType>(
 
 const useWrappedItemData = <Component extends ElementType>(
   itemData: ItemData<Component>,
-  listRef: RefObject<VariableSizeList<WrappedItemData<Component>>>,
+  listRef: RefObject<VariableSizeList<WrappedItemData<Component>> | null>,
   computedRowHeights: React.MutableRefObject<Map<number, number>>,
 ) =>
   useMemo(
@@ -111,7 +111,7 @@ type WrappedItemData<Component extends ElementType> = Array<{
   rowProps: ComponentProps<Component>;
   rowData: {
     size: number;
-    listRef: RefObject<VariableSizeList<WrappedItemData<Component>>>;
+    listRef: RefObject<VariableSizeList<WrappedItemData<Component>> | null>;
     computedRowHeights: React.MutableRefObject<Map<number, number>>;
   };
 }>;

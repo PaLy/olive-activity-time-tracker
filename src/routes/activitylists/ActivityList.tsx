@@ -59,7 +59,7 @@ const List = (props: ListProps) => {
   const { height, width, ...otherProps } = props;
   const { interval, orderBy } = props;
   const itemData = useItemData(otherProps);
-  const innerRef = useRef<HTMLDivElement>();
+  const innerRef = useRef<HTMLDivElement>(null);
   const expandedAll = useExpandedAll();
   const flipKey = useActivitiesOrderKey(interval, orderBy, expandedAll);
 
