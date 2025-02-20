@@ -36,6 +36,7 @@ export type CreateActivityState = {
   setEndTimeInput: (endTimeInput: moment.Moment) => void;
   setStartTimeError: (startTimeError: string) => void;
   setEndTimeError: (endTimeError: string) => void;
+  getState: () => CreateActivityState;
 };
 
 export const useCreateActivityStore = create<CreateActivityState>(
@@ -131,6 +132,7 @@ export const useCreateActivityStore = create<CreateActivityState>(
       setEndTimeError: (endTimeError) => {
         set({ endTimeError });
       },
+      getState: () => get(),
     };
   },
 );
