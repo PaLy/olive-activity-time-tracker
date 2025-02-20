@@ -10,7 +10,10 @@ import { useLocation, useNavigate } from "../Router";
 import { FullScreenModal } from "../../components/FullScreenModal";
 import { Box } from "@mui/material";
 import { useExpandChildrenPathToRoot } from "../activitylists/state/Expanded";
-import { useAnyActivityLogged } from "../../data/activity/Hooks";
+import {
+  useActivityNameExists,
+  useAnyActivityLogged,
+} from "../../data/activity/Hooks";
 import { useAddActivity, useAddInterval } from "../../data/activity/Operations";
 import { useCreateActivityStore } from "./Store";
 import { useEffectOnceAfter } from "../../utils/ReactLifecycle";
@@ -34,6 +37,11 @@ const Content = () => {
   const navigate = useNavigate();
   const expandPathToRoot = useExpandChildrenPathToRoot();
   const createActivity = useCreateActivity();
+  const name = useCreateActivityStore((state) => state.name);
+  const parentActivity = useCreateActivityStore(
+    (state) => state.parentActivity,
+  );
+  const activityNameExists = useActivityNameExists(name, parentActivity);
 
   useEffectOnceAfter(!isLoading, () => {
     init(anyActivityLogged);
@@ -47,7 +55,7 @@ const Content = () => {
           finishButtonProps={{
             startIcon: finished ? <SaveIcon /> : <PlayArrowIcon />,
             onClick: async () => {
-              if (checkValid()) {
+              if (checkValid() && !activityNameExists) {
                 navigate(-1);
                 const activity = await createActivity();
                 // TODO handle error
@@ -59,7 +67,7 @@ const Content = () => {
         />
         <Box sx={{ ml: 1, mr: 1 }}>
           <IntervalSettings />
-          <Name />
+          <Name activityNameExists={activityNameExists} />
         </Box>
       </>
     )
