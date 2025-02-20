@@ -15,7 +15,7 @@ import {
   useAnyActivityLogged,
 } from "../../data/activity/Hooks";
 import { useAddActivity, useAddInterval } from "../../data/activity/Operations";
-import { useCreateActivityStore } from "./Store";
+import { CreateActivityState, useCreateActivityStore } from "./Store";
 import { useEffectOnceAfter } from "../../utils/ReactLifecycle";
 
 export const AddActivityModal = () => {
@@ -41,6 +41,7 @@ const Content = () => {
   const parentActivity = useCreateActivityStore(
     (state) => state.parentActivity,
   );
+  const getState = useCreateActivityStore((state) => state.getState);
   const activityNameExists = useActivityNameExists(name, parentActivity);
 
   useEffectOnceAfter(!isLoading, () => {
@@ -56,8 +57,10 @@ const Content = () => {
             startIcon: finished ? <SaveIcon /> : <PlayArrowIcon />,
             onClick: async () => {
               if (checkValid() && !activityNameExists) {
+                // navigation clears state; therefore, we need to get the state before navigating
+                const state = getState();
                 navigate(-1);
-                const activity = await createActivity();
+                const activity = await createActivity(state);
                 // TODO handle error
                 expandPathToRoot(activity);
               }
@@ -77,16 +80,16 @@ const Content = () => {
 const useCreateActivity = () => {
   const { mutateAsync: addActivity } = useAddActivity();
   const { mutateAsync: addInterval } = useAddInterval();
-  const getStartTime = useCreateActivityStore((state) => state.getStartTime);
-  const getEndTime = useCreateActivityStore((state) => state.getEndTime);
-  const getParentID = useCreateActivityStore((state) => state.getParentID);
-  const name = useCreateActivityStore((state) => state.name);
-  const nameToggle = useCreateActivityStore((state) => state.nameToggle);
-  const existingActivity = useCreateActivityStore(
-    (state) => state.existingActivity,
-  );
 
-  return async () => {
+  return async (state: CreateActivityState) => {
+    const {
+      existingActivity,
+      nameToggle,
+      getParentID,
+      name,
+      getStartTime,
+      getEndTime,
+    } = state;
     let activity = existingActivity;
 
     if (nameToggle === "new") {
