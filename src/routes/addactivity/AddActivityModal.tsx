@@ -27,9 +27,9 @@ export const AddActivityModal = () => {
 const Content = () => {
   const { anyActivityLogged, isLoading } = useAnyActivityLogged();
   const init = useCreateActivityStore((state) => state.init);
-  const isInitialized = useCreateActivityStore((state) => state.isInitialized);
+  const initialized = useCreateActivityStore((state) => state.isInitialized());
   const reset = useCreateActivityStore((state) => state.reset);
-  const isFinished = useCreateActivityStore((state) => state.isFinished);
+  const finished = useCreateActivityStore((state) => state.isFinished());
   const checkValid = useCreateActivityStore((state) => state.checkValid);
   const navigate = useNavigate();
   const expandPathToRoot = useExpandChildrenPathToRoot();
@@ -41,11 +41,11 @@ const Content = () => {
   });
 
   return (
-    isInitialized() && (
+    initialized && (
       <>
         <FullScreenModalHeader
           finishButtonProps={{
-            startIcon: isFinished() ? <SaveIcon /> : <PlayArrowIcon />,
+            startIcon: finished ? <SaveIcon /> : <PlayArrowIcon />,
             onClick: async () => {
               if (checkValid()) {
                 navigate(-1);
@@ -54,7 +54,7 @@ const Content = () => {
                 expandPathToRoot(activity);
               }
             },
-            children: isFinished() ? "Save" : "Start",
+            children: finished ? "Save" : "Start",
           }}
         />
         <Box sx={{ ml: 1, mr: 1 }}>
