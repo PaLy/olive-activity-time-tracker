@@ -6,7 +6,12 @@ import {
 } from "../../data/activity/Hooks";
 import { useCreateActivityStore } from "./Store";
 
-export const Name = () => {
+type NameProps = {
+  activityNameExists: boolean;
+};
+
+export const Name = (props: NameProps) => {
+  const { activityNameExists } = props;
   const toggle = useCreateActivityStore((state) => state.nameToggle);
   const setToggle = useCreateActivityStore((state) => state.setNameToggle);
   const name = useCreateActivityStore((state) => state.name);
@@ -69,8 +74,10 @@ export const Name = () => {
               setName(event.target.value);
               setNameError("");
             }}
-            error={!!nameError}
-            helperText={nameError}
+            error={!!nameError || activityNameExists}
+            helperText={
+              nameError || (activityNameExists && "Name already exists")
+            }
           />
           {anyActivityLogged && (
             <SelectActivity

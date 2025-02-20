@@ -162,3 +162,19 @@ export const useAnyActivityLogged = () => {
     useActivities();
   return { anyActivityLogged: activities.size > 1, isLoading };
 };
+
+export const useActivityNameExists = (
+  name: string,
+  parentActivity: Activity | null,
+) => {
+  const { data: activities = new Map<string, Activity>() } = useActivities();
+  return useMemo(
+    () =>
+      (parentActivity ?? activities.get("root")!).childIDs.some(
+        (childID) =>
+          activities.get(childID)?.name.toLowerCase().trim() ===
+          name.toLowerCase().trim(),
+      ),
+    [activities, name, parentActivity],
+  );
+};
