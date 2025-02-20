@@ -55,6 +55,7 @@
     "husky": "^9.1.7",
     "jsdom": "^26.0.0",
     "lint-staged": "^15.4.3",
+    "patch-package": "^8.0.0",
     "prettier": "^3.5.1",
     "typescript": "^5.7.3",
     "typescript-eslint": "^8.24.0",
@@ -74,6 +75,8 @@
     "check-updates": "npx npm-check-updates",
     "upgrade": "npx npm-check-updates -u",
     "all-prettier": "npx prettier . --write",
+    "patch-vite-plugin-checker": "npx patch-package vite-plugin-checker",
+    "postinstall": "patch-package",
     "prepare": "husky"
   },
   "lint-staged": {
