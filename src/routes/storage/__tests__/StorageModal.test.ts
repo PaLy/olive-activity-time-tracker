@@ -11,6 +11,8 @@ describe("StorageModal", () => {
   describe("import", () => {
     it("clears the old data", async () => {
       await prepareData();
+      Date.now = vi.fn(() => new Date("2025-02-15T18:58:40").getTime());
+
       renderApp();
       await waitFor(async () =>
         expect(await screen.findByText("Test")).toBeVisible(),
