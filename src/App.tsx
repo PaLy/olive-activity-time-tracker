@@ -14,7 +14,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { ScrollMemoryContext } from "./components/ScrollMemory";
 import { AppSnackbar } from "./components/AppSnackbar";
-import { useTickingClock } from "./data/interval/Signals";
+import { useTickingClock } from "./data/interval/Hooks";
 
 type Props = {
   queryClient: QueryClient;

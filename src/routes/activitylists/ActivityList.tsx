@@ -1,7 +1,7 @@
 import { Box, Fab, Grid, Paper, useMediaQuery, useTheme } from "@mui/material";
 import { AppBarActions } from "./AppBarActions";
 import { ActivityItem } from "./ActivityItem";
-import { useActivitiesOrderKey } from "../../data/activity/Signals";
+import { useActivitiesOrderKey } from "../../data/activity/Hooks";
 import { ClosedInterval } from "../../data/interval/ClosedInterval";
 import { AppAppBar } from "../../AppBar";
 import { AppBottomNavigation } from "./BottomNavigation";
@@ -23,7 +23,7 @@ import { useExpandedAll } from "./state/Expanded";
 import { getActivitiesByOrder, OrderBy } from "../../data/activity/Algorithms";
 import { useActivities } from "../../data/activity/Operations";
 import { Activity } from "../../data/activity/Storage";
-import { useClockStore } from "../../data/interval/Signals";
+import { useClockStore } from "../../data/interval/Hooks";
 
 type Props = {
   interval: ClosedInterval;

@@ -13,7 +13,7 @@ import { ClosedInterval } from "../interval/ClosedInterval";
 import { useActivities } from "./Operations";
 import { useMemo } from "react";
 import { produce } from "immer";
-import { useClockStore } from "../interval/Signals";
+import { useClockStore } from "../interval/Hooks";
 
 export const useNonRootActivities = () => {
   const { data: activities = new Map<string, Activity>() } = useActivities();

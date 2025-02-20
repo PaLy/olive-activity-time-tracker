@@ -3,7 +3,7 @@ import { SelectActivity } from "./SelectActivity";
 import {
   useAnyActivityLogged,
   useInProgressActivities,
-} from "../../data/activity/Signals";
+} from "../../data/activity/Hooks";
 import { useCreateActivityStore } from "./Store";
 
 export const Name = () => {

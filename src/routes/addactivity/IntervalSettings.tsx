@@ -7,7 +7,7 @@ import {
 import { DateTimeRangePicker } from "../../components/DateTimeRangePicker";
 import moment from "moment/moment";
 import { humanize } from "../../data/interval/Algorithms";
-import { useClockStore } from "../../data/interval/Signals";
+import { useClockStore } from "../../data/interval/Hooks";
 import { useCreateActivityStore } from "./Store";
 
 export const IntervalSettings = () => {
