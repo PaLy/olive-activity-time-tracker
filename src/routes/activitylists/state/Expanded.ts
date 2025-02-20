@@ -6,7 +6,7 @@ import {
   setExpanded,
 } from "../../../data/activity/ActivityInListExpanded";
 import { useActivities } from "../../../data/activity/Operations";
-import { useParentActivities } from "../../../data/activity/Signals";
+import { useParentActivities } from "../../../data/activity/Hooks";
 import { produce } from "immer";
 import {
   useAppSnackbarStore,

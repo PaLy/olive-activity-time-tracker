@@ -4,7 +4,7 @@ import { chain } from "lodash";
 import {
   useActivityFullNames,
   useNonRootActivities,
-} from "../../data/activity/Signals";
+} from "../../data/activity/Hooks";
 import { useMemo } from "react";
 
 type Props = {

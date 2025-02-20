@@ -13,7 +13,7 @@ import ExpandMore from "@mui/icons-material/ExpandMore";
 import StopIcon from "@mui/icons-material/Stop";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import dayjs from "dayjs";
-import { useHumanizedDuration } from "../../data/interval/Signals";
+import { useHumanizedDuration } from "../../data/interval/Hooks";
 import { Activity } from "../../data/activity/Storage";
 import {
   useChildrenCount,
@@ -21,7 +21,7 @@ import {
   useDuration,
   useDurationPercentage,
   useInProgress,
-} from "../../data/activity/Signals";
+} from "../../data/activity/Hooks";
 import { ClosedInterval } from "../../data/interval/ClosedInterval";
 import { Flipped } from "react-flip-toolkit";
 import { Link } from "react-router";

@@ -10,7 +10,7 @@ import { useLocation, useNavigate } from "../Router";
 import { FullScreenModal } from "../../components/FullScreenModal";
 import { Box } from "@mui/material";
 import { useExpandChildrenPathToRoot } from "../activitylists/state/Expanded";
-import { useAnyActivityLogged } from "../../data/activity/Signals";
+import { useAnyActivityLogged } from "../../data/activity/Hooks";
 import { useAddActivity, useAddInterval } from "../../data/activity/Operations";
 import { useCreateActivityStore } from "./Store";
 import { useEffectOnceAfter } from "../../utils/ReactLifecycle";

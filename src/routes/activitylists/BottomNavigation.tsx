@@ -5,7 +5,7 @@ import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import DateRangeIcon from "@mui/icons-material/DateRange";
 import { Badge, Paper } from "@mui/material";
 import { useLocation, useNavigate } from "../Router";
-import { useInProgressActivitiesCount } from "../../data/activity/Signals";
+import { useInProgressActivitiesCount } from "../../data/activity/Hooks";
 
 export const AppBottomNavigation = () => {
   const navigate = useNavigate();

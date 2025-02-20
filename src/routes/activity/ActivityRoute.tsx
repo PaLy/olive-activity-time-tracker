@@ -15,9 +15,9 @@ import { FullScreenModalHeader } from "../../components/FullScreenModalHeader";
 import {
   useIntervalDuration,
   useIntervalsGroupedByDay,
-} from "../../data/interval/Signals";
+} from "../../data/interval/Hooks";
 import { IntervalWithActivity } from "../../data/interval/Algorithms";
-import { useActivityPath } from "../../data/activity/Signals";
+import { useActivityPath } from "../../data/activity/Hooks";
 import {
   ElementType,
   forwardRef,
