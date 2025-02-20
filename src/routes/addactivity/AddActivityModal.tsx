@@ -45,7 +45,7 @@ const Content = () => {
       <>
         <FullScreenModalHeader
           finishButtonProps={{
-            startIcon: isFinished() ? <PlayArrowIcon /> : <SaveIcon />,
+            startIcon: isFinished() ? <SaveIcon /> : <PlayArrowIcon />,
             onClick: async () => {
               if (checkValid()) {
                 navigate(-1);
