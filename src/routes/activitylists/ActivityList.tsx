@@ -6,14 +6,7 @@ import { ClosedInterval } from "../../data/interval/ClosedInterval";
 import { AppAppBar } from "../../AppBar";
 import { AppBottomNavigation } from "./BottomNavigation";
 import { Flipper } from "react-flip-toolkit";
-import {
-  ElementType,
-  forwardRef,
-  ReactNode,
-  useEffect,
-  useMemo,
-  useRef,
-} from "react";
+import { ElementType, ReactNode, Ref, useEffect, useMemo, useRef } from "react";
 import { useLocation, useNavigate } from "../Router";
 import AddIcon from "@mui/icons-material/Add";
 import { AddActivityModal } from "../addactivity/AddActivityModal";
@@ -76,44 +69,49 @@ const List = (props: ListProps) => {
         itemData={itemData}
         width={width}
         height={height}
-        innerElementType={innerElementType}
+        innerElementType={InnerElementType}
         innerRef={innerRef}
       />
     </Flipper>
   );
 };
 
-const innerElementType = forwardRef<
-  HTMLDivElement,
-  { style: { [key: string]: unknown }; children: ReactNode }
->(({ style, ...rest }, ref) => (
-  <div
-    ref={ref}
-    style={{
-      ...style,
-      height: `${parseFloat(style.height as string) + 80}px`,
-      flex: 1,
-      display: "flex",
-      flexDirection: "column",
-    }}
-    {...rest}
-  >
-    {rest.children}
-    <Box
-      sx={{
-        position: "sticky",
-        bottom: 24,
-        mr: 3,
-        alignSelf: "end",
-        marginTop: "auto",
+type InnerElementTypeProps = {
+  children: ReactNode;
+  style: { [key: string]: unknown };
+  ref: Ref<HTMLDivElement>;
+};
+
+const InnerElementType = (props: InnerElementTypeProps) => {
+  const { style, ref, ...rest } = props;
+  return (
+    <div
+      ref={ref}
+      style={{
+        ...style,
+        height: `${parseFloat(style.height as string) + 80}px`,
+        flex: 1,
+        display: "flex",
+        flexDirection: "column",
       }}
+      {...rest}
     >
-      <AddActivityOpener />
-      <AddActivityModal />
-    </Box>
-  </div>
-));
-innerElementType.displayName = "innerElementType";
+      {rest.children}
+      <Box
+        sx={{
+          position: "sticky",
+          bottom: 24,
+          mr: 3,
+          alignSelf: "end",
+          marginTop: "auto",
+        }}
+      >
+        <AddActivityOpener />
+        <AddActivityModal />
+      </Box>
+    </div>
+  );
+};
 
 const FILTER_PADDING_TOP = 16;
 

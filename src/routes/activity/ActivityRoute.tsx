@@ -20,8 +20,8 @@ import { IntervalWithActivity } from "../../data/interval/Algorithms";
 import { useActivityPath } from "../../data/activity/Hooks";
 import {
   ElementType,
-  forwardRef,
   ReactNode,
+  Ref,
   useImperativeHandle,
   useMemo,
   useRef,
@@ -93,8 +93,8 @@ const Content = (props: ContentProps) => {
           height={height}
           width={width}
           itemData={rowData}
-          innerElementType={innerElementType}
-          innerRef={(ref: InnerRefValue | null) =>
+          innerElementType={InnerElementType}
+          innerRef={(ref: InnerElementTypeRef | null) =>
             ref?.setTopInterval(topInterval)
           }
           onItemsRendered={({ visibleStartIndex }) => {
@@ -121,17 +121,18 @@ function Loading() {
   );
 }
 
-type InnerRefValue = {
+type InnerElementTypeRef = {
   setTopInterval: (topInterval: Interval | undefined) => void;
 };
 
-const innerElementType = forwardRef<
-  InnerRefValue,
-  {
-    children: ReactNode;
-    style: { [key: string]: unknown };
-  }
->(({ children, ...rest }, ref) => {
+type InnerElementTypeProps = {
+  children: ReactNode;
+  style: { [key: string]: unknown };
+  ref: Ref<InnerElementTypeRef>;
+};
+
+const InnerElementType = (props: InnerElementTypeProps) => {
+  const { children, ref, ...rest } = props;
   const topIntervalRef = useRef<Interval | undefined>(undefined);
 
   useImperativeHandle(ref, () => ({
@@ -146,8 +147,7 @@ const innerElementType = forwardRef<
       {children}
     </Box>
   );
-});
-innerElementType.displayName = "innerElementType";
+};
 
 type StickySubheaderProps = {
   interval: Interval | undefined;
