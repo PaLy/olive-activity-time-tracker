@@ -3,9 +3,9 @@ import { Activity } from "../../data/activity/Storage";
 import { create } from "zustand/index";
 
 type IntervalToggle = "now" | "earlier" | "finished";
-type NameToggle = "new" | "existing";
+export type NameToggle = "new" | "existing";
 
-export type CreateActivityState = {
+type CreateActivityState = {
   intervalToggle: IntervalToggle;
   startTimeInput: moment.Moment;
   startTimeError: string;
@@ -36,7 +36,6 @@ export type CreateActivityState = {
   setEndTimeInput: (endTimeInput: moment.Moment) => void;
   setStartTimeError: (startTimeError: string) => void;
   setEndTimeError: (endTimeError: string) => void;
-  getState: () => CreateActivityState;
 };
 
 export const useCreateActivityStore = create<CreateActivityState>(
@@ -132,7 +131,6 @@ export const useCreateActivityStore = create<CreateActivityState>(
       setEndTimeError: (endTimeError) => {
         set({ endTimeError });
       },
-      getState: () => get(),
     };
   },
 );
