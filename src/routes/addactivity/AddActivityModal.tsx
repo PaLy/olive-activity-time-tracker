@@ -15,8 +15,9 @@ import {
   useAnyActivityLogged,
 } from "../../data/activity/Hooks";
 import { useAddActivity, useAddInterval } from "../../data/activity/Operations";
-import { CreateActivityState, useCreateActivityStore } from "./Store";
+import { NameToggle, useCreateActivityStore } from "./Store";
 import { useEffectOnceAfter } from "../../utils/ReactLifecycle";
+import { Moment } from "moment";
 
 export const AddActivityModal = () => {
   const { pathname } = useLocation();
@@ -41,7 +42,6 @@ const Content = () => {
   const parentActivity = useCreateActivityStore(
     (state) => state.parentActivity,
   );
-  const getState = useCreateActivityStore((state) => state.getState);
   const activityNameExists = useActivityNameExists(name, parentActivity);
 
   useEffectOnceAfter(!isLoading, () => {
@@ -58,9 +58,21 @@ const Content = () => {
             onClick: async () => {
               if (checkValid() && !activityNameExists) {
                 // navigation clears state; therefore, we need to get the state before navigating
-                const state = getState();
+                const state = useCreateActivityStore.getState();
+                const createActivityOptions: CreateActivityOptions = {
+                  existingActivity: state.existingActivity,
+                  nameToggle: state.nameToggle,
+                  parentID: state.getParentID(),
+                  name,
+                  start: state.getStartTime(),
+                  end: state.getEndTime(),
+                };
+
+                // navigate before creating activity,
+                // because the new activity can change the state of the add-activity modal
                 navigate(-1);
-                const activity = await createActivity(state);
+
+                const activity = await createActivity(createActivityOptions);
                 // TODO handle error
                 expandPathToRoot(activity);
               }
@@ -77,26 +89,29 @@ const Content = () => {
   );
 };
 
+type CreateActivityOptions = {
+  existingActivity: Activity | null;
+  nameToggle: NameToggle;
+  parentID: string;
+  name: string;
+  start: Moment;
+  end: Moment | undefined;
+};
+
 const useCreateActivity = () => {
   const { mutateAsync: addActivity } = useAddActivity();
   const { mutateAsync: addInterval } = useAddInterval();
 
-  return async (state: CreateActivityState) => {
-    const {
-      existingActivity,
-      nameToggle,
-      getParentID,
-      name,
-      getStartTime,
-      getEndTime,
-    } = state;
+  return async (options: CreateActivityOptions) => {
+    const { existingActivity, nameToggle, parentID, name, start, end } =
+      options;
     let activity = existingActivity;
 
     if (nameToggle === "new") {
       const id = nanoid();
       const newActivity: Activity = {
         id,
-        parentID: getParentID(),
+        parentID,
         name: name,
         intervals: [],
         childIDs: [],
@@ -108,8 +123,8 @@ const useCreateActivity = () => {
     if (activity) {
       const newInterval: Interval = {
         id: nanoid(),
-        start: getStartTime(),
-        end: getEndTime(),
+        start,
+        end,
       };
       await addInterval({ activity, interval: newInterval });
       return activity;
