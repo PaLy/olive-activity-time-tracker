@@ -39,6 +39,7 @@ const Content = () => {
   const expandPathToRoot = useExpandChildrenPathToRoot();
   const createActivity = useCreateActivity();
   const name = useCreateActivityStore((state) => state.name);
+  const nameToggle = useCreateActivityStore((state) => state.nameToggle);
   const parentActivity = useCreateActivityStore(
     (state) => state.parentActivity,
   );
@@ -56,7 +57,10 @@ const Content = () => {
           finishButtonProps={{
             startIcon: finished ? <SaveIcon /> : <PlayArrowIcon />,
             onClick: async () => {
-              if (checkValid() && !activityNameExists) {
+              if (
+                checkValid() &&
+                !(nameToggle === "new" && activityNameExists)
+              ) {
                 // navigation clears state; therefore, we need to get the state before navigating
                 const state = useCreateActivityStore.getState();
                 const createActivityOptions: CreateActivityOptions = {
