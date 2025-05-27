@@ -160,15 +160,14 @@ class ActivityStore extends Store<StoredActivity, Activity> {
 
   private stopSelfActivities = async (activities: Activity[]) => {
     for (const activity of activities) {
-      if (activity.intervals.length > 0) {
+      const lastInterval = activity.intervals.at(-1);
+      if (lastInterval) {
         const end = moment();
-        await intervalStore.editInterval(activity.intervals.slice(-1)[0], {
-          end,
-        });
+        await intervalStore.editInterval(lastInterval, { end });
         const updatedActivity = produce(
           await this.get(activity.id),
           (draft) => {
-            draft.intervals.slice(-1)[0].end = end;
+            draft.intervals.at(-1)!.end = end;
           },
         );
         await this.set(activity.id, updatedActivity);
