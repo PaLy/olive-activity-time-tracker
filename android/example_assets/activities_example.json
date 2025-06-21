@@ -1,0 +1,91 @@
+{
+  "activities": [
+    {
+      "id": "9wfEuMyESNmEgxZlQsIZ3",
+      "name": "Personal",
+      "intervalIDs": [
+        "CsiU1uZZo3TpJEF5Bdu8j"
+      ],
+      "parentID": "root",
+      "childIDs": []
+    },
+    {
+      "id": "P6JVUH5-LYa7ng2b819XA",
+      "name": "Reviews",
+      "intervalIDs": [
+        "_Vo6lfr-0Pg1UUk2kUwVQ"
+      ],
+      "parentID": "r0qnqL_8Fhli2_DTLhdxp",
+      "childIDs": []
+    },
+    {
+      "id": "r0qnqL_8Fhli2_DTLhdxp",
+      "name": "Work",
+      "intervalIDs": [
+        "iHqN1sd1L_eNi8m-4Zm18",
+        "bziRBR7cEYQbki75cuj5q",
+        "LrPZHwpfo7JcXzZ5UtMDP"
+      ],
+      "parentID": "root",
+      "childIDs": [
+        "tPlR9ahrmV_F9PijZkkvO",
+        "P6JVUH5-LYa7ng2b819XA"
+      ]
+    },
+    {
+      "id": "tPlR9ahrmV_F9PijZkkvO",
+      "name": "Meetings",
+      "intervalIDs": [
+        "jO3whVWRME4b0kqilAf60"
+      ],
+      "parentID": "r0qnqL_8Fhli2_DTLhdxp",
+      "childIDs": []
+    }
+  ],
+  "intervals": [
+    {
+      "id": "CsiU1uZZo3TpJEF5Bdu8j",
+      "start": "2025-06-21T07:40:16.066Z",
+      "end": "2025-06-21T08:58:25.725Z"
+    },
+    {
+      "id": "LrPZHwpfo7JcXzZ5UtMDP",
+      "start": "2025-06-21T09:00:32.291Z",
+      "end": "2025-06-21T12:24:47.859Z"
+    },
+    {
+      "id": "_Vo6lfr-0Pg1UUk2kUwVQ",
+      "start": "2025-06-21T10:00:25.076Z",
+      "end": "2025-06-21T10:30:32.284Z"
+    },
+    {
+      "id": "bziRBR7cEYQbki75cuj5q",
+      "start": "2025-06-21T10:40:46.514Z",
+      "end": "2025-06-21T10:40:54.176Z"
+    },
+    {
+      "id": "iHqN1sd1L_eNi8m-4Zm18",
+      "start": "2025-06-21T10:40:26.749Z",
+      "end": "2025-06-21T10:40:33.391Z"
+    },
+    {
+      "id": "jO3whVWRME4b0kqilAf60",
+      "start": "2025-06-21T09:00:35.659Z",
+      "end": "2025-06-21T09:47:46.508Z"
+    }
+  ],
+  "activityInListExpanded": [
+    "r0qnqL_8Fhli2_DTLhdxp"
+  ],
+  "settings": {
+    "activityList": {
+      "showPercentage": true,
+      "showCost": {
+        "show": false,
+        "perHour": "10",
+        "currency": "EUR"
+      },
+      "showDuration": true
+    }
+  }
+}
