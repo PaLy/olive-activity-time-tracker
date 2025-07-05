@@ -29,7 +29,7 @@ class WebAppInterface(private val context: Context) {
         shareIntent.putExtra(Intent.EXTRA_STREAM, fileUri)
         shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
 
-        startActivity(context, Intent.createChooser(shareIntent, "Share $filename"), null)
+        context.startActivity(Intent.createChooser(shareIntent, "Share $filename"))
 
         return "ok"
     }
