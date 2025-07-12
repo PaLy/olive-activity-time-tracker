@@ -4,6 +4,7 @@ import { activityItem } from "../__testutils__/activityItemUtils";
 import { renderApp } from "../../../__testutils__/app";
 import { screen, waitFor } from "@testing-library/react";
 import { setExpanded } from "../../../data/activity/ActivityInListExpanded";
+import { describe, expect, it } from "vitest";
 
 describe("ActivityItem", () => {
   describe("when the activity is in progress", () => {

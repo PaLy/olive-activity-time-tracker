@@ -1,4 +1,5 @@
 import { screen, waitFor, within } from "@testing-library/react";
+import { expect } from "vitest";
 
 export const activityItem = {
   find: {

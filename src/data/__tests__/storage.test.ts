@@ -5,6 +5,7 @@ import moment, { Moment } from "moment";
 import { activityStore } from "../activity/Storage";
 import { intervalStore } from "../interval/Storage";
 import { Interval } from "../interval/Interval";
+import { describe, expect, it } from "vitest";
 
 describe("Import", () => {
   it("should import all activities and intervals", async () => {

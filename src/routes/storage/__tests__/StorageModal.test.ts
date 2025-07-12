@@ -5,7 +5,7 @@ import { userEvent } from "@testing-library/user-event";
 import { screen, waitFor } from "@testing-library/react";
 import { storageModal } from "../__testutils__/storageModalTestUtils";
 import path from "path";
-import { vi } from "vitest";
+import { expect, vi, it, describe } from "vitest";
 
 describe("StorageModal", () => {
   describe("import", () => {

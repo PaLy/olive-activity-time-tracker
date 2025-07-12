@@ -6,6 +6,7 @@ import {
   PointerEventsCheckLevel,
   userEvent,
 } from "@testing-library/user-event";
+import { describe, expect, it } from "vitest";
 
 describe("ActivityRoute", () => {
   describe("after opened directly", () => {

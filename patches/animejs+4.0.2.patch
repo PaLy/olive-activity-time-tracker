@@ -1,0 +1,13 @@
+diff --git a/node_modules/animejs/types/index.d.ts b/node_modules/animejs/types/index.d.ts
+index fc0fad2..fb3c2c5 100644
+--- a/node_modules/animejs/types/index.d.ts
++++ b/node_modules/animejs/types/index.d.ts
+@@ -250,7 +250,7 @@ declare class Timeline extends Timer {
+ declare function createTimeline(parameters?: TimelineParams): Timeline;
+ type TimePosition = number | string | Function;
+ declare namespace eases {
+-    export let linear: (...args?: (string | number)[]) => EasingFunction;
++    export let linear: (...args: (string | number)[]) => EasingFunction;
+     export let irregular: (length?: number, randomness?: number) => EasingFunction;
+     export let steps: (steps?: number, fromStart?: boolean) => EasingFunction;
+     export let cubicBezier: (mX1?: number, mY1?: number, mX2?: number, mY2?: number) => EasingFunction;

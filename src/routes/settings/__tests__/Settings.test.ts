@@ -5,6 +5,7 @@ import { element, renderApp } from "../../../__testutils__/app";
 import { userEvent } from "@testing-library/user-event";
 import { activityItem } from "../../activitylists/__testutils__/activityItemUtils";
 import { setLocale } from "../../../utils/Locale";
+import { beforeAll, beforeEach, describe, expect, it } from "vitest";
 
 describe("Settings", () => {
   beforeAll(() => {
@@ -12,6 +13,7 @@ describe("Settings", () => {
   });
 
   beforeEach(async () => {
+    setLocale("en-US");
     await importActivities([
       {
         id: "1",
