@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { AlertColor } from "@mui/material/Alert/Alert";
+import { AlertColor } from "@mui/material/Alert";
 import { useEffect } from "react";
 
 type AppSnackbarState = {

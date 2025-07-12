@@ -2,7 +2,7 @@
 // allows you to do things like:
 // expect(element).toHaveTextContent(/react/i)
 // learn more: https://github.com/testing-library/jest-dom
-import "@testing-library/jest-dom";
+import "@testing-library/jest-dom/vitest";
 import { enableMapSet } from "immer";
 import { activityStore } from "./data/activity/Storage";
 import { intervalStore } from "./data/interval/Storage";
@@ -11,7 +11,15 @@ import { settingsStore } from "./data/settings/Settings";
 import { configure } from "@testing-library/react";
 import dayjs from "dayjs";
 import duration from "dayjs/plugin/duration";
-import { MockInstance, vi } from "vitest";
+import {
+  afterAll,
+  afterEach,
+  beforeAll,
+  beforeEach,
+  expect,
+  MockInstance,
+  vi,
+} from "vitest";
 import mediaQuery from "css-mediaquery";
 
 dayjs.extend(duration);
@@ -31,6 +39,8 @@ const originalOffsetWidth = Object.getOwnPropertyDescriptor(
   HTMLElement.prototype,
   "offsetWidth",
 )!;
+
+vi.mock("react-virtualized-auto-sizer");
 
 beforeAll(() => {
   Object.defineProperty(HTMLElement.prototype, "offsetHeight", {

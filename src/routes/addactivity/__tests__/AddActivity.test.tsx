@@ -3,6 +3,7 @@ import { userEvent } from "@testing-library/user-event";
 import { renderApp } from "../../../__testutils__/app";
 import { importActivities } from "../../../data/__testutils__/storageUtils";
 import moment from "moment";
+import { describe, expect, it } from "vitest";
 
 describe("AddActivityModal", () => {
   it("can add a new activity under an in-progress activity", async () => {

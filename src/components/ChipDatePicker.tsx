@@ -1,8 +1,8 @@
 import {
-  BaseSingleInputFieldProps,
   DatePicker,
+  DatePickerFieldProps,
   DatePickerProps,
-  FieldSection,
+  usePickerContext,
 } from "@mui/x-date-pickers";
 import { Moment } from "moment";
 import { Chip, Grid, IconButton } from "@mui/material";
@@ -11,7 +11,7 @@ import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 import { useState } from "react";
 
 export type ChipDatePickerProps = Omit<
-  DatePickerProps<Moment>,
+  DatePickerProps,
   "value" | "onChange" | "onClose" | "onOpen" | "open" | "slots" | "slotProps"
 > & {
   value: Moment;
@@ -45,8 +45,14 @@ export const ChipDatePicker = (props: ChipDatePickerProps) => {
         }
       }}
       slots={{ field: MyChip }}
-      // @ts-expect-error unknown error
-      slotProps={{ field: { onOpen, isMaxDate, onBefore, onNext, toLabel } }}
+      slotProps={{
+        field: {
+          isMaxDate,
+          onBefore,
+          onNext,
+          toLabel,
+        } as MyChipProps,
+      }}
       open={open}
       onClose={onClose}
       onOpen={onOpen}
@@ -55,34 +61,19 @@ export const ChipDatePicker = (props: ChipDatePickerProps) => {
   );
 };
 
-const MyChip = (
-  props: BaseSingleInputFieldProps<
-    Moment | null,
-    Moment,
-    FieldSection,
-    boolean,
-    unknown
-  > & {
-    onOpen?: () => void;
-    isMaxDate?: (value: Moment) => boolean;
-    onBefore?: (value: Moment) => Moment;
-    onNext?: (value: Moment) => Moment;
-    toLabel?: (value: Moment) => string;
-  },
-) => {
-  const {
-    value,
-    onOpen,
-    InputProps: { ref } = {},
-    inputProps: { "aria-label": ariaLabel } = {},
-    format,
-    id,
-    onChange,
-    isMaxDate,
-    onBefore,
-    onNext,
-    toLabel,
-  } = props;
+type MyChipAdditionalProps = {
+  isMaxDate?: (value: Moment) => boolean;
+  onBefore?: (value: Moment) => Moment;
+  onNext?: (value: Moment) => Moment;
+  toLabel?: (value: Moment) => string;
+};
+
+type MyChipProps = DatePickerFieldProps & MyChipAdditionalProps;
+
+const MyChip = (props: MyChipProps) => {
+  const { id, isMaxDate, onBefore, onNext, toLabel } = props;
+  const { value, fieldFormat, setValue, setOpen, triggerRef } =
+    usePickerContext();
 
   return (
     <Grid
@@ -96,7 +87,7 @@ const MyChip = (
         <IconButton
           onClick={() => {
             if (value) {
-              onChange?.(onBefore(value), { validationError: null });
+              setValue?.(onBefore(value), { validationError: null });
             }
           }}
           disabled={!onBefore}
@@ -106,16 +97,17 @@ const MyChip = (
       )}
       <Chip
         id={id}
-        aria-label={ariaLabel}
-        label={(value && (toLabel?.(value) ?? value.format(format))) || "n/a"}
-        onClick={onOpen}
-        ref={ref}
+        label={
+          (value && (toLabel?.(value) ?? value.format(fieldFormat))) || "n/a"
+        }
+        onClick={() => setOpen((prev) => !prev)}
+        ref={triggerRef}
       />
       {onNext && (
         <IconButton
           onClick={() => {
             if (value) {
-              onChange?.(onNext(value), { validationError: null });
+              setValue?.(onNext(value), { validationError: null });
             }
           }}
           disabled={!onNext || (!!value && isMaxDate?.(value))}

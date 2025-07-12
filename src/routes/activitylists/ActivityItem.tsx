@@ -28,12 +28,13 @@ import { Link } from "react-router";
 import { useExpanded, useSetExpanded } from "./state/Expanded";
 import { useActivityListSettings } from "../../asyncState/ActivityList";
 import { ShowCost } from "../../data/settings/Settings";
-import anime from "animejs";
+import { animate } from "animejs";
 import {
   useStartActivity,
   useStopActivity,
 } from "../../data/activity/Operations";
 import { useMemo } from "react";
+import { getLocale } from "../../utils/Locale";
 
 type ActivityItemProps = {
   activity: Activity;
@@ -55,11 +56,10 @@ export const ActivityItem = (props: ActivityItemProps) => {
 };
 
 const onActivityAppear = (el: HTMLElement, i: number) => {
-  anime({
-    targets: el,
+  animate(el, {
     opacity: 1,
     delay: i * 10,
-    easing: "easeOutSine",
+    ease: "outSine",
   });
 };
 
@@ -220,7 +220,7 @@ const getCost = (durationMs: number, showCost: ShowCost) => {
     Math.round(dayjs.duration(durationMs).asHours() * Number(perHour) * 100) /
     100;
 
-  return Intl.NumberFormat(undefined, {
+  return Intl.NumberFormat(getLocale(), {
     style: "currency",
     currency: currency,
   }).format(cost);
