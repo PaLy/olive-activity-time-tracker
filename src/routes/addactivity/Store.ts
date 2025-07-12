@@ -22,6 +22,7 @@ type CreateActivityState = {
   checkValid: () => boolean;
   isInitialized: () => boolean;
   reset: () => void;
+  validationsOff?: boolean;
   getStartTime: () => moment.Moment;
   getEndTime: () => moment.Moment | undefined;
   getParentID: () => string;
@@ -36,6 +37,7 @@ type CreateActivityState = {
   setEndTimeInput: (endTimeInput: moment.Moment) => void;
   setStartTimeError: (startTimeError: string) => void;
   setEndTimeError: (endTimeError: string) => void;
+  setValidationsOff: (validationsOff: boolean) => void;
 };
 
 export const useCreateActivityStore = create<CreateActivityState>(
@@ -54,6 +56,7 @@ export const useCreateActivityStore = create<CreateActivityState>(
       parentActivity: null,
       existingActivity: null,
       existingActivityError: "",
+      validationsOff: false,
       init: (anyActivityLogged: boolean) => {
         dialogOpenedTime = moment();
         set({
@@ -80,6 +83,7 @@ export const useCreateActivityStore = create<CreateActivityState>(
           parentActivity: null,
           existingActivity: null,
           existingActivityError: "",
+          validationsOff: false,
         });
       },
       isFinished: () => get().intervalToggle === "finished",
@@ -130,6 +134,9 @@ export const useCreateActivityStore = create<CreateActivityState>(
       },
       setEndTimeError: (endTimeError) => {
         set({ endTimeError });
+      },
+      setValidationsOff: (validationsOff) => {
+        set({ validationsOff });
       },
     };
   },
