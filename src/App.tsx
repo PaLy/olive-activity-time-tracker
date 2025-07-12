@@ -6,7 +6,7 @@ import {
   ThemeProvider,
   useMediaQuery,
 } from "@mui/material";
-import { useMemo } from "react";
+import { useContext, useMemo } from "react";
 import { Outlet, ScrollRestoration } from "react-router";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterMoment } from "@mui/x-date-pickers/AdapterMoment";
@@ -15,6 +15,7 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { ScrollMemoryContext } from "./components/ScrollMemory";
 import { AppSnackbar } from "./components/AppSnackbar";
 import { useTickingClock } from "./data/interval/Hooks";
+import { TestThemeContext } from "./Theme";
 
 type Props = {
   queryClient: QueryClient;
@@ -62,18 +63,21 @@ function App(props: Props) {
 
 const useTheme = () => {
   const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
+  const { modifyTheme } = useContext(TestThemeContext);
   return useMemo(
     () =>
-      createTheme({
-        palette: {
-          mode: prefersDarkMode ? "dark" : "light",
-          primary: {
-            // 800 from dark olive green #556B2F
-            main: "#778d3e",
+      createTheme(
+        modifyTheme({
+          palette: {
+            mode: prefersDarkMode ? "dark" : "light",
+            primary: {
+              // 800 from dark olive green #556B2F
+              main: "#778d3e",
+            },
           },
-        },
-      }),
-    [prefersDarkMode],
+        }),
+      ),
+    [modifyTheme, prefersDarkMode],
   );
 };
 

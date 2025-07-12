@@ -2,6 +2,8 @@ import { render, screen, within } from "@testing-library/react";
 import { createMemoryRouter, RouterProvider } from "react-router";
 import { createRoutes } from "../router";
 import { QueryClient } from "@tanstack/react-query";
+import { TestThemeContext, TestThemeContextType, ThemeOptions } from "../Theme";
+import { produce } from "immer";
 
 type RenderAppOptions = {
   route?: string;
@@ -10,12 +12,25 @@ type RenderAppOptions = {
 export const renderApp = (options?: RenderAppOptions) => {
   const { route = "/" } = options ?? {};
   return render(
-    <RouterProvider
-      router={createMemoryRouter(createRoutes(new QueryClient()), {
-        initialEntries: [route],
-      })}
-    ></RouterProvider>,
+    <TestThemeContext.Provider value={testThemeContextValue}>
+      <RouterProvider
+        router={createMemoryRouter(createRoutes(new QueryClient()), {
+          initialEntries: [route],
+        })}
+      ></RouterProvider>
+    </TestThemeContext.Provider>,
   );
+};
+
+const testThemeContextValue: TestThemeContextType = {
+  modifyTheme: (theme: ThemeOptions) =>
+    produce(theme ?? {}, (draft) => {
+      if (!draft.transitions) draft.transitions = {};
+      if (!draft.transitions.duration) draft.transitions.duration = {};
+      // this fixes quick closing and opening of the activity modal in tests
+      draft.transitions.duration.enteringScreen = 0;
+      draft.transitions.duration.leavingScreen = 0;
+    }),
 };
 
 export const element = {
