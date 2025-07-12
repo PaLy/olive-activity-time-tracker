@@ -193,13 +193,21 @@ const ActivityRow2 = (props: ActivityRow2Props) => {
   const { showDuration, showCost, showPercentage } = useActivityListSettings();
   const cost = getCost(duration, showCost);
 
+  const somethingShownBeforeDuration = showPercentage || showCost.show;
+
   return (
     <span data-testid={"activity-duration"}>
       {showPercentage && <>{durationPercentage} %</>}
-      {showCost.show && <> • {cost}</>}
+      {showCost.show && (
+        <>
+          {showPercentage && " • "}
+          {cost}
+        </>
+      )}
       {showDuration && (
         <>
-          <br /> {humanizedDuration}
+          {somethingShownBeforeDuration && <br />}
+          {humanizedDuration}
         </>
       )}
     </span>
