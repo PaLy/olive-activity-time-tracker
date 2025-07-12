@@ -4,12 +4,12 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
-import android.view.KeyEvent
 import android.view.View
 import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
 import android.webkit.WebView
 import androidx.activity.ComponentActivity
+import androidx.activity.OnBackPressedCallback
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
@@ -20,6 +20,7 @@ import androidx.webkit.WebViewClientCompat
 
 class MainActivity : ComponentActivity() {
     private lateinit var myWebView: WebView
+    private lateinit var backPressedCallback: OnBackPressedCallback
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,6 +32,34 @@ class MainActivity : ComponentActivity() {
             createWebView(context)
         } else {
             addOnContextAvailableListener { createWebView(it) }
+        }
+
+        backPressedCallback = object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                if (myWebView.canGoBack()) {
+                    myWebView.goBack()
+                } else {
+                    // If the WebView can't go back, disable this callback
+                    // and call onBackPressed() again to let the system handle it (e.g., finish the activity)
+                    // Or, if you want to explicitly finish:
+                    // finish()
+                    // However, letting the system handle it is usually better if you might have fragments.
+                    // For a simple activity like this, finish() is okay, but isEnabled = false is more robust.
+
+                    if (isEnabled) { // Check if still enabled to prevent potential recursive calls
+                        isEnabled = false
+                        onBackPressedDispatcher.onBackPressed() // Trigger default back behavior (e.g., finish activity)
+                    }
+                }
+            }
+        }
+        onBackPressedDispatcher.addCallback(this, backPressedCallback)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (!backPressedCallback.isEnabled) {
+            backPressedCallback.isEnabled = true
         }
     }
 
@@ -66,21 +95,5 @@ class MainActivity : ComponentActivity() {
         myWebView.addJavascriptInterface(WebAppInterface(context), "Android")
 
         myWebView.loadUrl("https://appassets.androidplatform.net/assets/www/index.html")
-    }
-
-    override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {
-        if (event.action == KeyEvent.ACTION_DOWN) {
-            when (keyCode) {
-                KeyEvent.KEYCODE_BACK -> {
-                    if (myWebView.canGoBack()) {
-                        myWebView.goBack()
-                    } else {
-                        finish()
-                    }
-                    return true
-                }
-            }
-        }
-        return super.onKeyDown(keyCode, event)
     }
 }
