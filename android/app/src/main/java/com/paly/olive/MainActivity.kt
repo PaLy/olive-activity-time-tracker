@@ -5,20 +5,26 @@ import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
 import android.view.KeyEvent
+import android.view.View
 import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
 import android.webkit.WebView
 import androidx.activity.ComponentActivity
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.webkit.WebViewAssetLoader
 import androidx.webkit.WebViewAssetLoader.AssetsPathHandler
 import androidx.webkit.WebViewClientCompat
 
 
 class MainActivity : ComponentActivity() {
-    lateinit var myWebView: WebView
+    private lateinit var myWebView: WebView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        WindowCompat.setDecorFitsSystemWindows(window, false)
 
         val context = peekAvailableContext()
         if (context != null) {
@@ -30,9 +36,19 @@ class MainActivity : ComponentActivity() {
 
     @SuppressLint("SetJavaScriptEnabled")
     private fun createWebView(context: Context) {
-        myWebView = WebView(context)
+        setContentView(R.layout.activity_main)
+        myWebView = findViewById(R.id.webview)
+        val statusBar = findViewById<View>(R.id.status_bar)
+        val navigationBar = findViewById<View>(R.id.navigation_bar)
+
+        ViewCompat.setOnApplyWindowInsetsListener(myWebView) { v: View, insets: WindowInsetsCompat ->
+            val systemBarsInsets = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            statusBar.layoutParams.height = systemBarsInsets.top
+            navigationBar.layoutParams.height = systemBarsInsets.bottom
+            WindowInsetsCompat.CONSUMED
+        }
+
         myWebView.setBackgroundColor(Color.TRANSPARENT)
-        setContentView(myWebView)
 
         myWebView.settings.javaScriptEnabled = true
 
