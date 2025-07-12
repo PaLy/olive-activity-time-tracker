@@ -16,6 +16,11 @@ export default [
     plugins: {
       "react-hooks": reactHooks,
     },
+    settings: {
+      react: {
+        version: "detect",
+      },
+    },
     rules: {
       ...reactHooks.configs.recommended.rules,
       "no-restricted-imports": [
