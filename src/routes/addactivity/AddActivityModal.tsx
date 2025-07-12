@@ -43,7 +43,15 @@ const Content = () => {
   const parentActivity = useCreateActivityStore(
     (state) => state.parentActivity,
   );
-  const activityNameExists = useActivityNameExists(name, parentActivity);
+  const validationsOff = useCreateActivityStore(
+    (state) => state.validationsOff,
+  );
+  const setValidationsOff = useCreateActivityStore(
+    (state) => state.setValidationsOff,
+  );
+
+  const activityNameExists =
+    useActivityNameExists(name, parentActivity) && !validationsOff;
 
   useEffectOnceAfter(!isLoading, () => {
     init(anyActivityLogged);
@@ -72,13 +80,12 @@ const Content = () => {
                   end: state.getEndTime(),
                 };
 
-                // navigate before creating activity,
-                // because the new activity can change the state of the add-activity modal
-                navigate(-1);
-
+                // it takes some time while the modal is closed and the creation of the new activity would show validation errors
+                setValidationsOff(true);
                 const activity = await createActivity(createActivityOptions);
                 // TODO handle error
                 expandPathToRoot(activity);
+                navigate(-1);
               }
             },
             children: finished ? "Save" : "Start",
