@@ -1,7 +1,6 @@
 package com.paly.olive
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
 import android.view.View
@@ -24,16 +23,57 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         WindowCompat.setDecorFitsSystemWindows(window, false)
+        createWebView()
+        setupOnBackPressedCallback()
+    }
 
-        val context = peekAvailableContext()
-        if (context != null) {
-            createWebView(context)
-        } else {
-            addOnContextAvailableListener { createWebView(it) }
+    override fun onResume() {
+        super.onResume()
+        if (!backPressedCallback.isEnabled) {
+            backPressedCallback.isEnabled = true
+        }
+    }
+
+    @SuppressLint("SetJavaScriptEnabled")
+    private fun createWebView() {
+        setContentView(R.layout.activity_main)
+        myWebView = findViewById(R.id.webview)
+        val statusBar = findViewById<View>(R.id.status_bar)
+        val navigationBar = findViewById<View>(R.id.navigation_bar)
+
+        ViewCompat.setOnApplyWindowInsetsListener(myWebView) { v: View, insets: WindowInsetsCompat ->
+            val systemBarsInsets = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            val imeInsets = insets.getInsets(WindowInsetsCompat.Type.ime()) // Get keyboard insets
+
+            statusBar.layoutParams.height = systemBarsInsets.top + imeInsets.top
+            navigationBar.layoutParams.height = systemBarsInsets.bottom + imeInsets.bottom
+            statusBar.requestLayout()
+            navigationBar.requestLayout()
+            WindowInsetsCompat.CONSUMED
         }
 
+        myWebView.setBackgroundColor(Color.TRANSPARENT)
+
+        myWebView.settings.javaScriptEnabled = true
+
+        myWebView.webChromeClient = MyWebChromeClient(this)
+
+        val assetLoader = WebViewAssetLoader.Builder()
+            .addPathHandler("/assets/", AssetsPathHandler(this))
+            .build()
+        myWebView.webViewClient = object : WebViewClientCompat() {
+            override fun shouldInterceptRequest(view: WebView?, request: WebResourceRequest): WebResourceResponse? {
+                return assetLoader.shouldInterceptRequest(request.url)
+            }
+        }
+
+        myWebView.addJavascriptInterface(WebAppInterface(this), "Android")
+
+        myWebView.loadUrl("https://appassets.androidplatform.net/assets/www/index.html")
+    }
+
+    private fun setupOnBackPressedCallback() {
         backPressedCallback = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 if (myWebView.canGoBack()) {
@@ -54,46 +94,5 @@ class MainActivity : ComponentActivity() {
             }
         }
         onBackPressedDispatcher.addCallback(this, backPressedCallback)
-    }
-
-    override fun onResume() {
-        super.onResume()
-        if (!backPressedCallback.isEnabled) {
-            backPressedCallback.isEnabled = true
-        }
-    }
-
-    @SuppressLint("SetJavaScriptEnabled")
-    private fun createWebView(context: Context) {
-        setContentView(R.layout.activity_main)
-        myWebView = findViewById(R.id.webview)
-        val statusBar = findViewById<View>(R.id.status_bar)
-        val navigationBar = findViewById<View>(R.id.navigation_bar)
-
-        ViewCompat.setOnApplyWindowInsetsListener(myWebView) { v: View, insets: WindowInsetsCompat ->
-            val systemBarsInsets = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            statusBar.layoutParams.height = systemBarsInsets.top
-            navigationBar.layoutParams.height = systemBarsInsets.bottom
-            WindowInsetsCompat.CONSUMED
-        }
-
-        myWebView.setBackgroundColor(Color.TRANSPARENT)
-
-        myWebView.settings.javaScriptEnabled = true
-
-        myWebView.webChromeClient = MyWebChromeClient(this)
-
-        val assetLoader = WebViewAssetLoader.Builder()
-            .addPathHandler("/assets/", AssetsPathHandler(this))
-            .build()
-        myWebView.webViewClient = object : WebViewClientCompat() {
-            override fun shouldInterceptRequest(view: WebView?, request: WebResourceRequest): WebResourceResponse? {
-                return assetLoader.shouldInterceptRequest(request.url)
-            }
-        }
-
-        myWebView.addJavascriptInterface(WebAppInterface(context), "Android")
-
-        myWebView.loadUrl("https://appassets.androidplatform.net/assets/www/index.html")
     }
 }
