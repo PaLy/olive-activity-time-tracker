@@ -29,23 +29,6 @@ class IntervalStore extends Store<StoredInterval, Interval, ExportedInterval> {
     },
   };
 
-  asStoredValue = (interval: Interval): StoredInterval => {
-    return {
-      id: interval.id,
-      start: interval.start.valueOf(),
-      end: interval.end?.valueOf() ?? null,
-    };
-  };
-
-  override asExportedValue = (interval: StoredInterval): ExportedInterval => {
-    const { id, start, end } = interval;
-    return {
-      id,
-      start: moment(start).toJSON(),
-      end: (end ? moment(end) : moment()).toJSON(),
-    };
-  };
-
   override fromExportedValue = (
     interval: ExportedInterval,
   ): [string, StoredInterval] => {
@@ -58,15 +41,6 @@ class IntervalStore extends Store<StoredInterval, Interval, ExportedInterval> {
         end: moment(end).valueOf(),
       },
     ];
-  };
-
-  editInterval = async (interval: Interval, edit: IntervalEdit) => {
-    await intervalStore
-      .set(interval.id, { ...interval, ...edit })
-      .catch((error) => {
-        console.error(error);
-        throw new Error(`Failed to edit interval.`);
-      });
   };
 }
 
@@ -83,5 +57,3 @@ export type ExportedInterval = {
   start: string;
   end: string;
 };
-
-export type IntervalEdit = Partial<Pick<Interval, "start" | "end">>;

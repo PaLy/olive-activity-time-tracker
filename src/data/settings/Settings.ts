@@ -1,6 +1,6 @@
 import localforage from "localforage";
 import { JTDSchemaType } from "ajv/dist/jtd";
-import { cloneDeep } from "lodash";
+import { Currency } from "../../db/entities";
 
 export const STORE_NAME_SETTINGS = "settings";
 
@@ -11,11 +11,6 @@ enum Keys {
 export const settingsStore = localforage.createInstance({
   name: STORE_NAME_SETTINGS,
 });
-
-export const getActivityList = () =>
-  settingsStore
-    .getItem<ActivityList>(Keys.activityList)
-    .then((activityList) => activityList ?? DEFAULT_SETTINGS.activityList);
 
 export const setActivityList = (activityList: ActivityList) =>
   settingsStore.setItem<ActivityList>(Keys.activityList, activityList);
@@ -36,20 +31,6 @@ export type ShowCost = {
   currency: Currency;
 };
 
-// https://en.wikipedia.org/wiki/ISO_4217
-export enum Currency {
-  EUR = "EUR",
-  USD = "USD",
-  JPY = "JPY",
-  GBP = "GBP",
-  AUD = "AUD",
-  CAD = "CAD",
-  CHF = "CHF",
-  CNH = "CNH",
-  HKD = "HKD",
-  NZD = "NZD",
-}
-
 export const DEFAULT_SETTINGS: Settings = {
   activityList: {
     showPercentage: true,
@@ -60,14 +41,6 @@ export const DEFAULT_SETTINGS: Settings = {
     },
     showDuration: true,
   },
-};
-
-export const exportSettings = async () => {
-  const result: Record<string, unknown> = cloneDeep(DEFAULT_SETTINGS);
-  await settingsStore.iterate((value, key) => {
-    result[key] = value;
-  });
-  return result as Settings;
 };
 
 export const clearSettings = () => settingsStore.clear();

@@ -12,11 +12,14 @@ import AddIcon from "@mui/icons-material/Add";
 import { AddActivityModal } from "../addactivity/AddActivityModal";
 import { ResizableList, SingleItemData } from "../../components/ResizableList";
 import AutoSizer from "react-virtualized-auto-sizer";
-import { useExpandedAll } from "./state/Expanded";
-import { getActivitiesByOrder, OrderBy } from "../../data/activity/Algorithms";
-import { useActivities } from "../../data/activity/Operations";
-import { Activity } from "../../data/activity/Storage";
+import { OrderBy } from "../../data/activity/Algorithms";
 import { useClockStore } from "../../data/interval/Hooks";
+import { useLiveQuery } from "dexie-react-hooks";
+import {
+  ActivityTreeNode,
+  getActivitiesTree,
+} from "../../db/queries/activitiesTree";
+import { activityDuration } from "../../db/queries/activities";
 
 type Props = {
   interval: ClosedInterval;
@@ -51,10 +54,10 @@ type ListProps = Props & { height: number; width: number };
 const List = (props: ListProps) => {
   const { height, width, ...otherProps } = props;
   const { interval, orderBy } = props;
-  const itemData = useItemData(otherProps);
+  const activities = useFilteredActivities(orderBy, interval);
+  const itemData = useItemData(otherProps, activities);
   const innerRef = useRef<HTMLDivElement>(null);
-  const expandedAll = useExpandedAll();
-  const flipKey = useActivitiesOrderKey(interval, orderBy, expandedAll);
+  const flipKey = useActivitiesOrderKey(activities);
 
   useEffect(() => {
     innerRef.current!.style.minHeight = `${height}px`;
@@ -115,10 +118,8 @@ const InnerElementType = (props: InnerElementTypeProps) => {
 
 const FILTER_PADDING_TOP = 16;
 
-const useItemData = (props: Props) => {
-  const { header, filter, interval, orderBy } = props;
-  const expandedAll = useExpandedAll();
-  const activities = useFilteredActivities(orderBy, interval, expandedAll);
+const useItemData = (props: Props, activities: ActivityTreeNode[]) => {
+  const { header, filter, interval } = props;
 
   const theme = useTheme();
   const largeAppBar = useMediaQuery(theme.breakpoints.up("sm"));
@@ -148,20 +149,62 @@ const useItemData = (props: Props) => {
   );
 };
 
-const useFilteredActivities = (
-  orderBy: OrderBy,
-  interval: ClosedInterval,
-  expandedAll: Set<string>,
-) => {
-  const { data: activities = new Map<string, Activity>() } = useActivities();
+const useFilteredActivities = (orderBy: OrderBy, interval: ClosedInterval) => {
+  const activities = useLiveQuery(
+    () => getActivitiesTree(interval),
+    [interval],
+  );
   const time = useClockStore((state) => state.time);
 
   return useMemo(
-    () =>
-      getActivitiesByOrder(interval, expandedAll, orderBy, activities, time),
-    [activities, expandedAll, interval, orderBy, time],
+    () => getOrderedActivities(activities, orderBy, +time),
+    [activities, orderBy, time],
   );
 };
+
+/**
+ * Transforms activities tree into flat array in pre-ordered manner.
+ * Children are ordered by the specified order.
+ * If parent is collapsed, its children are not included.
+ */
+function getOrderedActivities(
+  parent: ActivityTreeNode | undefined,
+  orderBy: OrderBy,
+  time: number,
+): ActivityTreeNode[] {
+  if (!parent) return [];
+
+  if (parent.id === -1 || parent.expanded) {
+    const children = parent.children
+      .toSorted(activitiesComparator(orderBy, time))
+      .flatMap((child) => getOrderedActivities(child, orderBy, time));
+
+    if (parent.id === -1) {
+      return children;
+    } else {
+      return [parent].concat(children);
+    }
+  } else {
+    return [parent];
+  }
+}
+
+function activitiesComparator(orderBy: OrderBy, time: number) {
+  switch (orderBy) {
+    // order by duration descending, then by last end time descending, then by name ascending
+    case OrderBy.Duration:
+      return (a: ActivityTreeNode, b: ActivityTreeNode) =>
+        activityDuration(b, time) - activityDuration(a, time) ||
+        b.subtreeLastEndTime - a.subtreeLastEndTime ||
+        a.name.localeCompare(b.name);
+    // order by last end time descending, then by duration descending, then by name ascending
+    case OrderBy.LastEndTime:
+      return (a: ActivityTreeNode, b: ActivityTreeNode) =>
+        b.subtreeLastEndTime - a.subtreeLastEndTime ||
+        activityDuration(b, time) - activityDuration(a, time) ||
+        a.name.localeCompare(b.name);
+  }
+}
 
 type HeaderProps = Pick<Props, "header" | "filter">;
 

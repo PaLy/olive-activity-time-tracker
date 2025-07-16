@@ -1,7 +1,6 @@
 import { render, screen, within } from "@testing-library/react";
 import { createMemoryRouter, RouterProvider } from "react-router";
 import { createRoutes } from "../router";
-import { QueryClient } from "@tanstack/react-query";
 import { TestThemeContext, TestThemeContextType, ThemeOptions } from "../Theme";
 import { produce } from "immer";
 
@@ -14,7 +13,7 @@ export const renderApp = (options?: RenderAppOptions) => {
   return render(
     <TestThemeContext.Provider value={testThemeContextValue}>
       <RouterProvider
-        router={createMemoryRouter(createRoutes(new QueryClient()), {
+        router={createMemoryRouter(createRoutes(), {
           initialEntries: [route],
         })}
       ></RouterProvider>

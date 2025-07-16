@@ -10,14 +10,8 @@ import {
   Typography,
 } from "@mui/material";
 import { Link, Outlet, useParams } from "react-router";
-import { Activity } from "../../data/activity/Storage";
 import { FullScreenModalHeader } from "../../components/FullScreenModalHeader";
-import {
-  useIntervalDuration,
-  useIntervalsGroupedByDay,
-} from "../../data/interval/Hooks";
-import { IntervalWithActivity } from "../../data/interval/Algorithms";
-import { useActivityPath } from "../../data/activity/Hooks";
+import { useActivityFullName } from "../../data/activity/Hooks";
 import {
   ElementType,
   ReactNode,
@@ -29,29 +23,40 @@ import {
 } from "react";
 import EditIcon from "@mui/icons-material/Edit";
 import { DeleteIntervalConfirmation } from "./DeleteIntervalConfirmation";
-import { Interval } from "../../data/interval/Interval";
 import AutoSizer from "react-virtualized-auto-sizer";
 import { ResizableList, SingleItemData } from "../../components/ResizableList";
-import { calendarTime } from "../../utils/Date";
-import { useActivities } from "../../data/activity/Operations";
-import { useOpenErrorSnackbar } from "../../components/AppSnackbarStore";
+import { calendarTime, MAX_DATE_MS } from "../../utils/Date";
+import { useAppSnackbarStore } from "../../components/AppSnackbarStore";
+import { useLiveQuery } from "dexie-react-hooks";
+import {
+  ActivityDetailsData,
+  getActivityDetails,
+} from "../../db/queries/activityDetails";
+import moment from "moment";
+import { Activity, Interval } from "../../db/entities";
+import { useIntervalDuration } from "../../data/interval/Hooks";
 
 export const ActivityRoute = () => {
-  const { activityID = "" } = useParams<{ activityID: string }>();
-  const { data: activities, isLoading } = useActivities();
-  const activity = activities?.get(activityID);
-
-  useOpenErrorSnackbar(!isLoading && !activity ? "Activity not found." : null);
+  const params = useParams<{ activityID: string }>();
+  // TODO validate activityID is a number
+  const activityId = parseInt(params.activityID ?? "");
+  const activityDetailsData = useLiveQuery(
+    () =>
+      getActivityDetails(activityId).catch((e) => {
+        console.error(e);
+        useAppSnackbarStore.getState().openError("Activity not found.");
+        return undefined;
+      }),
+    [activityId],
+  );
 
   return (
     <>
       <Paper square sx={{ height: "100%" }}>
-        {isLoading ? (
-          <Loading />
-        ) : activities && activity ? (
-          <Content activity={activity} activities={activities} />
+        {activityDetailsData ? (
+          <Content activityDetails={activityDetailsData} />
         ) : (
-          <></>
+          <Loading />
         )}
       </Paper>
       <Outlet />
@@ -61,15 +66,13 @@ export const ActivityRoute = () => {
 };
 
 type ContentProps = {
-  activities: Map<string, Activity>;
-  activity: Activity;
+  activityDetails: ActivityDetailsData;
 };
 
 const Content = (props: ContentProps) => {
-  const { activities, activity } = props;
-  const { groupedIntervals } = useIntervalsGroupedByDay(activity, activities);
+  const { activityDetails } = props;
   const [visibleStartIndex, setVisibleStartIndex] = useState(0);
-  const rowData = useRowData(groupedIntervals, activity, visibleStartIndex);
+  const rowData = useRowData(activityDetails, visibleStartIndex);
 
   const topInterval = useMemo(() => {
     if (visibleStartIndex > 0) {
@@ -80,7 +83,7 @@ const Content = (props: ContentProps) => {
             singleRowData,
           ): singleRowData is SingleItemData<typeof IntervalItem> =>
             singleRowData.RowComponent === IntervalItem,
-        )?.rowProps.intervalWithActivity.interval;
+        )?.rowProps.interval;
     } else {
       return undefined;
     }
@@ -155,19 +158,20 @@ type StickySubheaderProps = {
 
 const StickySubheader = (props: StickySubheaderProps) => {
   const { interval } = props;
-  return <>{interval && <SubheaderItem interval={interval} />}</>;
+  return <>{interval && <SubheaderItem dayStart={interval.start} />}</>;
 };
 
 type TopOfIntervalListProps = {
-  activity: Activity;
+  activityDetails: ActivityDetailsData;
 };
 
 const TopOfIntervalList = (props: TopOfIntervalListProps) => {
-  const { activity } = props;
-  const path = useActivityPath(activity);
+  const { activityDetails } = props;
+  const { id, activities } = activityDetails;
+  const fullName = useActivityFullName(id, activities);
   return (
     <Box sx={{ pt: 1, pb: 1 }}>
-      <FullScreenModalHeader headline={path} />
+      <FullScreenModalHeader headline={fullName} />
       <Typography variant="h6" sx={{ pl: 2, pr: 2 }}>
         Intervals
       </Typography>
@@ -176,32 +180,37 @@ const TopOfIntervalList = (props: TopOfIntervalListProps) => {
 };
 
 const useRowData = (
-  groupedIntervals: { [key: string]: IntervalWithActivity[] } = {},
-  activity: Activity,
+  activityDetails: ActivityDetailsData,
   visibleStartIndex: number,
 ) => {
   return useMemo(() => {
+    const { intervalsByDay, activities } = activityDetails;
     let index = 1;
     return [
       {
         RowComponent: TopOfIntervalList,
-        rowProps: { activity },
+        rowProps: { activityDetails },
         rowData: { size: 104 },
       },
-      ...Object.values(groupedIntervals).flatMap((intervals) => {
+      ...intervalsByDay.flatMap((dayIntervals) => {
+        const { dayStart, intervals } = dayIntervals;
         const finalIndex = index;
         const subheaderData: SingleItemData<typeof SubheaderItem> = {
           RowComponent: SubheaderItem,
           rowProps: {
-            interval: intervals[0].interval,
+            dayStart,
             stickyItemVisible: visibleStartIndex === finalIndex,
           },
           rowData: { size: 48 },
         };
         const intervalsRowData: SingleItemData<typeof IntervalItem>[] =
-          intervals.map((intervalWithActivity) => ({
+          intervals.map((interval) => ({
             RowComponent: IntervalItem,
-            rowProps: { activity, intervalWithActivity },
+            rowProps: {
+              interval,
+              activities,
+              activityId: activityDetails.id,
+            },
             rowData: { size: 60.03125 },
           }));
         const items = [subheaderData, ...intervalsRowData];
@@ -209,39 +218,43 @@ const useRowData = (
         return items;
       }),
     ] as SingleItemData<ElementType>[];
-  }, [activity, groupedIntervals, visibleStartIndex]);
+  }, [activityDetails, visibleStartIndex]);
 };
 
 type SubheaderItemProps = {
-  interval: Interval;
+  dayStart: number;
   stickyItemVisible?: boolean;
 };
 
 const SubheaderItem = (props: SubheaderItemProps) => {
-  const { interval, stickyItemVisible } = props;
+  const { dayStart, stickyItemVisible } = props;
   return (
     <ListSubheader style={{ opacity: stickyItemVisible ? 0 : 1 }}>
-      {calendarTime(interval.start)}
+      {calendarTime(moment(dayStart))}
     </ListSubheader>
   );
 };
 
 type IntervalProps = {
-  activity: Activity;
-  intervalWithActivity: IntervalWithActivity;
+  activityId: number;
+  interval: Interval;
+  activities: Map<number, Activity>;
 };
 
 const IntervalItem = (props: IntervalProps) => {
-  const { activity, intervalWithActivity } = props;
-  const { interval, activity: subActivity } = intervalWithActivity;
-  const { start } = interval;
-  const duration = useIntervalDuration(interval, false);
+  const { activityId, interval, activities } = props;
+  const { start, activityId: subActivityId } = interval;
+  const duration = useIntervalDuration(interval.start, interval.end, false);
 
-  const subActivityPath = useActivityPath(subActivity, activity);
+  const subActivityPath = useActivityFullName(
+    subActivityId,
+    activities,
+    activityId,
+  );
   const subActivitySuffix =
-    activity.id !== subActivity.id ? ` (${subActivityPath})` : "";
+    activityId !== subActivityId ? ` (${subActivityPath})` : "";
 
-  const startValue = start.format(INTERVAL_FORMAT);
+  const startValue = moment(start).format(INTERVAL_FORMAT);
   const endValue = formatIntervalEnd(interval);
 
   return (
@@ -272,11 +285,11 @@ const INTERVAL_FORMAT = "HH:mm:ss";
 
 const formatIntervalEnd = (interval: Interval) => {
   const { start, end } = interval;
-  if (!end) {
+  if (end === MAX_DATE_MS) {
     return "now";
-  } else if (start.isSame(end, "day")) {
-    return end.format(INTERVAL_FORMAT);
+  } else if (moment(start).isSame(end, "day")) {
+    return moment(end).format(INTERVAL_FORMAT);
   } else {
-    return end.format("ddd, MMM D, YYYY HH:mm");
+    return moment(end).format("ddd, MMM D, YYYY HH:mm");
   }
 };

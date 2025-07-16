@@ -1,4 +1,3 @@
-import { importActivities } from "../../../data/__testutils__/storageUtils";
 import moment from "moment";
 import { act, screen } from "@testing-library/react";
 import { element, renderApp } from "../../../__testutils__/app";
@@ -6,6 +5,7 @@ import { userEvent } from "@testing-library/user-event";
 import { activityItem } from "../../activitylists/__testutils__/activityItemUtils";
 import { setLocale } from "../../../utils/Locale";
 import { beforeAll, beforeEach, describe, expect, it } from "vitest";
+import { db } from "../../../db/db";
 
 describe("Settings", () => {
   beforeAll(() => {
@@ -14,13 +14,12 @@ describe("Settings", () => {
 
   beforeEach(async () => {
     setLocale("en-US");
-    await importActivities([
+    await db.activities.bulkAdd([{ name: "Work", parentId: -1, expanded: 0 }]);
+    await db.intervals.bulkAdd([
       {
-        id: "1",
-        name: "Work",
-        intervals: [
-          { id: "1", start: moment().subtract(30, "minutes"), end: moment() },
-        ],
+        activityId: 1,
+        start: +moment().endOf("day").subtract(30, "minutes"),
+        end: +moment().endOf("day"),
       },
     ]);
   });

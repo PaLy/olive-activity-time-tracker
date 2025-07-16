@@ -1,9 +1,5 @@
 import { Box, TextField, ToggleButton, ToggleButtonGroup } from "@mui/material";
 import { SelectActivity } from "./SelectActivity";
-import {
-  useAnyActivityLogged,
-  useInProgressActivities,
-} from "../../data/activity/Hooks";
 import { useCreateActivityStore } from "./Store";
 
 type NameProps = {
@@ -36,9 +32,9 @@ export const Name = (props: NameProps) => {
   const setExistingActivityError = useCreateActivityStore(
     (state) => state.setExistingActivityError,
   );
-
-  const inProgressActivities = useInProgressActivities();
-  const { anyActivityLogged } = useAnyActivityLogged();
+  const anyActivityLogged = useCreateActivityStore((state) =>
+    state.getAnyActivityLogged(),
+  );
 
   return (
     <>
@@ -99,7 +95,7 @@ export const Name = (props: NameProps) => {
               value: existingActivityError,
               set: setExistingActivityError,
             }}
-            getOptionDisabled={(activity) => inProgressActivities.has(activity)}
+            getOptionDisabled={(activity) => activity.inProgress}
             onUserInputChange={(newInputValue) => {
               setName(newInputValue);
             }}

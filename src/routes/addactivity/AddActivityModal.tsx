@@ -1,23 +1,23 @@
 import { IntervalSettings } from "./IntervalSettings";
 import { Name } from "./Name";
-import { Activity } from "../../data/activity/Storage";
 import { FullScreenModalHeader } from "../../components/FullScreenModalHeader";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import SaveIcon from "@mui/icons-material/Save";
-import { Interval } from "../../data/interval/Interval";
-import { nanoid } from "nanoid";
 import { useLocation, useNavigate } from "../Router";
 import { FullScreenModal } from "../../components/FullScreenModal";
 import { Box } from "@mui/material";
-import { useExpandChildrenPathToRoot } from "../activitylists/state/Expanded";
-import {
-  useActivityNameExists,
-  useAnyActivityLogged,
-} from "../../data/activity/Hooks";
-import { useAddActivity, useAddInterval } from "../../data/activity/Operations";
+import { useActivityNameExists } from "../../data/activity/Hooks";
 import { NameToggle, useCreateActivityStore } from "./Store";
 import { useEffectOnceAfter } from "../../utils/ReactLifecycle";
 import { Moment } from "moment";
+import { useLiveQuery } from "dexie-react-hooks";
+import {
+  AddActivityDataActivity,
+  getAddActivityData,
+} from "../../db/queries/getAddActivityData";
+import { addActivity } from "../../db/queries/addActivity";
+
+type Activity = AddActivityDataActivity;
 
 export const AddActivityModal = () => {
   const { pathname } = useLocation();
@@ -29,14 +29,12 @@ export const AddActivityModal = () => {
 };
 
 const Content = () => {
-  const { anyActivityLogged, isLoading } = useAnyActivityLogged();
   const init = useCreateActivityStore((state) => state.init);
   const initialized = useCreateActivityStore((state) => state.isInitialized());
   const reset = useCreateActivityStore((state) => state.reset);
   const finished = useCreateActivityStore((state) => state.isFinished());
   const checkValid = useCreateActivityStore((state) => state.checkValid);
   const navigate = useNavigate();
-  const expandPathToRoot = useExpandChildrenPathToRoot();
   const createActivity = useCreateActivity();
   const name = useCreateActivityStore((state) => state.name);
   const nameToggle = useCreateActivityStore((state) => state.nameToggle);
@@ -49,12 +47,24 @@ const Content = () => {
   const setValidationsOff = useCreateActivityStore(
     (state) => state.setValidationsOff,
   );
+  const setAddActivityData = useCreateActivityStore(
+    (state) => state.setAddActivityData,
+  );
+
+  const addActivityData = useLiveQuery(async () => {
+    const addActivityData = await getAddActivityData();
+    setAddActivityData(addActivityData);
+    return addActivityData;
+  }, [setAddActivityData]);
 
   const activityNameExists =
-    useActivityNameExists(name, parentActivity) && !validationsOff;
+    useActivityNameExists(
+      name,
+      parentActivity ?? addActivityData?.activities.get(-1),
+    ) && !validationsOff;
 
-  useEffectOnceAfter(!isLoading, () => {
-    init(anyActivityLogged);
+  useEffectOnceAfter(!!addActivityData, () => {
+    init();
     return reset;
   });
 
@@ -74,7 +84,7 @@ const Content = () => {
                 const createActivityOptions: CreateActivityOptions = {
                   existingActivity: state.existingActivity,
                   nameToggle: state.nameToggle,
-                  parentID: state.getParentID(),
+                  parentId: state.getParentId(),
                   name,
                   start: state.getStartTime(),
                   end: state.getEndTime(),
@@ -82,9 +92,8 @@ const Content = () => {
 
                 // it takes some time while the modal is closed and the creation of the new activity would show validation errors
                 setValidationsOff(true);
-                const activity = await createActivity(createActivityOptions);
-                // TODO handle error
-                expandPathToRoot(activity);
+                // TODO handle errors
+                await createActivity(createActivityOptions);
                 navigate(-1);
               }
             },
@@ -103,44 +112,39 @@ const Content = () => {
 type CreateActivityOptions = {
   existingActivity: Activity | null;
   nameToggle: NameToggle;
-  parentID: string;
+  parentId: number;
   name: string;
   start: Moment;
   end: Moment | undefined;
 };
 
 const useCreateActivity = () => {
-  const { mutateAsync: addActivity } = useAddActivity();
-  const { mutateAsync: addInterval } = useAddInterval();
-
   return async (options: CreateActivityOptions) => {
-    const { existingActivity, nameToggle, parentID, name, start, end } =
+    const { existingActivity, nameToggle, parentId, name, start, end } =
       options;
-    let activity = existingActivity;
 
     if (nameToggle === "new") {
-      const id = nanoid();
-      const newActivity: Activity = {
-        id,
-        parentID,
+      await addActivity({
+        parentId,
         name: name,
-        intervals: [],
-        childIDs: [],
-      };
-      await addActivity({ activity: newActivity });
-      activity = newActivity;
-    }
-
-    if (activity) {
-      const newInterval: Interval = {
-        id: nanoid(),
-        start,
-        end,
-      };
-      await addInterval({ activity, interval: newInterval });
-      return activity;
+        interval: {
+          start: +start,
+          end: end?.valueOf(),
+        },
+      });
     } else {
-      throw new Error("Invalid state.");
+      if (!existingActivity) {
+        throw new Error(
+          "Existing activity is required for existing activity toggle.",
+        );
+      }
+      await addActivity({
+        existingActivityId: existingActivity.id,
+        interval: {
+          start: +start,
+          end: end?.valueOf(),
+        },
+      });
     }
   };
 };

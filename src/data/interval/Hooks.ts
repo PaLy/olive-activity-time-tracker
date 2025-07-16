@@ -1,10 +1,9 @@
 import moment from "moment/moment";
-import { humanize, intervalsGroupedByDay } from "./Algorithms";
-import { Interval, toSimpleClosedInterval } from "./Interval";
-import { Activity } from "../activity/Storage";
+import { humanize } from "./Algorithms";
 import { useEffect, useMemo } from "react";
 import { create } from "zustand";
 import { produce } from "immer";
+import { MAX_DATE_MS } from "../../utils/Date";
 
 type ClockStore = {
   time: moment.Moment;
@@ -43,25 +42,15 @@ export const useHumanizedDuration = (duration: number, inProgress: boolean) => {
 };
 
 export const useIntervalDuration = (
-  interval: Omit<Interval, "id">,
+  start: number,
+  end: number,
   full: boolean,
 ) => {
   const time = useClockStore((state) => state.time);
   return useMemo(() => {
-    const inProgress = !interval.end;
-    const { start, end } = toSimpleClosedInterval(interval, time);
-    const duration = end - start;
+    const inProgress = end === MAX_DATE_MS;
+    const effectiveEnd = inProgress ? +time : end;
+    const duration = effectiveEnd - start;
     return humanize(duration, inProgress, full);
-  }, [full, interval, time]);
-};
-
-export const useIntervalsGroupedByDay = (
-  activity: Activity,
-  activities: Map<string, Activity>,
-) => {
-  const groupedIntervals = useMemo(
-    () => intervalsGroupedByDay(activity, activities),
-    [activities, activity],
-  );
-  return { groupedIntervals };
+  }, [full, start, end, time]);
 };

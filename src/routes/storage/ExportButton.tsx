@@ -1,11 +1,11 @@
 import { Alert, Button, Snackbar } from "@mui/material";
 import FileDownloadIcon from "@mui/icons-material/FileDownload";
-import { exportDB } from "../../data/Storage";
 import { saveAs } from "file-saver";
 import moment from "moment";
 import { useEffect } from "react";
 import { create } from "zustand/index";
 import { useAppSnackbarStore } from "../../components/AppSnackbarStore";
+import { exportDB } from "../../db/exportImport";
 
 export const ExportButton = () => {
   const setAndroidError = useExportStore((state) => state.setAndroidError);
@@ -18,18 +18,15 @@ export const ExportButton = () => {
         onClick={async () => {
           // TODO warning about in-progress activities
           try {
-            const json = await exportDB();
+            const blob = await exportDB();
             const dateTime = moment().format("YYYYMMDDHHmm");
             const filename = `activities_${dateTime}.json`;
             if (window.Android) {
-              const result = window.Android.export(json, filename);
+              const result = window.Android.export(await blob.text(), filename);
               if (result === "error") {
                 setAndroidError();
               }
             } else {
-              const blob = new Blob([json], {
-                type: "application/json;charset=utf-8",
-              });
               saveAs(blob, filename);
             }
           } catch (error) {

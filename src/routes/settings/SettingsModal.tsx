@@ -12,12 +12,10 @@ import {
   Typography,
 } from "@mui/material";
 import { produce } from "immer";
-import {
-  useActivityListSettings,
-  useSetActivityListSettings,
-} from "../../asyncState/ActivityList";
-import { Currency } from "../../data/settings/Settings";
+import { useActivityListSettings } from "../../asyncState/ActivityList";
+import { Currency } from "../../db/entities";
 import { useState } from "react";
+import { updateActivityListSettings } from "../../db/queries/settings";
 
 export const SettingsModal = () => {
   const { pathname } = useLocation();
@@ -144,38 +142,37 @@ const SettingsSwitch = (props: SettingsSwitchProps) => {
 
 const useSettings = () => {
   const activityListSettings = useActivityListSettings();
-  const setActivityListSettings = useSetActivityListSettings();
 
   const setShowPercentage = (showPercentage: boolean) =>
-    setActivityListSettings(
+    updateActivityListSettings(
       produce(activityListSettings, (draft) => {
         draft.showPercentage = showPercentage;
       }),
     );
 
   const setShowDuration = (showDuration: boolean) =>
-    setActivityListSettings(
+    updateActivityListSettings(
       produce(activityListSettings, (draft) => {
         draft.showDuration = showDuration;
       }),
     );
 
   const setShowCost = (showCost: boolean) =>
-    setActivityListSettings(
+    updateActivityListSettings(
       produce(activityListSettings, (draft) => {
         draft.showCost.show = showCost;
       }),
     );
 
   const setPerHour = (perHour: string) =>
-    setActivityListSettings(
+    updateActivityListSettings(
       produce(activityListSettings, (draft) => {
         draft.showCost.perHour = perHour;
       }),
     );
 
   const setCurrency = (currency: Currency) =>
-    setActivityListSettings(
+    updateActivityListSettings(
       produce(activityListSettings, (draft) => {
         draft.showCost.currency = currency;
       }),

@@ -10,54 +10,44 @@ import { useContext, useMemo } from "react";
 import { Outlet, ScrollRestoration } from "react-router";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterMoment } from "@mui/x-date-pickers/AdapterMoment";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { ScrollMemoryContext } from "./components/ScrollMemory";
 import { AppSnackbar } from "./components/AppSnackbar";
 import { useTickingClock } from "./data/interval/Hooks";
 import { TestThemeContext } from "./Theme";
 
-type Props = {
-  queryClient: QueryClient;
-};
-
-function App(props: Props) {
-  const { queryClient } = props;
+function App() {
   const theme = useTheme();
   useTickingClock();
 
   const scrollMemory = new Map<string, number>();
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <ReactQueryDevtools initialIsOpen={false} />
-      <LocalizationProvider dateAdapter={AdapterMoment}>
-        <ThemeProvider theme={theme}>
-          <CssBaseline />
-          <ScrollRestoration />
-          <ScrollMemoryContext.Provider value={scrollMemory}>
-            <Box
-              sx={{
-                position: "absolute",
-                top: 0,
-                bottom: 0,
-                left: 0,
-                right: 0,
-              }}
+    <LocalizationProvider dateAdapter={AdapterMoment}>
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <ScrollRestoration />
+        <ScrollMemoryContext.Provider value={scrollMemory}>
+          <Box
+            sx={{
+              position: "absolute",
+              top: 0,
+              bottom: 0,
+              left: 0,
+              right: 0,
+            }}
+          >
+            <Container
+              maxWidth={"sm"}
+              style={{ height: "100%", position: "relative" }}
+              disableGutters
             >
-              <Container
-                maxWidth={"sm"}
-                style={{ height: "100%", position: "relative" }}
-                disableGutters
-              >
-                <Outlet />
-              </Container>
-            </Box>
-          </ScrollMemoryContext.Provider>
-          <AppSnackbar />
-        </ThemeProvider>
-      </LocalizationProvider>
-    </QueryClientProvider>
+              <Outlet />
+            </Container>
+          </Box>
+        </ScrollMemoryContext.Provider>
+        <AppSnackbar />
+      </ThemeProvider>
+    </LocalizationProvider>
   );
 }
 

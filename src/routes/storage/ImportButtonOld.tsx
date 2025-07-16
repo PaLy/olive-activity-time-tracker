@@ -1,10 +1,10 @@
 import { Alert, Button, Snackbar } from "@mui/material";
 import FileUploadIcon from "@mui/icons-material/FileUpload";
 import { ChangeEvent, useEffect } from "react";
+import { importDB } from "../../data/Storage";
 import { create } from "zustand";
-import { importDB } from "../../db/exportImport";
 
-export const ImportButton = () => {
+export const ImportButtonOld = () => {
   const handleFileChange = useHandleFileChange();
   return (
     <>
@@ -12,9 +12,9 @@ export const ImportButton = () => {
         variant={"outlined"}
         component="label"
         startIcon={<FileUploadIcon />}
-        aria-label={"Import"}
+        aria-label={"Import Old"}
       >
-        Import
+        Import Old
         <input
           type="file"
           hidden
@@ -36,10 +36,18 @@ const useHandleFileChange = () => {
     reset();
     const file = event.target.files?.[0];
     if (file) {
-      await importDB(file).catch((e) => {
+      const fileText = await file.text();
+      try {
+        const { valid, errors } = await importDB(fileText);
+        if (!valid) {
+          setError("Invalid JSON");
+          console.error("Invalid JSON:", errors);
+        }
+      } catch (e) {
         console.error(e);
+        // TODO delete data?
         setError("Failed to import data.");
-      });
+      }
     } else {
       setError("Invalid file.");
     }
