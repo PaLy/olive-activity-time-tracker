@@ -1,16 +1,17 @@
 import { screen, waitFor, within } from "@testing-library/react";
 import { expect } from "vitest";
+import { userEvent } from "@testing-library/user-event";
 
 export const activityItem = {
   find: {
     durationText: async () =>
       (await screen.findByTestId("activity-duration")).textContent,
 
-    startButton: async (activityID: string) =>
+    startButton: async (activityID: number) =>
       within(
         await screen.findByTestId(`activity-item-${activityID}`),
       ).getByRole("button", { name: "start activity" }),
-    stopButton: async (activityID: string) =>
+    stopButton: async (activityID: number) =>
       within(
         await screen.findByTestId(`activity-item-${activityID}`),
       ).getByRole("button", { name: "stop activity" }),
@@ -26,9 +27,9 @@ export const activityItem = {
     },
   },
   userEvent: {
-    start: async (activityID: string) =>
-      (await activityItem.find.startButton(activityID)).click(),
-    stop: async (activityID: string) =>
-      (await activityItem.find.stopButton(activityID)).click(),
+    start: async (activityID: number) =>
+      userEvent.click(await activityItem.find.startButton(activityID)),
+    stop: async (activityID: number) =>
+      userEvent.click(await activityItem.find.stopButton(activityID)),
   },
 };

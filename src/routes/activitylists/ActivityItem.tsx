@@ -14,18 +14,15 @@ import StopIcon from "@mui/icons-material/Stop";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import dayjs from "dayjs";
 import { useHumanizedDuration } from "../../data/interval/Hooks";
-import { Activity } from "../../data/activity/Storage";
 import {
-  useChildrenCount,
-  useDepth,
+  depth,
+  isInProgress,
   useDuration,
   useDurationPercentage,
-  useInProgress,
 } from "../../data/activity/Hooks";
 import { ClosedInterval } from "../../data/interval/ClosedInterval";
 import { Flipped } from "react-flip-toolkit";
 import { Link } from "react-router";
-import { useExpanded, useSetExpanded } from "./state/Expanded";
 import { useActivityListSettings } from "../../asyncState/ActivityList";
 import { ShowCost } from "../../data/settings/Settings";
 import { animate } from "animejs";
@@ -35,15 +32,18 @@ import {
 } from "../../data/activity/Operations";
 import { useMemo } from "react";
 import { getLocale } from "../../utils/Locale";
+import { MAX_DATE_MS } from "../../utils/Date";
+import { setExpanded } from "../../db/queries/activities";
+import { ActivityTreeNode } from "../../db/queries/activitiesTree";
 
 type ActivityItemProps = {
-  activity: Activity;
+  activity: ActivityTreeNode;
   interval: ClosedInterval;
 };
 
 export const ActivityItem = (props: ActivityItemProps) => {
-  const { activity, interval } = props;
-  const childrenCount = useChildrenCount(activity, interval);
+  const { activity } = props;
+  const childrenCount = activity.children.length;
   const Component = childrenCount === 0 ? LeafActivityItem : ParentActivityItem;
 
   return (
@@ -67,16 +67,15 @@ const ParentActivityItem = (props: ActivityItemProps) => {
   const { activity, interval } = props;
   const { name } = activity;
   const activityPL = useActivityPL(activity);
-  const expanded = useExpanded(activity);
-  const setExpanded = useSetExpanded();
-  const childrenCount = useChildrenCount(activity, interval);
+  const expanded = activity.expanded;
+  const childrenCount = activity.children.length;
 
   const Expander = expanded ? ExpandLess : ExpandMore;
 
   return (
     <ListItemButton
       sx={{ pl: activityPL, pr: 0 }}
-      onClick={() => setExpanded({ activity, expanded: !expanded })}
+      onClick={() => setExpanded(activity.id, !expanded)}
     >
       <ActivityAvatar activity={activity} />
       <ListItemText
@@ -123,10 +122,10 @@ const LeafActivityItem = (props: ActivityItemProps) => {
   );
 };
 
-const useActivityPL = (activity: Activity) => 2 + 2 * useDepth(activity);
+const useActivityPL = (activity: ActivityTreeNode) => 2 + 2 * depth(activity);
 
 type ActivityAvatarProps = {
-  activity: Activity;
+  activity: ActivityTreeNode;
 };
 
 const ActivityAvatar = (props: ActivityAvatarProps) => {
@@ -147,12 +146,12 @@ const ActivityAvatar = (props: ActivityAvatarProps) => {
 };
 
 type StartStopActivityProps = {
-  activity: Activity;
+  activity: ActivityTreeNode;
 };
 
 const StartStopButton = (props: StartStopActivityProps) => {
   const { activity } = props;
-  const inProgress = useInProgress(activity);
+  const inProgress = activity.subtreeLastEndTime === MAX_DATE_MS;
   const ariaLabel = inProgress ? "stop activity" : "start activity";
 
   const { mutate: startActivity, isPending: starting } = useStartActivity();
@@ -180,15 +179,15 @@ const StartStopButton = (props: StartStopActivityProps) => {
 };
 
 type ActivityRow2Props = {
-  activity: Activity;
+  activity: ActivityTreeNode;
   interval: ClosedInterval;
 };
 
 const ActivityRow2 = (props: ActivityRow2Props) => {
-  const { activity, interval } = props;
-  const durationPercentage = useDurationPercentage(activity, interval);
-  const duration = useDuration(activity, interval);
-  const inProgress = useInProgress(activity);
+  const { activity } = props;
+  const durationPercentage = useDurationPercentage(activity);
+  const duration = useDuration(activity);
+  const inProgress = isInProgress(activity);
   const humanizedDuration = useHumanizedDuration(duration, inProgress);
   const { showDuration, showCost, showPercentage } = useActivityListSettings();
   const cost = getCost(duration, showCost);

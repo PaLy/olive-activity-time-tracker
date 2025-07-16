@@ -1,11 +1,11 @@
-import { importActivities } from "../../../data/__testutils__/storageUtils";
 import moment from "moment/moment";
 import { renderApp } from "../../../__testutils__/app";
 import { userEvent } from "@testing-library/user-event";
 import { screen, waitFor } from "@testing-library/react";
 import { storageModal } from "../__testutils__/storageModalTestUtils";
 import path from "path";
-import { expect, vi, it, describe } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+import { db } from "../../../db/db";
 
 describe("StorageModal", () => {
   describe("import", () => {
@@ -37,9 +37,8 @@ describe("StorageModal", () => {
   describe("export", () => {
     it("opens Android share dialog", async () => {
       await prepareData();
-      window.Android = {
-        export: vi.fn(),
-      };
+      const exportMock = vi.fn();
+      window.Android = { export: exportMock };
       Date.now = vi.fn(() => new Date("2024-03-05T08:20:37").getTime());
 
       renderApp({ route: "/today/storage" });
@@ -47,57 +46,80 @@ describe("StorageModal", () => {
         await screen.findByRole("button", { name: /export/i }),
       );
 
-      expect(window.Android.export).toHaveBeenCalledWith(
-        `{
-  "activities": [
-    {
-      "id": "1",
-      "name": "Test",
-      "intervalIDs": [
-        "1"
-      ],
-      "parentID": "root",
-      "childIDs": []
-    }
-  ],
-  "intervals": [
-    {
-      "id": "1",
-      "start": "2025-02-15T18:52:40.637Z",
-      "end": "2025-02-15T18:57:40.637Z"
-    }
-  ],
-  "activityInListExpanded": [],
-  "settings": {
-    "activityList": {
-      "showPercentage": true,
-      "showCost": {
-        "show": false,
-        "perHour": "10",
-        "currency": "EUR"
+      await waitFor(() =>
+        expect(exportMock).toHaveBeenCalledWith(
+          `{
+  "formatName": "dexie",
+  "formatVersion": 1,
+  "data": {
+    "databaseName": "Olive",
+    "databaseVersion": 1,
+    "tables": [
+      {
+        "name": "activities",
+        "schema": "++id,name,parentId,expanded",
+        "rowCount": 1
       },
-      "showDuration": true
-    }
+      {
+        "name": "intervals",
+        "schema": "++id,activityId,start,end",
+        "rowCount": 1
+      },
+      {
+        "name": "settings",
+        "schema": "key",
+        "rowCount": 0
+      }
+    ],
+    "data": [{
+      "tableName": "activities",
+      "inbound": true,
+      "rows": [
+        {
+          "name": "Test",
+          "parentId": -1,
+          "expanded": 0,
+          "id": 1,
+          "$types": {
+            "": "userObject"
+          }
+        }
+      ]
+    },{
+      "tableName": "intervals",
+      "inbound": true,
+      "rows": [
+        {
+          "activityId": 1,
+          "start": "2025-02-15T18:52:40.637Z",
+          "end": "2025-02-15T18:57:40.637Z",
+          "id": 1,
+          "$types": {
+            "": "userObject"
+          }
+        }
+      ]
+    },{
+      "tableName": "settings",
+      "inbound": true,
+      "rows": []
+    }]
   }
 }`,
-        "activities_202403050820.json",
+          "activities_202403050820.json",
+        ),
       );
     });
   });
 });
 
 const prepareData = async () => {
-  await importActivities([
+  await db.activities.bulkAdd([{ name: "Test", parentId: -1, expanded: 0 }]);
+  await db.intervals.bulkAdd([
     {
-      id: "1",
-      name: "Test",
-      intervals: [
-        {
-          id: "1",
-          start: moment("2025-02-15T18:52:40.637Z"),
-          end: moment("2025-02-15T18:57:40.637Z"),
-        },
-      ],
+      activityId: 1,
+      start: +moment("2025-02-15T18:52:40.637Z"),
+      end: +moment("2025-02-15T18:57:40.637Z"),
     },
   ]);
 };

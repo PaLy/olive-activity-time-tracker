@@ -1,6 +1,5 @@
 import localforage from "localforage";
 import { JTDSchemaType } from "ajv/dist/jtd";
-import { produce } from "immer";
 
 export abstract class Store<
   StoredValue,
@@ -18,8 +17,6 @@ export abstract class Store<
   }
 
   abstract asValue: (storedValue: StoredValue) => Promise<Value>;
-  abstract asStoredValue: (value: Value) => StoredValue;
-  abstract asExportedValue: (value: StoredValue) => ExportedValue | null;
   abstract fromExportedValue: (
     value: ExportedValue,
   ) => [key: string, StoredValue];
@@ -52,31 +49,6 @@ export abstract class Store<
     return this.cache;
   };
 
-  private updateCache = async (recipe: (draft: Map<string, Value>) => void) => {
-    const cache = await this.load();
-    this.cache = (async () => {
-      try {
-        return produce(cache, recipe);
-      } catch (error) {
-        this.cache = undefined;
-        throw error;
-      }
-    })();
-  };
-
-  set = async (key: string, value: Value) => {
-    try {
-      await this.store.setItem(key, this.asStoredValue(value));
-      await this.updateCache((draft: Map<string, Value>) => {
-        draft.set(key, value);
-      });
-    } catch (error) {
-      console.error(error);
-      throw new Error(`Failed to set item.`);
-    }
-    return value;
-  };
-
   get = async (key: string) => {
     const cache = await this.load();
     const cachedValue = cache.get(key);
@@ -87,30 +59,9 @@ export abstract class Store<
     }
   };
 
-  remove = async (key: string) => {
-    await this.store.removeItem(key);
-    await this.updateCache((draft: Map<string, Value>) => {
-      draft.delete(key);
-    });
-  };
-
   clear = async () => {
     await this.store.clear();
     await this.load({ refresh: true });
-  };
-
-  export = async () => {
-    const result: ExportedValue[] = [];
-
-    // TODO error handling
-    await this.store.iterate((storedValue: StoredValue) => {
-      const exportedValue = this.asExportedValue(storedValue);
-      if (exportedValue) {
-        result.push(exportedValue);
-      }
-    });
-
-    return result;
   };
 
   import = async (data: ExportedValue[]) => {

@@ -8,10 +8,9 @@ import {
   Snackbar,
 } from "@mui/material";
 import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
-import { clearDB } from "../../data/Storage";
 import { useEffect } from "react";
-import { useQueryClient } from "@tanstack/react-query";
 import { create } from "zustand/index";
+import { clearDB } from "../../db/exportImport";
 
 type DeleteState = {
   step: "not-started" | "confirm" | "in-progress" | "result";
@@ -65,7 +64,6 @@ const Confirmation = () => {
   const confirm = useDeleteStore((state) => state.confirm);
   const finish = useDeleteStore((state) => state.finish);
   const setError = useDeleteStore((state) => state.setError);
-  const queryClient = useQueryClient();
   return (
     <Dialog open={step === "confirm"}>
       <DialogTitle>
@@ -79,10 +77,9 @@ const Confirmation = () => {
         <Button
           onClick={async () => {
             confirm();
-            await clearDB()
+            clearDB()
               .catch(() => setError("Failed to delete data"))
               .then(finish);
-            await queryClient.invalidateQueries();
           }}
         >
           Yes

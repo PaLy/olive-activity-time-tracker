@@ -1,4 +1,3 @@
-import { importActivities } from "../../../data/__testutils__/storageUtils";
 import moment from "moment/moment";
 import { renderApp } from "../../../__testutils__/app";
 import { act, screen } from "@testing-library/react";
@@ -7,40 +6,32 @@ import {
   userEvent,
 } from "@testing-library/user-event";
 import { describe, expect, it } from "vitest";
+import { db } from "../../../db/db";
+import { MAX_DATE_MS } from "../../../utils/Date";
 
 describe("ActivityRoute", () => {
   describe("after opened directly", () => {
     it("activity details", async () => {
-      await importActivities([
-        {
-          id: "1",
-          name: "Parent",
-          intervals: [{ id: "1", start: moment() }],
-        },
-        {
-          id: "2",
-          name: "Child",
-          parentID: "1",
-          intervals: [{ id: "2", start: moment() }],
-        },
+      await db.activities.bulkAdd([
+        { name: "Parent", parentId: -1, expanded: 0 },
+        { name: "Child", parentId: 1, expanded: 0 },
+      ]);
+      await db.intervals.bulkAdd([
+        { activityId: 1, start: Date.now(), end: MAX_DATE_MS },
+        { activityId: 2, start: Date.now(), end: MAX_DATE_MS },
       ]);
       await act(() => renderApp({ route: "/activities/1" }));
       expect(await screen.findByText(/\(Child\)/)).toBeVisible();
     });
 
     it("allows to go back to the root route", async () => {
-      await importActivities([
-        {
-          id: "1",
-          name: "Parent",
-          intervals: [{ id: "1", start: moment() }],
-        },
-        {
-          id: "2",
-          name: "Child",
-          parentID: "1",
-          intervals: [{ id: "2", start: moment() }],
-        },
+      await db.activities.bulkAdd([
+        { name: "Parent", parentId: -1, expanded: 1 },
+        { name: "Child", parentId: 1, expanded: 0 },
+      ]);
+      await db.intervals.bulkAdd([
+        { activityId: 1, start: Date.now(), end: MAX_DATE_MS },
+        { activityId: 2, start: Date.now(), end: MAX_DATE_MS },
       ]);
       await act(() => renderApp({ route: "/activities/1" }));
       await userEvent.click(
@@ -51,12 +42,9 @@ describe("ActivityRoute", () => {
   });
 
   it("can delete an interval", async () => {
-    await importActivities([
-      {
-        id: "1",
-        name: "Test",
-        intervals: [{ id: "1", start: moment() }],
-      },
+    await db.activities.bulkAdd([{ name: "Test", parentId: -1, expanded: 0 }]);
+    await db.intervals.bulkAdd([
+      { activityId: 1, start: Date.now(), end: MAX_DATE_MS },
     ]);
     renderApp();
     await userEvent.click(await screen.findByRole("link", { name: "T" }));
@@ -73,22 +61,17 @@ describe("ActivityRoute", () => {
 
   // This test is skipped because time picking does not work (in test).
   it.skip("edits just the edited interval", async () => {
-    await importActivities([
+    await db.activities.bulkAdd([{ name: "Test", parentId: -1, expanded: 0 }]);
+    await db.intervals.bulkAdd([
       {
-        id: "1",
-        name: "Test",
-        intervals: [
-          {
-            id: "1",
-            start: moment().hour(8).startOf("hour"),
-            end: moment().hour(8).minute(30).startOf("minute"),
-          },
-          {
-            id: "2",
-            start: moment().hour(10).startOf("hour"),
-            end: moment().hour(10).minute(30).startOf("minute"),
-          },
-        ],
+        activityId: 1,
+        start: +moment().hour(8).startOf("hour"),
+        end: +moment().hour(8).minute(30).startOf("minute"),
+      },
+      {
+        activityId: 1,
+        start: +moment().hour(10).startOf("hour"),
+        end: +moment().hour(10).minute(30).startOf("minute"),
       },
     ]);
     renderApp();

@@ -21,6 +21,7 @@ import {
   vi,
 } from "vitest";
 import mediaQuery from "css-mediaquery";
+import { db } from "./db/db";
 
 dayjs.extend(duration);
 
@@ -100,6 +101,11 @@ beforeEach(() => {
   consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
   consoleWarnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
   consoleLogSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+});
+
+beforeEach(async () => {
+  await db.delete();
+  await db.open();
 });
 
 afterEach(() => {

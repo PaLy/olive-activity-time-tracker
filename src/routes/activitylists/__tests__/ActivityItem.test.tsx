@@ -1,20 +1,19 @@
 import moment from "moment";
-import { importActivities } from "../../../data/__testutils__/storageUtils";
 import { activityItem } from "../__testutils__/activityItemUtils";
 import { renderApp } from "../../../__testutils__/app";
 import { screen, waitFor } from "@testing-library/react";
-import { setExpanded } from "../../../data/activity/ActivityInListExpanded";
 import { describe, expect, it } from "vitest";
+import { db } from "../../../db/db";
+import { MAX_DATE_MS } from "../../../utils/Date";
 
 describe("ActivityItem", () => {
   describe("when the activity is in progress", () => {
     it("shows ticking duration", async () => {
-      await importActivities([
-        {
-          id: "1",
-          name: "Test",
-          intervals: [{ id: "1", start: moment() }],
-        },
+      await db.activities.bulkAdd([
+        { name: "Test", parentId: -1, expanded: 0 },
+      ]);
+      await db.intervals.bulkAdd([
+        { activityId: 1, start: Date.now(), end: MAX_DATE_MS },
       ]);
 
       renderApp();
@@ -22,42 +21,35 @@ describe("ActivityItem", () => {
     });
 
     it("can be stopped", async () => {
-      await importActivities([
-        {
-          id: "1",
-          name: "Test",
-          intervals: [{ id: "1", start: moment() }],
-        },
+      await db.activities.bulkAdd([
+        { name: "Test", parentId: -1, expanded: 0 },
+      ]);
+      await db.intervals.bulkAdd([
+        { activityId: 1, start: Date.now(), end: MAX_DATE_MS },
       ]);
 
       renderApp();
-      await activityItem.userEvent.stop("1");
+      await activityItem.userEvent.stop(1);
       await waitFor(async () =>
-        expect(await activityItem.find.startButton("1")).toBeVisible(),
+        expect(await activityItem.find.startButton(1)).toBeVisible(),
       );
     });
 
     it("is collapsed after parent was stopped", async () => {
-      await importActivities([
-        {
-          id: "1",
-          name: "Parent",
-          intervals: [{ id: "1", start: moment() }],
-        },
-        {
-          id: "2",
-          name: "Child",
-          parentID: "1",
-          intervals: [{ id: "2", start: moment() }],
-        },
+      await db.activities.bulkAdd([
+        { name: "Parent", parentId: -1, expanded: 1 },
+        { name: "Child", parentId: 1, expanded: 0 },
       ]);
-      await setExpanded("1", true);
+      await db.intervals.bulkAdd([
+        { activityId: 1, start: Date.now(), end: MAX_DATE_MS },
+        { activityId: 2, start: Date.now(), end: MAX_DATE_MS },
+      ]);
 
       renderApp();
       await waitFor(async () =>
         expect(await screen.findByText("Child")).toBeVisible(),
       );
-      await activityItem.userEvent.stop("1");
+      await activityItem.userEvent.stop(1);
       await waitFor(() =>
         expect(screen.queryByText("Child")).not.toBeInTheDocument(),
       );
@@ -66,46 +58,46 @@ describe("ActivityItem", () => {
 
   describe("when the activity is not in progress", () => {
     it("can be started", async () => {
-      await importActivities([
+      await db.activities.bulkAdd([
+        { name: "Test", parentId: -1, expanded: 0 },
+      ]);
+      await db.intervals.bulkAdd([
         {
-          id: "1",
-          name: "Test",
-          intervals: [
-            { id: "1", start: moment().subtract(1, "hour"), end: moment() },
-          ],
+          activityId: 1,
+          start: +moment().subtract(1, "hour"),
+          end: Date.now(),
         },
       ]);
 
       renderApp();
-      await activityItem.userEvent.start("1");
+      await activityItem.userEvent.start(1);
       await waitFor(async () =>
-        expect(await activityItem.find.stopButton("1")).toBeVisible(),
+        expect(await activityItem.find.stopButton(1)).toBeVisible(),
       );
     });
 
     it("is expanded after parent was started", async () => {
-      await importActivities([
+      await db.activities.bulkAdd([
+        { name: "Parent", parentId: -1, expanded: 1 },
+        { name: "Child", parentId: 1, expanded: 0 },
+      ]);
+      await db.intervals.bulkAdd([
         {
-          id: "1",
-          name: "Parent",
-          intervals: [
-            { id: "1", start: moment().subtract(1, "hour"), end: moment() },
-          ],
+          activityId: 1,
+          start: +moment().subtract(1, "hour"),
+          end: Date.now(),
         },
         {
-          id: "2",
-          name: "Child",
-          parentID: "1",
-          intervals: [
-            { id: "2", start: moment().subtract(1, "hour"), end: moment() },
-          ],
+          activityId: 2,
+          start: +moment().subtract(1, "hour"),
+          end: Date.now(),
         },
       ]);
 
       renderApp();
       expect(screen.queryByText("Child")).not.toBeInTheDocument();
 
-      await activityItem.userEvent.start("1");
+      await activityItem.userEvent.start(1);
       await waitFor(async () =>
         expect(await screen.findByText("Child")).toBeVisible(),
       );

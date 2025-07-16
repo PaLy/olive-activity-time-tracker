@@ -5,10 +5,10 @@ import {
   DialogContent,
   DialogTitle,
 } from "@mui/material";
-import { useRemoveActivityInterval } from "../../data/activity/Operations";
 import { useNavigate } from "../Router";
 import { useAppSnackbarStore } from "../../components/AppSnackbarStore";
 import { useActivityStore } from "./Store";
+import { deleteInterval } from "../../db/queries/editInterval";
 
 export const DeleteIntervalConfirmation = () => {
   const open = useActivityStore((state) =>
@@ -28,17 +28,20 @@ const Content = () => {
   const deleteIntervalConfirmationData = useActivityStore(
     (state) => state.deleteIntervalConfirmationData,
   );
-  const { activity, interval } = deleteIntervalConfirmationData ?? {};
+  const { intervalId } = deleteIntervalConfirmationData ?? {};
   const openSuccessSnackbar = useAppSnackbarStore((state) => state.openSuccess);
+  const openErrorSnackbar = useAppSnackbarStore((state) => state.openError);
   const navigate = useNavigate();
 
-  const { mutate: deleteActivityInterval } = useRemoveActivityInterval({
-    onSuccess: () => {
-      closeDeleteIntervalConfirmation();
-      openSuccessSnackbar("Interval successfully deleted");
-      navigate(-1);
-    },
-  });
+  const yesDelete = () => {
+    closeDeleteIntervalConfirmation();
+    navigate(-1);
+    deleteInterval(intervalId!)
+      .then(() => {
+        openSuccessSnackbar("Interval successfully deleted");
+      })
+      .catch(() => openErrorSnackbar("Error deleting interval"));
+  };
 
   return (
     <>
@@ -52,15 +55,7 @@ const Content = () => {
         >
           No
         </Button>
-        <Button
-          aria-label={"yes"}
-          onClick={() => {
-            deleteActivityInterval({
-              activity: activity!,
-              interval: interval!,
-            });
-          }}
-        >
+        <Button aria-label={"yes"} onClick={yesDelete}>
           Yes
         </Button>
       </DialogActions>

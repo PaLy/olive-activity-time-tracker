@@ -20,19 +20,7 @@ export const setExpanded = async (activityID: string, expanded: boolean) => {
   }
 };
 
-export const getExpanded = (activityID: string) =>
-  activityInListExpandedStore
-    .getItem<boolean>(activityID)
-    .then((value) => !!value);
-
-export const getAllExpanded = () => activityInListExpandedStore.keys();
-
 export type ActivityInListExpanded = string[];
-
-export const exportActivityInListExpanded = async () => {
-  const keys = await getAllExpanded();
-  return keys as ActivityInListExpanded;
-};
 
 export const clearActivityInListExpanded = () =>
   activityInListExpandedStore.clear();

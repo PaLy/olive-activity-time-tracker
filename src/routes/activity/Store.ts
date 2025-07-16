@@ -1,12 +1,5 @@
 import { create } from "zustand";
-import { Activity } from "../../data/activity/Storage";
-import { Interval } from "../../data/interval/Interval";
 import { Moment } from "moment";
-
-type DeleteIntervalConfirmationData = {
-  activity: Activity;
-  interval: Interval;
-};
 
 type ActivityState = {
   editInterval?: {
@@ -16,14 +9,11 @@ type ActivityState = {
     endError: string;
   };
   deleteIntervalConfirmationData?: {
-    activity: Activity;
-    interval: Interval;
+    intervalId: number;
   };
   isDeleteIntervalConfirmationOpen: () => boolean;
   closeDeleteIntervalConfirmation: () => void;
-  openDeleteIntervalConfirmation: (
-    data: DeleteIntervalConfirmationData,
-  ) => void;
+  openDeleteIntervalConfirmation: (intervalId: number) => void;
 };
 
 export const useActivityStore = create<ActivityState>((set, get) => ({
@@ -31,6 +21,6 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
     !!get().deleteIntervalConfirmationData,
   closeDeleteIntervalConfirmation: () =>
     set({ deleteIntervalConfirmationData: undefined }),
-  openDeleteIntervalConfirmation: (data) =>
-    set({ deleteIntervalConfirmationData: data }),
+  openDeleteIntervalConfirmation: (intervalId) =>
+    set({ deleteIntervalConfirmationData: { intervalId } }),
 }));

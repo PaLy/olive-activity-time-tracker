@@ -5,7 +5,8 @@ import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import DateRangeIcon from "@mui/icons-material/DateRange";
 import { Badge, Paper } from "@mui/material";
 import { useLocation, useNavigate } from "../Router";
-import { useInProgressActivitiesCount } from "../../data/activity/Hooks";
+import { useLiveQuery } from "dexie-react-hooks";
+import { getInProgressActivitiesCount } from "../../db/queries/activities";
 
 export const AppBottomNavigation = () => {
   const navigate = useNavigate();
@@ -17,7 +18,7 @@ export const AppBottomNavigation = () => {
       ? pathname
       : pathname.substring(0, currentPagePathnameEndIndex);
 
-  const inProgressActivitiesCount = useInProgressActivitiesCount();
+  const inProgressActivitiesCount = useLiveQuery(getInProgressActivitiesCount);
 
   return (
     <Paper elevation={3} sx={{ position: "sticky", bottom: 0 }}>

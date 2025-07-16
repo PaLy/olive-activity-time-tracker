@@ -1,7 +1,10 @@
 import { IconButton, Menu, MenuItem } from "@mui/material";
 import MoreIcon from "@mui/icons-material/MoreVert";
-import { useCollapseAll, useExpandAll } from "./state/Expanded";
 import { create } from "zustand";
+import {
+  collapseAllActivities,
+  expandAllActivities,
+} from "../../db/queries/activities";
 
 type AppBarStore = {
   menuAnchorEl: Element | null;
@@ -42,9 +45,6 @@ export const AppBarMenu = () => {
   const open = useAppBarStore((state) => state.menuOpen);
   const closeMenu = useAppBarStore((state) => state.closeMenu);
 
-  const expandAll = useExpandAll();
-  const collapseAll = useCollapseAll();
-
   return (
     <Menu
       id="app-menu"
@@ -57,7 +57,7 @@ export const AppBarMenu = () => {
     >
       <MenuItem
         onClick={() => {
-          expandAll().then();
+          expandAllActivities().then();
           closeMenu();
         }}
       >
@@ -65,7 +65,7 @@ export const AppBarMenu = () => {
       </MenuItem>
       <MenuItem
         onClick={() => {
-          collapseAll().then();
+          collapseAllActivities().then();
           closeMenu();
         }}
       >

@@ -1,9 +1,8 @@
 import { screen, waitFor } from "@testing-library/react";
 import { userEvent } from "@testing-library/user-event";
 import { renderApp } from "../../../__testutils__/app";
-import { importActivities } from "../../../data/__testutils__/storageUtils";
-import moment from "moment";
 import { describe, expect, it } from "vitest";
+import { db } from "../../../db/db";
 
 describe("AddActivityModal", () => {
   it("can add a new activity under an in-progress activity", async () => {
@@ -46,17 +45,12 @@ describe("AddActivityModal", () => {
   });
 
   it("can start an existing activity", async () => {
-    await importActivities([
+    await db.activities.bulkAdd([{ name: "Work", parentId: -1, expanded: 1 }]);
+    await db.intervals.bulkAdd([
       {
-        id: "1",
-        name: "Work",
-        intervals: [
-          {
-            id: "1",
-            start: moment("2025-02-15T18:52:40.637Z"),
-            end: moment("2025-02-15T18:57:40.637Z"),
-          },
-        ],
+        activityId: 1,
+        start: new Date("2025-02-15T18:52:40.637Z").getTime(),
+        end: new Date("2025-02-15T18:57:40.637Z").getTime(),
       },
     ]);
     renderApp();

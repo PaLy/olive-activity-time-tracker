@@ -9,29 +9,52 @@ import {
   Slide,
   Typography,
 } from "@mui/material";
-import { useLoaderData } from "react-router";
+import { useParams } from "react-router";
 import SaveIcon from "@mui/icons-material/Save";
-import { Interval } from "../../data/interval/Interval";
-import { Activity } from "../../data/activity/Storage";
-import { useActivityPath } from "../../data/activity/Hooks";
 import { useIntervalDuration } from "../../data/interval/Hooks";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { DateTimeRangePicker } from "../../components/DateTimeRangePicker";
-import { useEditInterval } from "../../data/activity/Operations";
 import { useNavigate } from "../Router";
 import { useAppSnackbarStore } from "../../components/AppSnackbarStore";
 import { useActivityStore } from "./Store";
 import { useState } from "react";
-import { Moment } from "moment";
+import moment from "moment";
+import { useLiveQuery } from "dexie-react-hooks";
+import {
+  EditIntervalData,
+  getEditIntervalData,
+  updateInterval,
+} from "../../db/queries/editInterval";
+import { MAX_DATE_MS } from "../../utils/Date";
 
-export type EditIntervalLoaderData = {
-  activity: Activity;
-  interval: Interval;
+type Params = {
+  intervalID: string;
 };
 
 export const EditInterval = () => {
-  const loaderData = useLoaderData() as EditIntervalLoaderData;
-  const { activity, interval } = loaderData;
+  const params = useParams() as Params;
+  // TODO validate intervalID is a number
+  const intervalId = parseInt(params.intervalID ?? "");
+
+  const editIntervalData = useLiveQuery(
+    () => getEditIntervalData(intervalId),
+    [intervalId],
+  );
+
+  if (!editIntervalData) {
+    return null;
+  }
+
+  return <Content editIntervalData={editIntervalData} />;
+};
+
+type ContentProps = {
+  editIntervalData: EditIntervalData;
+};
+
+const Content = (props: ContentProps) => {
+  const { editIntervalData } = props;
+  const { interval, activityFullName } = editIntervalData;
   const [state, setState] = useState({
     start: interval.start,
     startError: "",
@@ -43,17 +66,20 @@ export const EditInterval = () => {
     (state) => state.openDeleteIntervalConfirmation,
   );
 
-  const activityPath = useActivityPath(activity);
   const editedInterval = {
     start: state.start,
     end: state.end,
   };
-  const duration = useIntervalDuration(editedInterval, true);
+  const duration = useIntervalDuration(
+    editedInterval.start,
+    editedInterval.end,
+    true,
+  );
   const navigate = useNavigate();
 
-  const omitEndTimePicker = !state.end;
+  const omitEndTimePicker = state.end === MAX_DATE_MS;
 
-  const { save, saving } = useSave(loaderData, editedInterval);
+  const { save, saving } = useSave(editIntervalData, editedInterval);
 
   return (
     <>
@@ -70,18 +96,20 @@ export const EditInterval = () => {
             <Container maxWidth={"sm"} disableGutters>
               <Paper square sx={{ p: 2, borderRadius: "32px 32px 0 0" }}>
                 <Typography variant="h6" sx={{ m: 1 }}>
-                  {activityPath}
+                  {activityFullName}
                 </Typography>
                 <DateTimeRangePicker
                   // TODO limit by own and descendant intervals
-                  startTime={state.start}
-                  setStartTime={(start) => setState({ ...state, start })}
+                  startTime={moment(state.start)}
+                  setStartTime={(start) =>
+                    setState({ ...state, start: +start })
+                  }
                   startTimeError={state.startError}
                   setStartTimeError={(startError) =>
                     setState({ ...state, startError })
                   }
-                  endTime={state.end}
-                  setEndTime={(end) => setState({ ...state, end })}
+                  endTime={moment(state.end)}
+                  setEndTime={(end) => setState({ ...state, end: +end })}
                   endTimeError={state.endError}
                   setEndTimeError={(endError) =>
                     setState({ ...state, endError })
@@ -92,7 +120,7 @@ export const EditInterval = () => {
                 <Grid container justifyContent={"space-between"}>
                   <IconButton
                     aria-label="delete"
-                    onClick={() => openDeleteIntervalConfirmation(loaderData)}
+                    onClick={() => openDeleteIntervalConfirmation(interval.id)}
                   >
                     <DeleteIcon />
                   </IconButton>
@@ -115,30 +143,28 @@ export const EditInterval = () => {
 };
 
 const useSave = (
-  args: EditIntervalLoaderData,
-  editedInterval: { start: Moment; end?: Moment },
+  editIntervalData: EditIntervalData,
+  editedInterval: { start: number; end: number },
 ) => {
-  const { interval, activity } = args;
+  const { interval } = editIntervalData;
   const { start, end } = editedInterval;
   const openSuccessSnackbar = useAppSnackbarStore((state) => state.openSuccess);
+  const openErrorSnackbar = useAppSnackbarStore((state) => state.openError);
   const navigate = useNavigate();
-
-  const { mutate, isPending } = useEditInterval({
-    onSuccess: () => {
-      openSuccessSnackbar("Interval successfully changed");
-      navigate(-1);
-    },
-  });
+  const [saving, setSaving] = useState(false);
 
   return {
     save: async () => {
-      // TODO validate intervals + update ancestors
-      mutate({
-        interval,
-        activity,
-        edit: { start, end },
-      });
+      // TODO update ancestors
+      setSaving(true);
+      return updateInterval(interval.id, start, end)
+        .then(() => {
+          openSuccessSnackbar("Interval successfully changed");
+          navigate(-1);
+        })
+        .finally(() => setSaving(false))
+        .catch(() => openErrorSnackbar("Failed to update interval"));
     },
-    saving: isPending,
+    saving,
   };
 };

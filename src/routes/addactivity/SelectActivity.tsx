@@ -1,22 +1,23 @@
 import { Autocomplete, createFilterOptions, TextField } from "@mui/material";
-import { Activity } from "../../data/activity/Storage";
 import { chain } from "lodash";
-import {
-  useActivityFullNames,
-  useNonRootActivities,
-} from "../../data/activity/Hooks";
+import { useActivityFullNames } from "../../data/activity/Hooks";
 import { useMemo } from "react";
+import {
+  AddActivityData,
+  AddActivityDataActivity,
+} from "../../db/queries/getAddActivityData";
+import { useCreateActivityStore } from "./Store";
 
 type Props = {
-  activity: Activity | null;
-  setActivity: (activity: Activity | null) => void;
+  activity: AddActivityDataActivity | null;
+  setActivity: (activity: AddActivityDataActivity | null) => void;
   label: string;
   autoFocus?: boolean;
   error?: {
     value: string;
     set: (error: string) => void;
   };
-  getOptionDisabled?: (activity: Activity) => boolean;
+  getOptionDisabled?: (activity: AddActivityDataActivity) => boolean;
   onUserInputChange?: (newInputValue: string) => void;
 };
 
@@ -31,8 +32,12 @@ export const SelectActivity = (props: Props) => {
     onUserInputChange,
   } = props;
 
-  const activityFullNames = useActivityFullNames();
-  const options = useOptions();
+  const addActivityData = useCreateActivityStore(
+    (state) => state.addActivityData,
+  );
+
+  const activityFullNames = useActivityFullNames(addActivityData);
+  const options = useOptions(addActivityData);
 
   return (
     <Autocomplete
@@ -83,16 +88,17 @@ export const SelectActivity = (props: Props) => {
   );
 };
 
-const filter = createFilterOptions<Activity>({ trim: true });
+const filter = createFilterOptions<AddActivityDataActivity>({ trim: true });
 
-const useOptions = () => {
-  const nonRootActivities = useNonRootActivities();
-  const activityFullNames = useActivityFullNames();
+const useOptions = (addActivityData: AddActivityData | undefined) => {
+  const { activities = new Map() } = addActivityData ?? {};
+  const activityFullNames = useActivityFullNames(addActivityData);
   return useMemo(
     () =>
-      chain([...nonRootActivities.values()])
+      chain([...activities.values()])
+        .filter((a) => a.id !== -1) // Exclude root activity
         .sortBy((activity) => activityFullNames.get(activity.id))
         .value(),
-    [activityFullNames, nonRootActivities],
+    [activityFullNames, activities],
   );
 };
