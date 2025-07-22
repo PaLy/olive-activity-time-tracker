@@ -34,3 +34,7 @@ export const useOpenErrorSnackbar = (error: Error | string | null) => {
     }
   }, [error, openErrorSnackbar]);
 };
+
+export const openErrorSnackbar = (error: Error | string) => {
+  useAppSnackbarStore.getState().openError(error);
+};

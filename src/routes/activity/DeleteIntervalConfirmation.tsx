@@ -40,7 +40,7 @@ const Content = () => {
       .then(() => {
         openSuccessSnackbar("Interval successfully deleted");
       })
-      .catch(() => openErrorSnackbar("Error deleting interval"));
+      .catch(() => openErrorSnackbar("Failed to delete interval"));
   };
 
   return (

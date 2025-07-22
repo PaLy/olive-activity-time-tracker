@@ -18,7 +18,14 @@ export const AppBottomNavigation = () => {
       ? pathname
       : pathname.substring(0, currentPagePathnameEndIndex);
 
-  const inProgressActivitiesCount = useLiveQuery(getInProgressActivitiesCount);
+  const inProgressActivitiesCount = useLiveQuery(
+    () =>
+      getInProgressActivitiesCount().catch((e) => {
+        console.error(e);
+        return "?";
+      }),
+    [],
+  );
 
   return (
     <Paper elevation={3} sx={{ position: "sticky", bottom: 0 }}>

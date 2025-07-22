@@ -15,11 +15,12 @@ import {
   ActivityTreeNode,
   getActivitiesTree,
 } from "../../db/queries/activitiesTree";
-import { activityDuration } from "../../db/queries/activities";
 import { OrderBy } from "../../features/activityList/constants";
 import { useActivitiesOrderKey } from "../../features/activityList/hooks";
 import { SimpleInterval } from "../../utils/types";
 import { useClockStore } from "../../utils/clock";
+import { activityDuration } from "../../features/activities/services";
+import { useAppSnackbarStore } from "../../components/AppSnackbarStore";
 
 type Props = {
   interval: SimpleInterval;
@@ -151,7 +152,12 @@ const useItemData = (props: Props, activities: ActivityTreeNode[]) => {
 
 const useFilteredActivities = (orderBy: OrderBy, interval: SimpleInterval) => {
   const activities = useLiveQuery(
-    () => getActivitiesTree(interval),
+    () =>
+      getActivitiesTree(interval).catch((e) => {
+        console.error(e);
+        useAppSnackbarStore.getState().openError("Failed to load activities");
+        return undefined;
+      }),
     [interval],
   );
   const time = useClockStore((state) => state.time);

@@ -1,7 +1,6 @@
 import { db } from "../db";
 import { MAX_DATE_MS } from "../../utils/Date";
 import { Activity } from "../entities";
-import { ActivityTreeNode } from "./activitiesTree";
 
 export async function checkActivityExist(activityId: number) {
   const activity = await getActivity(activityId);
@@ -155,14 +154,6 @@ export async function collapseAllActivities() {
 
 export async function setExpanded(activityId: number, expanded: boolean) {
   await db.activities.update(activityId, { expanded: expanded ? 1 : 0 });
-}
-
-export function activityDuration(a: ActivityTreeNode, time: number) {
-  if (a.subtreeLastEndTime === MAX_DATE_MS) {
-    return a.subtreeDuration + (time - a.subtreeDurationComputedAt);
-  } else {
-    return a.subtreeDuration;
-  }
 }
 
 export async function expandSelfAndAncestors(activityId: number) {

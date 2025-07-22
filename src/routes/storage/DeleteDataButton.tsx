@@ -78,7 +78,10 @@ const Confirmation = () => {
           onClick={async () => {
             confirm();
             clearDB()
-              .catch(() => setError("Failed to delete data"))
+              .catch((e) => {
+                console.error(e);
+                setError("Failed to delete data");
+              })
               .then(finish);
           }}
         >

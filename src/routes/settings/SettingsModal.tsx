@@ -12,7 +12,7 @@ import {
   Typography,
 } from "@mui/material";
 import { produce } from "immer";
-import { Currency } from "../../db/entities";
+import { ActivityListSettingValue, Currency } from "../../db/entities";
 import { useState } from "react";
 import { updateActivityListSettings } from "../../db/queries/settings";
 import { useActivityListSettings } from "../../features/settings/services";
@@ -143,36 +143,42 @@ const SettingsSwitch = (props: SettingsSwitchProps) => {
 const useSettings = () => {
   const activityListSettings = useActivityListSettings();
 
+  const update = (newSettings: ActivityListSettingValue) =>
+    updateActivityListSettings(newSettings).catch((e) => {
+      console.error(e);
+      throw new Error("Failed to update settings");
+    });
+
   const setShowPercentage = (showPercentage: boolean) =>
-    updateActivityListSettings(
+    update(
       produce(activityListSettings, (draft) => {
         draft.showPercentage = showPercentage;
       }),
     );
 
   const setShowDuration = (showDuration: boolean) =>
-    updateActivityListSettings(
+    update(
       produce(activityListSettings, (draft) => {
         draft.showDuration = showDuration;
       }),
     );
 
   const setShowCost = (showCost: boolean) =>
-    updateActivityListSettings(
+    update(
       produce(activityListSettings, (draft) => {
         draft.showCost.show = showCost;
       }),
     );
 
   const setPerHour = (perHour: string) =>
-    updateActivityListSettings(
+    update(
       produce(activityListSettings, (draft) => {
         draft.showCost.perHour = perHour;
       }),
     );
 
   const setCurrency = (currency: Currency) =>
-    updateActivityListSettings(
+    update(
       produce(activityListSettings, (draft) => {
         draft.showCost.currency = currency;
       }),

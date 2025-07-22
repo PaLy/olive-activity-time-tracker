@@ -25,7 +25,7 @@ import { DeleteIntervalConfirmation } from "./DeleteIntervalConfirmation";
 import AutoSizer from "react-virtualized-auto-sizer";
 import { ResizableList, SingleItemData } from "../../components/ResizableList";
 import { calendarTime, MAX_DATE_MS } from "../../utils/Date";
-import { useAppSnackbarStore } from "../../components/AppSnackbarStore";
+import { openErrorSnackbar } from "../../components/AppSnackbarStore";
 import { useLiveQuery } from "dexie-react-hooks";
 import {
   ActivityDetailsData,
@@ -44,7 +44,7 @@ export const ActivityRoute = () => {
     () =>
       getActivityDetails(activityId).catch((e) => {
         console.error(e);
-        useAppSnackbarStore.getState().openError("Activity not found.");
+        openErrorSnackbar("Activity not found");
         return undefined;
       }),
     [activityId],

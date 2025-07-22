@@ -5,6 +5,7 @@ import {
   collapseAllActivities,
   expandAllActivities,
 } from "../../db/queries/activities";
+import { openErrorSnackbar } from "../../components/AppSnackbarStore";
 
 type AppBarStore = {
   menuAnchorEl: Element | null;
@@ -57,7 +58,10 @@ export const AppBarMenu = () => {
     >
       <MenuItem
         onClick={() => {
-          expandAllActivities().then();
+          expandAllActivities().catch((e) => {
+            console.error(e);
+            openErrorSnackbar("Failed to expand all activities");
+          });
           closeMenu();
         }}
       >
@@ -65,7 +69,10 @@ export const AppBarMenu = () => {
       </MenuItem>
       <MenuItem
         onClick={() => {
-          collapseAllActivities().then();
+          collapseAllActivities().catch((e) => {
+            console.error(e);
+            openErrorSnackbar("Failed to collapse all activities");
+          });
           closeMenu();
         }}
       >
