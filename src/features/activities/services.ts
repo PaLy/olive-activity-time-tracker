@@ -1,7 +1,6 @@
 import { ACTIVITY_FULL_NAME_SEPARATOR } from "./constants";
 import { ActivityTreeNode } from "../../db/queries/activitiesTree";
 import { MAX_DATE_MS } from "../../utils/Date";
-import { activityDuration } from "../../db/queries/activities";
 import { useAppSnackbarStore } from "../../components/AppSnackbarStore";
 import { useState } from "react";
 import { resumeActivity } from "../../db/queries/resumeActivity";
@@ -49,6 +48,14 @@ export const depth = (activity: ActivityTreeNode): number => {
   }
 };
 
+export function activityDuration(a: ActivityTreeNode, time: number) {
+  if (a.subtreeLastEndTime === MAX_DATE_MS) {
+    return a.subtreeDuration + (time - a.subtreeDurationComputedAt);
+  } else {
+    return a.subtreeDuration;
+  }
+}
+
 export const useDuration = (activity: ActivityTreeNode | undefined) => {
   const time = useClockStore((state) => state.time);
   if (!activity) {
@@ -76,7 +83,10 @@ export const useStartActivity = () => {
         startTime: new Date().getTime(),
       })
         .finally(() => setIsPending(false))
-        .catch(openErrorSnackbar);
+        .catch((error) => {
+          console.error(error);
+          openErrorSnackbar(`Failed to start activity`);
+        });
     },
     isPending,
   };
@@ -94,7 +104,10 @@ export const useStopActivity = () => {
         end: new Date().getTime(),
       })
         .finally(() => setIsPending(false))
-        .catch(openErrorSnackbar);
+        .catch((error) => {
+          console.error(error);
+          openErrorSnackbar(`Failed to stop activity`);
+        });
     },
     isPending,
   };

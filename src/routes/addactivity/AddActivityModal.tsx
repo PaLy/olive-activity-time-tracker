@@ -16,6 +16,7 @@ import {
 } from "../../db/queries/getAddActivityData";
 import { addActivity } from "../../db/queries/addActivity";
 import { useActivityNameExists } from "../../features/addActivity/hooks";
+import { openErrorSnackbar } from "../../components/AppSnackbarStore";
 
 type Activity = AddActivityDataActivity;
 
@@ -52,9 +53,17 @@ const Content = () => {
   );
 
   const addActivityData = useLiveQuery(async () => {
-    const addActivityData = await getAddActivityData();
-    setAddActivityData(addActivityData);
-    return addActivityData;
+    return getAddActivityData()
+      .then((data) => {
+        setAddActivityData(data);
+        return data;
+      })
+      .catch((e) => {
+        console.error(e);
+        openErrorSnackbar("Failed to load activities data");
+        navigate(-1);
+        return undefined;
+      });
   }, [setAddActivityData]);
 
   const activityNameExists =
@@ -92,8 +101,10 @@ const Content = () => {
 
                 // it takes some time while the modal is closed and the creation of the new activity would show validation errors
                 setValidationsOff(true);
-                // TODO handle errors
-                await createActivity(createActivityOptions);
+                await createActivity(createActivityOptions).catch((e) => {
+                  console.error(e);
+                  openErrorSnackbar("Failed to create/start activity");
+                });
                 navigate(-1);
               }
             },

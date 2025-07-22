@@ -37,7 +37,12 @@ export const EditInterval = () => {
   const intervalId = parseInt(params.intervalID ?? "");
 
   const editIntervalData = useLiveQuery(
-    () => getEditIntervalData(intervalId),
+    () =>
+      getEditIntervalData(intervalId).catch((e) => {
+        console.error(e);
+        useAppSnackbarStore.getState().openError("Interval not found");
+        return undefined;
+      }),
     [intervalId],
   );
 
@@ -163,7 +168,10 @@ const useSave = (
           navigate(-1);
         })
         .finally(() => setSaving(false))
-        .catch(() => openErrorSnackbar("Failed to update interval"));
+        .catch((e) => {
+          console.error(e);
+          openErrorSnackbar("Failed to update interval");
+        });
     },
     saving,
   };

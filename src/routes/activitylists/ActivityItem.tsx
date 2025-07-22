@@ -33,6 +33,7 @@ import { SimpleInterval } from "../../utils/types";
 import { useHumanizedDuration } from "../../utils/duration";
 import { useActivityListSettings } from "../../features/settings/services";
 import { ShowCost } from "../../db/entities";
+import { useAppSnackbarStore } from "../../components/AppSnackbarStore";
 
 type ActivityItemProps = {
   activity: ActivityTreeNode;
@@ -73,7 +74,14 @@ const ParentActivityItem = (props: ActivityItemProps) => {
   return (
     <ListItemButton
       sx={{ pl: activityPL, pr: 0 }}
-      onClick={() => setExpanded(activity.id, !expanded)}
+      onClick={() =>
+        setExpanded(activity.id, !expanded).catch((e) => {
+          console.error(e);
+          useAppSnackbarStore
+            .getState()
+            .openError("Failed to expand/collapse activity");
+        })
+      }
     >
       <ActivityAvatar activity={activity} />
       <ListItemText

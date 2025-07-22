@@ -4,7 +4,13 @@ import { DEFAULT_ACTIVITY_LIST_SETTINGS } from "./constants";
 
 export const useActivityListSettings = () => {
   return (
-    useLiveQuery(getActivityListSettings)?.value ??
-    DEFAULT_ACTIVITY_LIST_SETTINGS
+    useLiveQuery(
+      () =>
+        getActivityListSettings().catch((e) => {
+          console.error(e);
+          return undefined;
+        }),
+      [],
+    )?.value ?? DEFAULT_ACTIVITY_LIST_SETTINGS
   );
 };
