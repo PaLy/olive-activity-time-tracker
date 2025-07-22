@@ -41,13 +41,15 @@ export enum SettingKey {
   ACTIVITY_LIST = "activityList",
 }
 
+export type ShowCost = {
+  show: boolean;
+  perHour: string;
+  currency: Currency;
+};
+
 export type ActivityListSettingValue = {
   showPercentage: boolean;
-  showCost: {
-    show: boolean;
-    perHour: string;
-    currency: Currency;
-  };
+  showCost: ShowCost;
   showDuration: boolean;
 };
 

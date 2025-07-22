@@ -11,7 +11,6 @@ import {
 } from "@mui/material";
 import { Link, Outlet, useParams } from "react-router";
 import { FullScreenModalHeader } from "../../components/FullScreenModalHeader";
-import { useActivityFullName } from "../../data/activity/Hooks";
 import {
   ElementType,
   ReactNode,
@@ -34,7 +33,8 @@ import {
 } from "../../db/queries/activityDetails";
 import moment from "moment";
 import { Activity, Interval } from "../../db/entities";
-import { useIntervalDuration } from "../../data/interval/Hooks";
+import { useActivityFullName } from "../../features/activityDetails/hooks";
+import { useIntervalDuration } from "../../features/intervals/hooks";
 
 export const ActivityRoute = () => {
   const params = useParams<{ activityID: string }>();

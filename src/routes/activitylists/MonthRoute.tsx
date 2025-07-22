@@ -1,8 +1,8 @@
 import { ActivityList } from "./ActivityList";
 import moment from "moment";
 import { ChipDatePicker } from "../../components/ChipDatePicker";
-import { OrderBy } from "../../data/activity/Algorithms";
 import { useState } from "react";
+import { OrderBy } from "../../features/activityList/constants";
 
 export const MonthRoute = () => {
   const [month, setMonth] = useState(moment());

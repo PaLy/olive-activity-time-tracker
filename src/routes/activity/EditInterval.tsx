@@ -11,7 +11,6 @@ import {
 } from "@mui/material";
 import { useParams } from "react-router";
 import SaveIcon from "@mui/icons-material/Save";
-import { useIntervalDuration } from "../../data/interval/Hooks";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { DateTimeRangePicker } from "../../components/DateTimeRangePicker";
 import { useNavigate } from "../Router";
@@ -26,6 +25,7 @@ import {
   updateInterval,
 } from "../../db/queries/editInterval";
 import { MAX_DATE_MS } from "../../utils/Date";
+import { useIntervalDuration } from "../../features/intervals/hooks";
 
 type Params = {
   intervalID: string;

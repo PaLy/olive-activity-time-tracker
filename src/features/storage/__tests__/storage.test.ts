@@ -1,9 +1,9 @@
 import { readFileSync } from "fs";
 import path from "path";
 import { describe, expect, it } from "vitest";
-import { exportDB, importDB } from "../../db/exportImport";
-import { db } from "../../db/db";
-import { Interval } from "../../db/entities";
+import { exportDB, importDB } from "../../../db/exportImport";
+import { db } from "../../../db/db";
+import { Interval } from "../../../db/entities";
 
 describe("Import", () => {
   it("should import all activities and intervals", async () => {

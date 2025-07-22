@@ -1,8 +1,6 @@
 import { Box, Fab, Grid, Paper, useMediaQuery, useTheme } from "@mui/material";
 import { AppBarActions } from "./AppBarActions";
 import { ActivityItem } from "./ActivityItem";
-import { useActivitiesOrderKey } from "../../data/activity/Hooks";
-import { ClosedInterval } from "../../data/interval/ClosedInterval";
 import { AppAppBar } from "../../AppBar";
 import { AppBottomNavigation } from "./BottomNavigation";
 import { Flipper } from "react-flip-toolkit";
@@ -12,17 +10,19 @@ import AddIcon from "@mui/icons-material/Add";
 import { AddActivityModal } from "../addactivity/AddActivityModal";
 import { ResizableList, SingleItemData } from "../../components/ResizableList";
 import AutoSizer from "react-virtualized-auto-sizer";
-import { OrderBy } from "../../data/activity/Algorithms";
-import { useClockStore } from "../../data/interval/Hooks";
 import { useLiveQuery } from "dexie-react-hooks";
 import {
   ActivityTreeNode,
   getActivitiesTree,
 } from "../../db/queries/activitiesTree";
 import { activityDuration } from "../../db/queries/activities";
+import { OrderBy } from "../../features/activityList/constants";
+import { useActivitiesOrderKey } from "../../features/activityList/hooks";
+import { SimpleInterval } from "../../utils/types";
+import { useClockStore } from "../../utils/clock";
 
 type Props = {
-  interval: ClosedInterval;
+  interval: SimpleInterval;
   header: string;
   filter?: ActivityListFilter;
   orderBy: OrderBy;
@@ -149,7 +149,7 @@ const useItemData = (props: Props, activities: ActivityTreeNode[]) => {
   );
 };
 
-const useFilteredActivities = (orderBy: OrderBy, interval: ClosedInterval) => {
+const useFilteredActivities = (orderBy: OrderBy, interval: SimpleInterval) => {
   const activities = useLiveQuery(
     () => getActivitiesTree(interval),
     [interval],

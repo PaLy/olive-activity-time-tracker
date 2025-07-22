@@ -13,32 +13,30 @@ import ExpandMore from "@mui/icons-material/ExpandMore";
 import StopIcon from "@mui/icons-material/Stop";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import dayjs from "dayjs";
-import { useHumanizedDuration } from "../../data/interval/Hooks";
-import {
-  depth,
-  isInProgress,
-  useDuration,
-  useDurationPercentage,
-} from "../../data/activity/Hooks";
-import { ClosedInterval } from "../../data/interval/ClosedInterval";
 import { Flipped } from "react-flip-toolkit";
 import { Link } from "react-router";
-import { useActivityListSettings } from "../../asyncState/ActivityList";
-import { ShowCost } from "../../data/settings/Settings";
 import { animate } from "animejs";
-import {
-  useStartActivity,
-  useStopActivity,
-} from "../../data/activity/Operations";
 import { useMemo } from "react";
 import { getLocale } from "../../utils/Locale";
 import { MAX_DATE_MS } from "../../utils/Date";
 import { setExpanded } from "../../db/queries/activities";
 import { ActivityTreeNode } from "../../db/queries/activitiesTree";
+import {
+  depth,
+  isInProgress,
+  useDuration,
+  useDurationPercentage,
+  useStartActivity,
+  useStopActivity,
+} from "../../features/activities/services";
+import { SimpleInterval } from "../../utils/types";
+import { useHumanizedDuration } from "../../utils/duration";
+import { useActivityListSettings } from "../../features/settings/services";
+import { ShowCost } from "../../db/entities";
 
 type ActivityItemProps = {
   activity: ActivityTreeNode;
-  interval: ClosedInterval;
+  interval: SimpleInterval;
 };
 
 export const ActivityItem = (props: ActivityItemProps) => {
@@ -180,7 +178,7 @@ const StartStopButton = (props: StartStopActivityProps) => {
 
 type ActivityRow2Props = {
   activity: ActivityTreeNode;
-  interval: ClosedInterval;
+  interval: SimpleInterval;
 };
 
 const ActivityRow2 = (props: ActivityRow2Props) => {

@@ -6,7 +6,6 @@ import SaveIcon from "@mui/icons-material/Save";
 import { useLocation, useNavigate } from "../Router";
 import { FullScreenModal } from "../../components/FullScreenModal";
 import { Box } from "@mui/material";
-import { useActivityNameExists } from "../../data/activity/Hooks";
 import { NameToggle, useCreateActivityStore } from "./Store";
 import { useEffectOnceAfter } from "../../utils/ReactLifecycle";
 import { Moment } from "moment";
@@ -16,6 +15,7 @@ import {
   getAddActivityData,
 } from "../../db/queries/getAddActivityData";
 import { addActivity } from "../../db/queries/addActivity";
+import { useActivityNameExists } from "../../features/addActivity/hooks";
 
 type Activity = AddActivityDataActivity;
 
