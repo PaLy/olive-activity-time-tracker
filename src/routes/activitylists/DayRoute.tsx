@@ -1,8 +1,8 @@
 import { ActivityList } from "./ActivityList";
 import moment from "moment";
 import { ChipDayPicker } from "../../components/ChipDayPicker";
-import { OrderBy } from "../../data/activity/Algorithms";
 import { useState } from "react";
+import { OrderBy } from "../../features/activityList/constants";
 
 /**
  * TODO don't display play buttons? (if activity has started today, it will still have a play button)

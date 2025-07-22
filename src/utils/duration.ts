@@ -1,4 +1,5 @@
 import humanizeDuration from "humanize-duration";
+import { useMemo } from "react";
 
 export const humanize = (
   duration: number,
@@ -14,4 +15,8 @@ export const humanize = (
         ? ["y", "mo", "w", "d", "h", "m", "s"]
         : ["y", "mo", "w", "d", "h", "m"],
   });
+};
+
+export const useHumanizedDuration = (duration: number, inProgress: boolean) => {
+  return useMemo(() => humanize(duration, inProgress), [duration, inProgress]);
 };

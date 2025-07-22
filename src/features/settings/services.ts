@@ -1,10 +1,10 @@
-import { DEFAULT_SETTINGS } from "../data/settings/Settings";
 import { useLiveQuery } from "dexie-react-hooks";
-import { getActivityListSettings } from "../db/queries/settings";
+import { getActivityListSettings } from "../../db/queries/settings";
+import { DEFAULT_ACTIVITY_LIST_SETTINGS } from "./constants";
 
 export const useActivityListSettings = () => {
   return (
     useLiveQuery(getActivityListSettings)?.value ??
-    DEFAULT_SETTINGS.activityList
+    DEFAULT_ACTIVITY_LIST_SETTINGS
   );
 };

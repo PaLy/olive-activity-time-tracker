@@ -12,10 +12,10 @@ import {
   Typography,
 } from "@mui/material";
 import { produce } from "immer";
-import { useActivityListSettings } from "../../asyncState/ActivityList";
 import { Currency } from "../../db/entities";
 import { useState } from "react";
 import { updateActivityListSettings } from "../../db/queries/settings";
+import { useActivityListSettings } from "../../features/settings/services";
 
 export const SettingsModal = () => {
   const { pathname } = useLocation();

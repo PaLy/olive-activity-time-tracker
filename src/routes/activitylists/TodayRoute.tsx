@@ -1,6 +1,6 @@
 import { ActivityList } from "./ActivityList";
-import { OrderBy } from "../../data/activity/Algorithms";
-import { useClockStore } from "../../data/interval/Hooks";
+import { OrderBy } from "../../features/activityList/constants";
+import { useClockStore } from "../../utils/clock";
 
 export const TodayRoute = () => {
   const start = useClockStore((state) =>

@@ -6,9 +6,9 @@ import {
 } from "@mui/material";
 import { DateTimeRangePicker } from "../../components/DateTimeRangePicker";
 import moment from "moment/moment";
-import { humanize } from "../../data/interval/Algorithms";
-import { useClockStore } from "../../data/interval/Hooks";
 import { useCreateActivityStore } from "./Store";
+import { humanize } from "../../utils/duration";
+import { useClockStore } from "../../utils/clock";
 
 export const IntervalSettings = () => {
   const toggle = useCreateActivityStore((state) => state.intervalToggle);

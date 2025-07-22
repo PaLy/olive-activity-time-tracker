@@ -12,8 +12,8 @@ import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterMoment } from "@mui/x-date-pickers/AdapterMoment";
 import { ScrollMemoryContext } from "./components/ScrollMemory";
 import { AppSnackbar } from "./components/AppSnackbar";
-import { useTickingClock } from "./data/interval/Hooks";
 import { TestThemeContext } from "./Theme";
+import { useTickingClock } from "./utils/clock";
 
 function App() {
   const theme = useTheme();

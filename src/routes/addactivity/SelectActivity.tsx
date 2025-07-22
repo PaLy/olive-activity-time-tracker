@@ -1,12 +1,12 @@
 import { Autocomplete, createFilterOptions, TextField } from "@mui/material";
 import { chain } from "lodash";
-import { useActivityFullNames } from "../../data/activity/Hooks";
 import { useMemo } from "react";
 import {
   AddActivityData,
   AddActivityDataActivity,
 } from "../../db/queries/getAddActivityData";
 import { useCreateActivityStore } from "./Store";
+import { useActivityFullNames } from "../../features/addActivity/hooks";
 
 type Props = {
   activity: AddActivityDataActivity | null;

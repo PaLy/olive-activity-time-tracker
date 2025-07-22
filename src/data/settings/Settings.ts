@@ -1,6 +1,6 @@
 import localforage from "localforage";
 import { JTDSchemaType } from "ajv/dist/jtd";
-import { Currency } from "../../db/entities";
+import { ActivityListSettingValue, Currency } from "../../db/entities";
 
 export const STORE_NAME_SETTINGS = "settings";
 
@@ -12,36 +12,15 @@ export const settingsStore = localforage.createInstance({
   name: STORE_NAME_SETTINGS,
 });
 
-export const setActivityList = (activityList: ActivityList) =>
-  settingsStore.setItem<ActivityList>(Keys.activityList, activityList);
-
 export type Settings = {
-  activityList: ActivityList;
+  activityList: ActivityListSettingValue;
 };
 
-export type ActivityList = {
-  showPercentage: boolean;
-  showCost: ShowCost;
-  showDuration: boolean;
-};
-
-export type ShowCost = {
-  show: boolean;
-  perHour: string;
-  currency: Currency;
-};
-
-export const DEFAULT_SETTINGS: Settings = {
-  activityList: {
-    showPercentage: true,
-    showCost: {
-      show: false,
-      perHour: "10",
-      currency: Currency.EUR,
-    },
-    showDuration: true,
-  },
-};
+export const setActivityList = (activityList: ActivityListSettingValue) =>
+  settingsStore.setItem<ActivityListSettingValue>(
+    Keys.activityList,
+    activityList,
+  );
 
 export const clearSettings = () => settingsStore.clear();
 

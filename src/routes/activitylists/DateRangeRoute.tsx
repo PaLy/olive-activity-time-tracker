@@ -3,9 +3,9 @@ import { Grid } from "@mui/material";
 import moment from "moment";
 import humanizeDuration from "humanize-duration";
 import { ChipDayPicker } from "../../components/ChipDayPicker";
-import { OrderBy } from "../../data/activity/Algorithms";
 import { useState } from "react";
-import { ClosedInterval } from "../../data/interval/ClosedInterval";
+import { OrderBy } from "../../features/activityList/constants";
+import { SimpleInterval } from "../../utils/types";
 
 export const DateRangeRoute = () => {
   const [start, setStart] = useState(moment().subtract(6, "days"));
@@ -44,7 +44,7 @@ export const DateRangeRoute = () => {
   );
 };
 
-const humanizedDuration = (interval: ClosedInterval) =>
+const humanizedDuration = (interval: SimpleInterval) =>
   humanizeDuration(interval.end - interval.start, {
     delimiter: " ",
     // units and rounding are needed, because one month is not defined in full days
