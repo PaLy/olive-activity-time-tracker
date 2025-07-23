@@ -1,6 +1,6 @@
 import { db } from "../db";
 import { Activity } from "../entities";
-import { isInProgress } from "./activities";
+import { getInProgressActivityIds } from "./activities";
 
 export type AddActivityData = {
   activities: Map<number, AddActivityDataActivity>;
@@ -15,7 +15,7 @@ export type AddActivityDataActivity = {
 };
 
 export async function getAddActivityData(): Promise<AddActivityData> {
-  const { activities: loadedActivities, inProgress } = await loadActivities();
+  const [loadedActivities, inProgressActivityIds] = await loadActivities();
 
   const loadedActivityMap = new Map<number, Activity>(
     loadedActivities.map((activity) => [activity.id, activity]),
@@ -26,7 +26,7 @@ export async function getAddActivityData(): Promise<AddActivityData> {
       id: activity.id,
       name: activity.name,
       children: [],
-      inProgress: !!inProgress.get(activity.id),
+      inProgress: inProgressActivityIds.has(activity.id),
     }),
   );
   activities.push({
@@ -55,18 +55,7 @@ export async function getAddActivityData(): Promise<AddActivityData> {
 }
 
 async function loadActivities() {
-  return db.transaction("r", db.activities, db.intervals, async () => {
-    const activities = await db.activities.toArray();
-
-    const inProgress = new Map<number, boolean>(
-      await Promise.all(
-        activities.map(
-          async (activity) =>
-            [activity.id, await isInProgress(activity.id)] as const,
-        ),
-      ),
-    );
-
-    return { activities, inProgress };
+  return db.transaction("r", db.activities, db.intervals, () => {
+    return Promise.all([db.activities.toArray(), getInProgressActivityIds()]);
   });
 }

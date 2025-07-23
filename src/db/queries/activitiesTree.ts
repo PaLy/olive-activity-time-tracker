@@ -1,6 +1,6 @@
 import { db } from "../db";
 import { Activity, Interval } from "../entities";
-import { getAncestorsById } from "./activities";
+import { getAncestorsById, getInProgressActivityIds } from "./activities";
 import { MAX_DATE_MS } from "../../utils/Date";
 
 export type ActivityTreeNode = {
@@ -12,6 +12,7 @@ export type ActivityTreeNode = {
   subtreeLastEndTime: number;
   subtreeDuration: number;
   subtreeDurationComputedAt: number;
+  inProgress: boolean;
 };
 
 type ClosedInterval = {
@@ -22,7 +23,8 @@ type ClosedInterval = {
 export async function getActivitiesTree(
   intervalFilter: ClosedInterval,
 ): Promise<ActivityTreeNode> {
-  const { activities, intervals } = await loadActivities(intervalFilter);
+  const [{ activities, intervals }, inProgressActivityIds] =
+    await loadActivities(intervalFilter);
 
   const childrenByParentId = getChildrenByParentId(activities);
   const intervalsByActivityId = getIntervalsByActivityId(intervals);
@@ -32,21 +34,28 @@ export async function getActivitiesTree(
     childrenByParentId,
     intervalsByActivityId,
     intervalFilter,
+    inProgressActivityIds,
   );
 }
 
 async function loadActivities(intervalFilter: ClosedInterval) {
-  const { activities, intervals } = await db.transaction(
-    "r",
-    db.intervals,
-    db.activities,
-    async () => {
-      const intervals = await getIntervals(intervalFilter);
-      const activityIds = await getActivityIds(intervals);
-      const activities = await getActivitiesByIds(activityIds);
-      return { activities, intervals };
-    },
-  );
+  return db.transaction("r", db.intervals, db.activities, () => {
+    return Promise.all([
+      loadActivitiesAndIntervals(intervalFilter),
+      getInProgressActivityIds(),
+    ]);
+  });
+}
+
+async function loadActivitiesAndIntervals(
+  intervalFilter: ClosedInterval,
+): Promise<{
+  activities: Array<Activity>;
+  intervals: Array<Interval>;
+}> {
+  const intervals = await getIntervals(intervalFilter);
+  const activityIds = await getActivityIds(intervals);
+  const activities = await getActivitiesByIds(activityIds);
   return { activities, intervals };
 }
 
@@ -77,6 +86,7 @@ function activitiesTreeFrom(
   childrenByParentId: Map<number, Array<Activity>>,
   intervalsByActivityId: Map<number, Array<Interval>>,
   intervalFilter: ClosedInterval,
+  inProgressActivityIds: Set<number>,
 ): ActivityTreeNode {
   const children = childrenByParentId.get(parent.id) ?? [];
 
@@ -106,6 +116,7 @@ function activitiesTreeFrom(
       childrenByParentId,
       intervalsByActivityId,
       intervalFilter,
+      inProgressActivityIds,
     ),
   );
 
@@ -118,6 +129,7 @@ function activitiesTreeFrom(
     subtreeDuration,
     subtreeDurationComputedAt: new Date().getTime(),
     subtreeLastEndTime,
+    inProgress: inProgressActivityIds.has(parent.id),
   };
 
   childNodes.forEach((child) => {
