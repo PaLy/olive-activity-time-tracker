@@ -32,8 +32,10 @@ export async function getActivityDetails(
         throw new Error(`Activity with ID ${activityId} does not exist.`);
       }
 
-      const ancestors = await getAncestors(activity);
-      const descendants = await getDescendants(activity);
+      const [ancestors, descendants] = await Promise.all([
+        getAncestors(activity),
+        getDescendants(activity),
+      ]);
 
       const selfAndDescendantsIds = [
         activity.id,
