@@ -2,8 +2,6 @@ import { db } from "../db";
 import { MAX_DATE_MS } from "../../utils/Date";
 import { checkActivityExist, expandSelfAndAncestors } from "./activities";
 
-// TODO open snackabar on errors...
-
 type AddActivityParams = {
   interval: {
     start: number;
