@@ -5,7 +5,6 @@ import { useLocation } from "../Router";
 import { DeleteDataButton } from "./DeleteDataButton";
 import { ExportButton } from "./ExportButton";
 import { ImportButton } from "./ImportButton";
-import { ImportButtonOld } from "./ImportButtonOld";
 
 export const StorageModal = () => {
   const { pathname } = useLocation();
@@ -37,7 +36,6 @@ const Content = () => {
             <Grid container justifyContent={"space-evenly"} sx={{ mt: 4 }}>
               <ExportButton />
               <ImportButton />
-              <ImportButtonOld />
             </Grid>
           </Box>
         </Grid>

@@ -4,10 +4,6 @@
 // learn more: https://github.com/testing-library/jest-dom
 import "@testing-library/jest-dom/vitest";
 import { enableMapSet } from "immer";
-import { activityStore } from "./data/activity/Storage";
-import { intervalStore } from "./data/interval/Storage";
-import { activityInListExpandedStore } from "./data/activity/ActivityInListExpanded";
-import { settingsStore } from "./data/settings/Settings";
 import { configure } from "@testing-library/react";
 import dayjs from "dayjs";
 import duration from "dayjs/plugin/duration";
@@ -80,17 +76,6 @@ function createMatchMedia(width: unknown) {
 beforeAll(() => {
   // @ts-expect-error just a mock
   window.matchMedia = createMatchMedia(window.innerWidth);
-});
-
-beforeEach(async () => {
-  await Promise.allSettled(
-    [
-      activityStore,
-      intervalStore,
-      activityInListExpandedStore,
-      settingsStore,
-    ].map((it) => it.clear()),
-  );
 });
 
 let consoleErrorSpy: MockInstance;

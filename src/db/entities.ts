@@ -1,6 +1,6 @@
 import { Entity } from "dexie";
-import { OliveDB } from "./OliveDB";
 import { MAX_DATE_MS } from "../utils/Date";
+import { OliveDB } from "./db";
 
 export class Activity extends Entity<OliveDB> {
   id!: number;
