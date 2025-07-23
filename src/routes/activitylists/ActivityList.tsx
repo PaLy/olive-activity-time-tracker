@@ -22,7 +22,7 @@ import { useClockStore } from "../../utils/clock";
 import { activityDuration } from "../../features/activities/services";
 import { useAppSnackbarStore } from "../../components/AppSnackbarStore";
 
-type Props = {
+export type ActivityListProps = {
   interval: SimpleInterval;
   header: string;
   filter?: ActivityListFilter;
@@ -35,7 +35,7 @@ export type ActivityListFilter = {
   initialHeight: number;
 };
 
-export const ActivityList = (props: Props) => {
+export const ActivityList = (props: ActivityListProps) => {
   return (
     <Grid container direction={"column"} height={"100%"}>
       <Paper square sx={{ flex: 1, display: "flex", flexDirection: "column" }}>
@@ -50,7 +50,7 @@ export const ActivityList = (props: Props) => {
   );
 };
 
-type ListProps = Props & { height: number; width: number };
+type ListProps = ActivityListProps & { height: number; width: number };
 
 const List = (props: ListProps) => {
   const { height, width, ...otherProps } = props;
@@ -119,7 +119,10 @@ const InnerElementType = (props: InnerElementTypeProps) => {
 
 const FILTER_PADDING_TOP = 16;
 
-const useItemData = (props: Props, activities: ActivityTreeNode[]) => {
+const useItemData = (
+  props: ActivityListProps,
+  activities: ActivityTreeNode[],
+) => {
   const { header, filter, interval } = props;
 
   const theme = useTheme();
@@ -212,7 +215,7 @@ function activitiesComparator(orderBy: OrderBy, time: number) {
   }
 }
 
-type HeaderProps = Pick<Props, "header" | "filter">;
+type HeaderProps = Pick<ActivityListProps, "header" | "filter">;
 
 const Header = (props: HeaderProps) => {
   const { header, filter } = props;

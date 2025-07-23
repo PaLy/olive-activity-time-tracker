@@ -138,7 +138,8 @@ const Row = <Component extends ElementType>(
   const rowRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const rowHeight = computedRowHeights.current.get(index) ?? size;
+    const computedHeight = computedRowHeights.current.get(index);
+    const rowHeight = computedHeight ?? size;
     const componentHeight = rowRef.current!.getBoundingClientRect().height;
 
     if (rowHeight !== componentHeight) {
@@ -148,6 +149,8 @@ const Row = <Component extends ElementType>(
       }
       computedRowHeights.current.set(index, componentHeight);
       resetListAfterIndex(index);
+    } else if (computedHeight === undefined) {
+      computedRowHeights.current.set(index, componentHeight);
     }
   });
 
