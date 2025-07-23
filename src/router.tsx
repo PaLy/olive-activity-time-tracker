@@ -1,11 +1,8 @@
 import { RouteObject, useRouteError } from "react-router";
 import App from "./App";
-import { TodayRoute } from "./routes/activitylists/TodayRoute";
-import { DayRoute } from "./routes/activitylists/DayRoute";
-import { MonthRoute } from "./routes/activitylists/MonthRoute";
-import { DateRangeRoute } from "./routes/activitylists/DateRangeRoute";
 import { ActivityRoute } from "./routes/activity/ActivityRoute";
 import { EditInterval } from "./routes/activity/EditInterval";
+import { ActivityListPage } from "./features/activityList/ActivityListPage";
 
 const ErrorBoundary = () => {
   const error = useRouteError();
@@ -21,23 +18,23 @@ export const createRoutes = (): RouteObject[] => [
     children: [
       {
         index: true,
-        element: <TodayRoute />,
+        element: <ActivityListPage interval={"today"} />,
       },
       {
         path: "today/*",
-        element: <TodayRoute />,
+        element: <ActivityListPage interval={"today"} />,
       },
       {
         path: "day/*",
-        element: <DayRoute />,
+        element: <ActivityListPage interval={"day"} />,
       },
       {
         path: "month/*",
-        element: <MonthRoute />,
+        element: <ActivityListPage interval={"month"} />,
       },
       {
         path: "range/*",
-        element: <DateRangeRoute />,
+        element: <ActivityListPage interval={"range"} />,
       },
       {
         path: "activities/:activityID",
