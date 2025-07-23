@@ -15,11 +15,6 @@ export async function getActivity(activityId: number) {
   return activity;
 }
 
-export async function isInProgress(activityId: number) {
-  const intervals = await getInProgressIntervalIds(activityId);
-  return intervals.length > 0;
-}
-
 export async function getInProgressIntervalIds(activityId: number) {
   const intervals = await db.intervals
     .where("end")
@@ -122,6 +117,11 @@ export async function getAncestors(activity: Activity): Promise<Activity[]> {
 }
 
 export async function getInProgressActivitiesCount(): Promise<number> {
+  const inProgressActivityIds = await getInProgressActivityIds();
+  return inProgressActivityIds.size;
+}
+
+export async function getInProgressActivityIds(): Promise<Set<number>> {
   return db.transaction("r", db.intervals, db.activities, async () => {
     const intervals = await db.intervals
       .where("end")
@@ -140,8 +140,13 @@ export async function getInProgressActivitiesCount(): Promise<number> {
       }),
     );
 
-    return activityIds.size;
+    return activityIds;
   });
+}
+
+export async function isInProgress(activityId: number) {
+  const inProgressActivityIds = await getInProgressActivityIds();
+  return inProgressActivityIds.has(activityId);
 }
 
 export async function expandAllActivities() {

@@ -37,7 +37,7 @@ export const activityFullName = <
     .join(ACTIVITY_FULL_NAME_SEPARATOR);
 };
 
-export const isInProgress = (activity: ActivityTreeNode) =>
+export const isInProgressInDateRange = (activity: ActivityTreeNode) =>
   activity.subtreeLastEndTime === MAX_DATE_MS;
 
 export const depth = (activity: ActivityTreeNode): number => {

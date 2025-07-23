@@ -18,12 +18,11 @@ import { Link } from "react-router";
 import { animate } from "animejs";
 import { useMemo } from "react";
 import { getLocale } from "../../utils/Locale";
-import { MAX_DATE_MS } from "../../utils/Date";
 import { setExpanded } from "../../db/queries/activities";
 import { ActivityTreeNode } from "../../db/queries/activitiesTree";
 import {
   depth,
-  isInProgress,
+  isInProgressInDateRange,
   useDuration,
   useDurationPercentage,
   useStartActivity,
@@ -157,7 +156,7 @@ type StartStopActivityProps = {
 
 const StartStopButton = (props: StartStopActivityProps) => {
   const { activity } = props;
-  const inProgress = activity.subtreeLastEndTime === MAX_DATE_MS;
+  const inProgress = activity.inProgress;
   const ariaLabel = inProgress ? "stop activity" : "start activity";
 
   const { mutate: startActivity, isPending: starting } = useStartActivity();
@@ -193,7 +192,7 @@ const ActivityRow2 = (props: ActivityRow2Props) => {
   const { activity } = props;
   const durationPercentage = useDurationPercentage(activity);
   const duration = useDuration(activity);
-  const inProgress = isInProgress(activity);
+  const inProgress = isInProgressInDateRange(activity);
   const humanizedDuration = useHumanizedDuration(duration, inProgress);
   const { showDuration, showCost, showPercentage } = useActivityListSettings();
   const cost = getCost(duration, showCost);
