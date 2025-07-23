@@ -36,16 +36,18 @@ export async function updateInterval(
   newEnd: number,
 ): Promise<void> {
   return db.transaction("rw", db.intervals, async () => {
-    const interval = await db.intervals.get(intervalId);
-    if (!interval) {
-      throw new Error(`Interval with ID ${intervalId} does not exist.`);
-    }
-
     // Validate the new start and end times
     if (newStart >= newEnd) {
       throw new Error("Start time must be less than end time.");
     }
-    await db.intervals.update(intervalId, { start: newStart, end: newEnd });
+
+    const updated = await db.intervals.update(intervalId, {
+      start: newStart,
+      end: newEnd,
+    });
+    if (!updated) {
+      throw new Error(`Interval with ID ${intervalId} does not exist.`);
+    }
   });
 }
 

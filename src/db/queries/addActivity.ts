@@ -34,9 +34,9 @@ export async function addActivity(params: AddActivityParams) {
         ? await checkActivityExist(existingActivityId)
         : await createActivity(name, parentId);
 
-    await db.intervals.add({ activityId, start, end });
-
-    await expandSelfAndAncestors(activityId);
+    const addInterval = db.intervals.add({ activityId, start, end });
+    const expandActivities = expandSelfAndAncestors(activityId);
+    await Promise.all([addInterval, expandActivities]);
   });
 }
 

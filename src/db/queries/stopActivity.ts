@@ -1,6 +1,6 @@
 import { db } from "../db";
 import { resumeActivity } from "./resumeActivity";
-import { getActivity, getParent, stopSelfAndDescendants } from "./activities";
+import { getActivity, stopSelfAndDescendants } from "./activities";
 
 type StopActivityParams = {
   activityId: number;
@@ -13,13 +13,13 @@ export async function stopActivity(params: StopActivityParams) {
   return db.transaction("rw", db.activities, db.intervals, async () => {
     const activity = await getActivity(activityId);
 
-    await stopSelfAndDescendants(activity, end);
+    await Promise.all([
+      stopSelfAndDescendants(activity, end),
+      db.activities.update(activityId, { expanded: 0 }),
+    ]);
 
-    await db.activities.update(activityId, { expanded: 0 });
-
-    const parent = await getParent(activity);
-    if (parent) {
-      await resumeActivity({ activityId: parent.id, startTime: end });
+    if (activity.parentId !== -1) {
+      await resumeActivity({ activityId: activity.parentId, startTime: end });
     }
   });
 }
