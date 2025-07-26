@@ -34,11 +34,27 @@ import moment from "moment";
 import { Activity, Interval } from "../../db/entities";
 import { useActivityFullName } from "./hooks";
 import { useIntervalDuration } from "../intervals/hooks";
+import {
+  editActivityName,
+  getSiblingActivities,
+} from "../../db/queries/activities";
 
 export const ActivityDetailsPage = () => {
   const params = useParams<{ activityID: string }>();
   // TODO validate activityID is a number
   const activityId = parseInt(params.activityID ?? "");
+  const [editingState, setEditingState] = useState<{
+    editMode: boolean;
+    name: string;
+    siblingNames: Set<string>;
+    validationError: string;
+  }>({
+    editMode: false,
+    name: "",
+    siblingNames: new Set(),
+    validationError: "",
+  });
+
   const activityDetailsData = useLiveQuery(
     () =>
       getActivityDetails(activityId).catch((e) => {
@@ -49,11 +65,95 @@ export const ActivityDetailsPage = () => {
     [activityId],
   );
 
+  const validateName = (nameToValidate: string, siblingNames: Set<string>) => {
+    if (nameToValidate.trim() === "") {
+      return "Activity name cannot be empty";
+    }
+    if (siblingNames.has(nameToValidate.trim().toLowerCase())) {
+      return "An activity with this name already exists in the same parent";
+    }
+    return "";
+  };
+
+  const handleEditStart = async () => {
+    if (!activityDetailsData) return;
+
+    try {
+      const siblings = await getSiblingActivities(activityId);
+      const names = new Set(
+        siblings.map((sibling) => sibling.name.toLowerCase()),
+      );
+      const currentActivity = activityDetailsData.activities.get(activityId);
+
+      setEditingState({
+        editMode: true,
+        name: currentActivity?.name || "",
+        siblingNames: names,
+        validationError: "",
+      });
+    } catch (err) {
+      console.error(err);
+      openErrorSnackbar("Failed to load activity data");
+    }
+  };
+
+  const handleNameChange = (newName: string) => {
+    const validationError = validateName(newName, editingState.siblingNames);
+    setEditingState((prev) => ({
+      ...prev,
+      name: newName,
+      validationError,
+    }));
+  };
+
+  const handleSave = () => {
+    const trimmedName = editingState.name.trim();
+    const validationError = validateName(
+      trimmedName,
+      editingState.siblingNames,
+    );
+
+    if (validationError) {
+      setEditingState((prev) => ({ ...prev, validationError }));
+      return;
+    }
+
+    editActivityName(activityId, trimmedName)
+      .then(() => {
+        setEditingState({
+          editMode: false,
+          name: "",
+          siblingNames: new Set(),
+          validationError: "",
+        });
+      })
+      .catch((err) => {
+        console.error(err);
+        openErrorSnackbar("Failed to save activity name");
+      });
+  };
+
+  const handleCancel = () => {
+    setEditingState({
+      editMode: false,
+      name: "",
+      siblingNames: new Set(),
+      validationError: "",
+    });
+  };
+
   return (
     <>
       <Paper square sx={{ height: "100%" }}>
         {activityDetailsData ? (
-          <Content activityDetails={activityDetailsData} />
+          <Content
+            activityDetails={activityDetailsData}
+            editingState={editingState}
+            onEditStart={handleEditStart}
+            onNameChange={handleNameChange}
+            onSave={handleSave}
+            onCancel={handleCancel}
+          />
         ) : (
           <Loading />
         )}
@@ -66,12 +166,37 @@ export const ActivityDetailsPage = () => {
 
 type ContentProps = {
   activityDetails: ActivityDetailsData;
+  editingState: {
+    editMode: boolean;
+    name: string;
+    siblingNames: Set<string>;
+    validationError: string;
+  };
+  onEditStart: () => void;
+  onNameChange: (newName: string) => void;
+  onSave: () => void;
+  onCancel: () => void;
 };
 
 const Content = (props: ContentProps) => {
-  const { activityDetails } = props;
+  const {
+    activityDetails,
+    editingState,
+    onEditStart,
+    onNameChange,
+    onSave,
+    onCancel,
+  } = props;
   const [visibleStartIndex, setVisibleStartIndex] = useState(0);
-  const rowData = useRowData(activityDetails, visibleStartIndex);
+  const rowData = useRowData(
+    activityDetails,
+    visibleStartIndex,
+    editingState,
+    onEditStart,
+    onNameChange,
+    onSave,
+    onCancel,
+  );
 
   const topInterval = useMemo(() => {
     if (visibleStartIndex > 0) {
@@ -162,16 +287,43 @@ const StickySubheader = (props: StickySubheaderProps) => {
 
 type TopOfIntervalListProps = {
   activityDetails: ActivityDetailsData;
+  editingState: {
+    editMode: boolean;
+    name: string;
+    siblingNames: Set<string>;
+    validationError: string;
+  };
+  onEditStart: () => void;
+  onNameChange: (newName: string) => void;
+  onSave: () => void;
+  onCancel: () => void;
 };
 
 const TopOfIntervalList = (props: TopOfIntervalListProps) => {
-  const { activityDetails } = props;
+  const {
+    activityDetails,
+    editingState,
+    onEditStart,
+    onNameChange,
+    onSave,
+    onCancel,
+  } = props;
   const { id, activities } = activityDetails;
 
   return (
     <Box sx={{ pt: 1, pb: 1 }}>
       <FullScreenModalHeader headline="Activity details" />
-      <ActivityName activityId={id} activities={activities} />
+      <ActivityName
+        activityId={id}
+        activities={activities}
+        editMode={editingState.editMode}
+        name={editingState.name}
+        validationError={editingState.validationError}
+        onEditStart={onEditStart}
+        onNameChange={onNameChange}
+        onSave={onSave}
+        onCancel={onCancel}
+      />
       <Typography variant="h6" sx={{ pl: 2, pr: 2 }}>
         Intervals
       </Typography>
@@ -182,6 +334,16 @@ const TopOfIntervalList = (props: TopOfIntervalListProps) => {
 const useRowData = (
   activityDetails: ActivityDetailsData,
   visibleStartIndex: number,
+  editingState: {
+    editMode: boolean;
+    name: string;
+    siblingNames: Set<string>;
+    validationError: string;
+  },
+  onEditStart: () => void,
+  onNameChange: (newName: string) => void,
+  onSave: () => void,
+  onCancel: () => void,
 ) => {
   return useMemo(() => {
     const { intervalsByDay, activities } = activityDetails;
@@ -189,7 +351,14 @@ const useRowData = (
     return [
       {
         RowComponent: TopOfIntervalList,
-        rowProps: { activityDetails },
+        rowProps: {
+          activityDetails,
+          editingState,
+          onEditStart,
+          onNameChange,
+          onSave,
+          onCancel,
+        },
         rowData: { size: 104 },
       },
       ...intervalsByDay.flatMap((dayIntervals) => {
@@ -218,7 +387,15 @@ const useRowData = (
         return items;
       }),
     ] as SingleItemData<ElementType>[];
-  }, [activityDetails, visibleStartIndex]);
+  }, [
+    activityDetails,
+    visibleStartIndex,
+    editingState,
+    onEditStart,
+    onNameChange,
+    onSave,
+    onCancel,
+  ]);
 };
 
 type SubheaderItemProps = {
