@@ -95,40 +95,52 @@ export const ActivityName = (props: ActivityNameProps) => {
   };
 
   return (
-    <Box sx={{ display: "flex", alignItems: "center", pl: 2, pr: 2, mb: 1 }}>
+    <Box
+      sx={{ display: "flex", alignItems: "flex-start", pl: 2, pr: 2, mb: 1 }}
+    >
       {editMode ? (
-        <TextField
-          label={"Name"}
-          value={name}
-          onChange={handleNameChange}
-          onKeyDown={handleKeyDown}
-          variant="outlined"
-          size="small"
-          placeholder="Activity name"
-          sx={{ flexGrow: 1, mr: 1 }}
-          autoFocus
-          error={!!validationError}
-          helperText={validationError}
-        />
+        <Box sx={{ flexGrow: 1, mr: 1 }}>
+          <TextField
+            label={"Name"}
+            value={name}
+            onChange={handleNameChange}
+            onKeyDown={handleKeyDown}
+            variant="outlined"
+            size="small"
+            placeholder="Activity name"
+            sx={{ width: "100%" }}
+            autoFocus
+            error={!!validationError}
+            helperText={validationError}
+          />
+        </Box>
       ) : (
         <Typography variant="h6" sx={{ flexGrow: 1 }}>
           {fullName}
         </Typography>
       )}
-      {editMode ? (
-        <>
-          <IconButton aria-label="save activity" onClick={handleSave}>
-            <CheckIcon />
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "flex-start",
+          mt: editMode ? 0.5 : 0,
+        }}
+      >
+        {editMode ? (
+          <>
+            <IconButton aria-label="save activity" onClick={handleSave}>
+              <CheckIcon />
+            </IconButton>
+            <IconButton aria-label="cancel edit" onClick={handleCancel}>
+              <CloseIcon />
+            </IconButton>
+          </>
+        ) : (
+          <IconButton aria-label="edit activity" onClick={handleEditMode}>
+            <EditIcon />
           </IconButton>
-          <IconButton aria-label="cancel edit" onClick={handleCancel}>
-            <CloseIcon />
-          </IconButton>
-        </>
-      ) : (
-        <IconButton aria-label="edit activity" onClick={handleEditMode}>
-          <EditIcon />
-        </IconButton>
-      )}
+        )}
+      </Box>
     </Box>
   );
 };
