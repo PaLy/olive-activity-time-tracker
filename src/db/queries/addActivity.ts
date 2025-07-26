@@ -1,6 +1,10 @@
 import { db } from "../db";
 import { MAX_DATE_MS } from "../../utils/date";
-import { checkActivityExist, expandSelfAndAncestors } from "./activities";
+import {
+  checkActivityExist,
+  expandSelfAndAncestors,
+  stopAncestors,
+} from "./activities";
 
 type AddActivityParams = {
   interval: {
@@ -37,6 +41,13 @@ export async function addActivity(params: AddActivityParams) {
     const addInterval = db.intervals.add({ activityId, start, end });
     const expandActivities = expandSelfAndAncestors(activityId);
     await Promise.all([addInterval, expandActivities]);
+
+    if (end === MAX_DATE_MS) {
+      const activity = await db.activities.get(activityId);
+      if (activity) {
+        await stopAncestors(activity, new Date().getTime());
+      }
+    }
   });
 }
 
