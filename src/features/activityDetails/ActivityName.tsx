@@ -33,7 +33,7 @@ export const ActivityName = (props: ActivityNameProps) => {
       setValidationError("Activity name cannot be empty");
       return false;
     }
-    if (siblingNames.has(nameToValidate.trim())) {
+    if (siblingNames.has(nameToValidate.trim().toLowerCase())) {
       setValidationError(
         "An activity with this name already exists in the same parent",
       );
@@ -75,7 +75,9 @@ export const ActivityName = (props: ActivityNameProps) => {
   const handleEditMode = async () => {
     try {
       const siblings = await getSiblingActivities(activityId);
-      const names = new Set(siblings.map((sibling) => sibling.name));
+      const names = new Set(
+        siblings.map((sibling) => sibling.name.toLowerCase()),
+      );
       setSiblingNames(names);
       setEditMode(true);
     } catch (err) {
