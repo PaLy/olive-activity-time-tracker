@@ -21,7 +21,7 @@ import {
   getActivitiesTree,
 } from "../../db/queries/activitiesTree";
 import { OrderBy } from "./constants";
-import { useActivitiesOrderKey } from "./hooks";
+import { useFlipKey } from "./hooks";
 import { SimpleInterval } from "../../utils/types";
 import { useClockStore } from "../../utils/clock";
 import { activityDuration } from "../activities/services";
@@ -63,7 +63,7 @@ const List = (props: ListProps) => {
   const activities = useFilteredActivities(orderBy, interval);
   const itemData = useItemData(otherProps, activities);
   const innerRef = useRef<HTMLDivElement>(null);
-  const flipKey = useActivitiesOrderKey(activities);
+  const { flipKey, forceUpdate } = useFlipKey(activities);
 
   useEffect(() => {
     innerRef.current!.style.minHeight = `${height}px`;
@@ -80,6 +80,7 @@ const List = (props: ListProps) => {
         height={height}
         innerElementType={InnerElementType}
         innerRef={innerRef}
+        onResetAfterIndex={forceUpdate}
       />
     </Flipper>
   );
