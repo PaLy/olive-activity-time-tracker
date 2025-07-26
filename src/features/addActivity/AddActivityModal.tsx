@@ -109,6 +109,7 @@ const Content = () => {
               }
             },
             children: finished ? "Save" : "Start",
+            "aria-label": finished ? "Save" : "Start",
           }}
         />
         <Box sx={{ ml: 1, mr: 1 }}>
