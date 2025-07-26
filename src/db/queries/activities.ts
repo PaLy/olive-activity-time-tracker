@@ -195,3 +195,21 @@ export async function getFullName(activity: Activity): Promise<string> {
     .map((a) => a.name)
     .join(" / ");
 }
+
+export async function getSiblingActivities(
+  activityId: number,
+): Promise<Activity[]> {
+  const activity = await getActivity(activityId);
+  return db.activities
+    .where("parentId")
+    .equals(activity.parentId)
+    .and((sibling) => sibling.id !== activityId) // Exclude the current activity
+    .toArray();
+}
+
+export async function editActivityName(
+  activityId: number,
+  newName: string,
+): Promise<void> {
+  await db.activities.update(activityId, { name: newName });
+}
