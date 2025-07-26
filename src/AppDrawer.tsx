@@ -1,7 +1,6 @@
 import { ReactNode } from "react";
 import { useLocation, useNavigate } from "./routes/Router";
 import Box from "@mui/material/Box";
-import Drawer from "@mui/material/Drawer";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import ListItemButton from "@mui/material/ListItemButton";
@@ -12,6 +11,7 @@ import SettingsIcon from "@mui/icons-material/Settings";
 import StorageIcon from "@mui/icons-material/Storage";
 import { StorageModal } from "./routes/storage/StorageModal";
 import { SettingsModal } from "./routes/settings/SettingsModal";
+import SwipeableDrawer from "@mui/material/SwipeableDrawer";
 
 export const AppDrawer = () => {
   const navigate = useNavigate();
@@ -19,10 +19,11 @@ export const AppDrawer = () => {
 
   return (
     <>
-      <Drawer
+      <SwipeableDrawer
         anchor={"left"}
         open={pathname.endsWith("/drawer")}
         onClose={() => navigate(-1)}
+        onOpen={() => navigate(`${pathname}/drawer`)} // used when opening by swipe
       >
         <Box
           sx={{ width: 250 }}
@@ -46,7 +47,7 @@ export const AppDrawer = () => {
             />
           </List>
         </Box>
-      </Drawer>
+      </SwipeableDrawer>
       <SettingsModal />
       <StorageModal />
     </>
