@@ -20,6 +20,7 @@ import {
 } from "react";
 import EditIcon from "@mui/icons-material/Edit";
 import { DeleteIntervalConfirmation } from "./DeleteIntervalConfirmation";
+import { ActivityName } from "./ActivityName";
 import AutoSizer from "react-virtualized-auto-sizer";
 import { ResizableList, SingleItemData } from "../../components/ResizableList";
 import { calendarTime, MAX_DATE_MS } from "../../utils/date";
@@ -166,10 +167,11 @@ type TopOfIntervalListProps = {
 const TopOfIntervalList = (props: TopOfIntervalListProps) => {
   const { activityDetails } = props;
   const { id, activities } = activityDetails;
-  const fullName = useActivityFullName(id, activities);
+
   return (
     <Box sx={{ pt: 1, pb: 1 }}>
-      <FullScreenModalHeader headline={fullName} />
+      <FullScreenModalHeader headline="Activity details" />
+      <ActivityName activityId={id} activities={activities} />
       <Typography variant="h6" sx={{ pl: 2, pr: 2 }}>
         Intervals
       </Typography>
