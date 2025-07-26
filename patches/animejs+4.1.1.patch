@@ -1,10 +1,10 @@
 diff --git a/node_modules/animejs/types/index.d.ts b/node_modules/animejs/types/index.d.ts
-index fc0fad2..fb3c2c5 100644
+index edc7ae0..a86951c 100644
 --- a/node_modules/animejs/types/index.d.ts
 +++ b/node_modules/animejs/types/index.d.ts
-@@ -250,7 +250,7 @@ declare class Timeline extends Timer {
- declare function createTimeline(parameters?: TimelineParams): Timeline;
- type TimePosition = number | string | Function;
+@@ -220,7 +220,7 @@ declare function stagger(val: number | string | [
+     number | string
+ ], params?: StaggerParams): StaggerFunction;
  declare namespace eases {
 -    export let linear: (...args?: (string | number)[]) => EasingFunction;
 +    export let linear: (...args: (string | number)[]) => EasingFunction;
