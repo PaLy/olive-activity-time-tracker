@@ -1,14 +1,11 @@
-import {
-  Box,
-  Container,
-  createTheme,
-  CssBaseline,
-  ThemeProvider,
-  useMediaQuery,
-} from "@mui/material";
+import Box from "@mui/material/Box";
+import Container from "@mui/material/Container";
+import CssBaseline from "@mui/material/CssBaseline";
+import { createTheme, ThemeProvider } from "@mui/material/styles";
+import useMediaQuery from "@mui/material/useMediaQuery";
 import { useContext, useMemo } from "react";
 import { Outlet, ScrollRestoration } from "react-router";
-import { LocalizationProvider } from "@mui/x-date-pickers";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterMoment } from "@mui/x-date-pickers/AdapterMoment";
 import { ScrollMemoryContext } from "./components/ScrollMemory";
 import { AppSnackbar } from "./components/AppSnackbar";

@@ -1,4 +1,8 @@
-import { Box, Container, Modal, Paper, Slide } from "@mui/material";
+import Box from "@mui/material/Box";
+import Container from "@mui/material/Container";
+import Modal from "@mui/material/Modal";
+import Paper from "@mui/material/Paper";
+import Slide from "@mui/material/Slide";
 import { ReactElement } from "react";
 
 type Props = {

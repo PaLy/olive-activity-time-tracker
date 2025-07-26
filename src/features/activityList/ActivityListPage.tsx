@@ -8,7 +8,7 @@ import { ChipDayPicker } from "../../components/ChipDayPicker";
 import moment from "moment/moment";
 import { useState } from "react";
 import { ChipDatePicker } from "../../components/ChipDatePicker";
-import { Grid } from "@mui/material";
+import Grid from "@mui/material/Grid";
 import { SimpleInterval } from "../../utils/types";
 import humanizeDuration from "humanize-duration";
 

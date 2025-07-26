@@ -1,4 +1,5 @@
-import { DateTimePicker, renderTimeViewClock } from "@mui/x-date-pickers";
+import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
+import { renderTimeViewClock } from "@mui/x-date-pickers/timeViewRenderers";
 import { Moment } from "moment";
 
 type Props = {

@@ -1,5 +1,5 @@
 import { createContext } from "react";
-import { createTheme } from "@mui/material";
+import { createTheme } from "@mui/material/styles";
 
 export type ThemeOptions = Parameters<typeof createTheme>[0];
 

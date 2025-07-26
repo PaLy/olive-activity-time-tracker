@@ -1,4 +1,7 @@
-import { Box, TextField, ToggleButton, ToggleButtonGroup } from "@mui/material";
+import Box from "@mui/material/Box";
+import TextField from "@mui/material/TextField";
+import ToggleButton from "@mui/material/ToggleButton";
+import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import { SelectActivity } from "./SelectActivity";
 import { useCreateActivityStore } from "./Store";
 

@@ -1,4 +1,6 @@
-import { Alert, Button, Snackbar } from "@mui/material";
+import Alert from "@mui/material/Alert";
+import Button from "@mui/material/Button";
+import Snackbar from "@mui/material/Snackbar";
 import FileDownloadIcon from "@mui/icons-material/FileDownload";
 import { saveAs } from "file-saver";
 import moment from "moment";

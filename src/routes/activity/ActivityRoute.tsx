@@ -1,14 +1,12 @@
-import {
-  Box,
-  CircularProgress,
-  IconButton,
-  ListItem,
-  ListItemIcon,
-  ListItemText,
-  ListSubheader,
-  Paper,
-  Typography,
-} from "@mui/material";
+import Box from "@mui/material/Box";
+import CircularProgress from "@mui/material/CircularProgress";
+import IconButton from "@mui/material/IconButton";
+import ListItem from "@mui/material/ListItem";
+import ListItemIcon from "@mui/material/ListItemIcon";
+import ListItemText from "@mui/material/ListItemText";
+import ListSubheader from "@mui/material/ListSubheader";
+import Paper from "@mui/material/Paper";
+import Typography from "@mui/material/Typography";
 import { Link, Outlet, useParams } from "react-router";
 import { FullScreenModalHeader } from "../../components/FullScreenModalHeader";
 import {

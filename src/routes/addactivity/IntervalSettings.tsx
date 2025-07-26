@@ -1,9 +1,7 @@
-import {
-  Box,
-  ToggleButton,
-  ToggleButtonGroup,
-  Typography,
-} from "@mui/material";
+import Box from "@mui/material/Box";
+import ToggleButton from "@mui/material/ToggleButton";
+import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
+import Typography from "@mui/material/Typography";
 import { DateTimeRangePicker } from "../../components/DateTimeRangePicker";
 import moment from "moment/moment";
 import { useCreateActivityStore } from "./Store";

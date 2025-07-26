@@ -1,4 +1,7 @@
-import { AppBar, IconButton, Toolbar, Typography } from "@mui/material";
+import AppBar from "@mui/material/AppBar";
+import IconButton from "@mui/material/IconButton";
+import Toolbar from "@mui/material/Toolbar";
+import Typography from "@mui/material/Typography";
 import { ReactNode } from "react";
 import MenuIcon from "@mui/icons-material/Menu";
 import { useLocation, useNavigate } from "./routes/Router";

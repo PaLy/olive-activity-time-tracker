@@ -1,14 +1,12 @@
-import {
-  Box,
-  Button,
-  Container,
-  Grid,
-  IconButton,
-  Modal,
-  Paper,
-  Slide,
-  Typography,
-} from "@mui/material";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import Container from "@mui/material/Container";
+import Grid from "@mui/material/Grid";
+import IconButton from "@mui/material/IconButton";
+import Modal from "@mui/material/Modal";
+import Paper from "@mui/material/Paper";
+import Slide from "@mui/material/Slide";
+import Typography from "@mui/material/Typography";
 import { useParams } from "react-router";
 import SaveIcon from "@mui/icons-material/Save";
 import DeleteIcon from "@mui/icons-material/Delete";

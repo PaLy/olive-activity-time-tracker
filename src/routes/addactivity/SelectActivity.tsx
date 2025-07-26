@@ -1,4 +1,5 @@
-import { Autocomplete, createFilterOptions, TextField } from "@mui/material";
+import Autocomplete, { createFilterOptions } from "@mui/material/Autocomplete";
+import TextField from "@mui/material/TextField";
 import { chain } from "lodash";
 import { useMemo } from "react";
 import {
