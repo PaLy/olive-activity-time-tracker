@@ -23,6 +23,11 @@ type ResizableListProps<Component extends ElementType> = Pick<
   "height" | "width" | "onItemsRendered" | "innerElementType" | "innerRef"
 > & {
   itemData: ItemData<Component>;
+  /**
+   * If defined, virtualized list will not be rerendered immediately.
+   * The function should trigger the virtualized list rerender.
+   */
+  onResetAfterIndex?: () => void;
 };
 
 type ItemData<Component extends ElementType> = Array<{
@@ -51,6 +56,7 @@ export const ResizableList = <Component extends ElementType>(
     onItemsRendered,
     innerElementType,
     innerRef,
+    onResetAfterIndex,
   } = props;
   const variableSizeListRef =
     useRef<VariableSizeList<WrappedItemData<Component>>>(null);
@@ -61,6 +67,7 @@ export const ResizableList = <Component extends ElementType>(
     itemData,
     variableSizeListRef,
     computedRowHeights,
+    onResetAfterIndex,
   );
 
   const { pathname: scrollID } = useLocation();
@@ -94,8 +101,12 @@ const useWrappedItemData = <Component extends ElementType>(
   itemData: ItemData<Component>,
   listRef: RefObject<VariableSizeList<WrappedItemData<Component>> | null>,
   computedRowHeights: RefObject<Map<number, number>>,
+  onResetAfterIndex?: () => void,
 ) => {
-  const resetListAfterIndex = useResetListAfterIndex(listRef);
+  const resetListAfterIndex = useResetListAfterIndex(
+    listRef,
+    onResetAfterIndex,
+  );
 
   return useMemo(
     () =>
@@ -165,6 +176,7 @@ const Row = <Component extends ElementType>(
 
 const useResetListAfterIndex = <T,>(
   listRef: RefObject<VariableSizeList<T> | null>,
+  onResetAfterIndex?: () => void,
 ) => {
   const indexRef = useRef(Number.MAX_SAFE_INTEGER);
 
@@ -172,7 +184,8 @@ const useResetListAfterIndex = <T,>(
     if (indexRef.current !== Number.MAX_SAFE_INTEGER) {
       const index = indexRef.current;
       indexRef.current = Number.MAX_SAFE_INTEGER;
-      listRef.current?.resetAfterIndex(index);
+      listRef.current?.resetAfterIndex(index, !onResetAfterIndex);
+      onResetAfterIndex?.();
     }
   }, 10);
 
