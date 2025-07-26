@@ -3,11 +3,15 @@ import { ActivityList, ActivityListProps } from "./ActivityList";
 import { OrderBy } from "./constants";
 import { ChipDayPicker } from "../../components/ChipDayPicker";
 import moment from "moment/moment";
-import { useState } from "react";
 import { ChipDatePicker } from "../../components/ChipDatePicker";
 import Grid from "@mui/material/Grid";
 import { SimpleInterval } from "../../utils/types";
 import humanizeDuration from "humanize-duration";
+import {
+  useDateRangeFilterStore,
+  useDayFilterStore,
+  useMonthFilterStore,
+} from "./ActivityListFilterStore";
 
 type ActivityListPageProps = {
   interval: ActivityListInterval;
@@ -54,7 +58,7 @@ const useTodayActivityList = (): ActivityListProps => {
 };
 
 const useDayActivityList = (): ActivityListProps => {
-  const [day, setDay] = useState(yesterday());
+  const { day, setDay } = useDayFilterStore();
   const start = day.startOf("day").valueOf();
   const end = day.endOf("day").valueOf();
 
@@ -81,7 +85,7 @@ const useDayActivityList = (): ActivityListProps => {
 const yesterday = () => moment().subtract(1, "day");
 
 const useMonthActivityList = (): ActivityListProps => {
-  const [month, setMonth] = useState(moment());
+  const { month, setMonth } = useMonthFilterStore();
   const start = month.startOf("month").valueOf();
   const end = month.endOf("month").valueOf();
 
@@ -109,8 +113,7 @@ const useMonthActivityList = (): ActivityListProps => {
 };
 
 const useDateRangeActivityList = (): ActivityListProps => {
-  const [start, setStart] = useState(moment().subtract(6, "days"));
-  const [end, setEnd] = useState(moment());
+  const { start, end, setStart, setEnd } = useDateRangeFilterStore();
 
   const istart = start.clone().startOf("day").valueOf();
   const iend = end.clone().add(1, "day").startOf("day").valueOf();
