@@ -1,6 +1,7 @@
 package com.paly.olive
 
 import android.annotation.SuppressLint
+import android.content.pm.PackageManager
 import android.graphics.Color
 import android.os.Bundle
 import android.view.View
@@ -32,6 +33,29 @@ class MainActivity : ComponentActivity() {
         super.onResume()
         if (!backPressedCallback.isEnabled) {
             backPressedCallback.isEnabled = true
+        }
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray,
+        deviceId: Int
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults, deviceId)
+
+        when (requestCode) {
+            WebAppInterface.NOTIFICATION_PERMISSION_REQUEST_CODE -> {
+                val granted = grantResults.isNotEmpty() &&
+                             grantResults[0] == PackageManager.PERMISSION_GRANTED
+
+                // Notify the web app about the permission result
+                val result = if (granted) "granted" else "denied"
+                myWebView.evaluateJavascript(
+                    "window.dispatchEvent(new CustomEvent('notificationPermissionResult', { detail: '$result' }));",
+                    null
+                )
+            }
         }
     }
 

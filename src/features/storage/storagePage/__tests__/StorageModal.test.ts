@@ -38,7 +38,21 @@ describe("StorageModal", () => {
     it("opens Android share dialog", async () => {
       await prepareData();
       const exportMock = vi.fn();
-      window.Android = { export: exportMock };
+      window.Android = {
+        export: exportMock,
+        hasNotificationPermission(): boolean {
+          return false;
+        },
+        requestNotificationPermission(): string {
+          return "";
+        },
+        updateNotification(): string {
+          return "";
+        },
+        stopNotification(): string {
+          return "";
+        },
+      };
       Date.now = vi.fn(() => new Date("2024-03-05T08:20:37").getTime());
 
       renderApp({ route: "/today/storage" });

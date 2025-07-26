@@ -14,6 +14,6 @@ export const useIntervalDuration = (
     const inProgress = end === MAX_DATE_MS;
     const effectiveEnd = inProgress ? +time : end;
     const duration = effectiveEnd - start;
-    return humanize(duration, inProgress, full);
+    return humanize(duration, inProgress || full);
   }, [full, start, end, time]);
 };
