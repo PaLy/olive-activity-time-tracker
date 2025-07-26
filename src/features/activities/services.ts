@@ -1,6 +1,6 @@
 import { ACTIVITY_FULL_NAME_SEPARATOR } from "./constants";
 import { ActivityTreeNode } from "../../db/queries/activitiesTree";
-import { MAX_DATE_MS } from "../../utils/Date";
+import { MAX_DATE_MS } from "../../utils/date";
 import { useAppSnackbarStore } from "../../components/AppSnackbarStore";
 import { useState } from "react";
 import { resumeActivity } from "../../db/queries/resumeActivity";

@@ -1,5 +1,5 @@
 import { Entity } from "dexie";
-import { MAX_DATE_MS } from "../utils/Date";
+import { MAX_DATE_MS } from "../utils/date";
 import { OliveDB } from "./db";
 
 export class Activity extends Entity<OliveDB> {

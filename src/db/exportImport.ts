@@ -1,5 +1,5 @@
 import { db } from "./db";
-import { MAX_DATE_MS } from "../utils/Date";
+import { MAX_DATE_MS } from "../utils/date";
 import "dexie-export-import";
 
 export async function exportDB() {

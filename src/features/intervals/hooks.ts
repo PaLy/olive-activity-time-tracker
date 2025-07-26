@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { MAX_DATE_MS } from "../../utils/Date";
+import { MAX_DATE_MS } from "../../utils/date";
 import { humanize } from "../../utils/duration";
 
 import { useClockStore } from "../../utils/clock";

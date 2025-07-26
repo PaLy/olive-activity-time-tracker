@@ -15,7 +15,7 @@ import {
   useRef,
 } from "react";
 import { ScrollMemoryContext } from "./ScrollMemory";
-import { useLocation } from "../routes/Router";
+import { useLocation } from "../router/hooks";
 import { useDebounceCallback } from "usehooks-ts";
 
 type ResizableListProps<Component extends ElementType> = Pick<

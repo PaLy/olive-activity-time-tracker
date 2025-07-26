@@ -3,7 +3,7 @@ import Grid from "@mui/material/Grid";
 import IconButton from "@mui/material/IconButton";
 import Typography from "@mui/material/Typography";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import { useNavigate } from "../routes/Router";
+import { useNavigate } from "../router/hooks";
 
 type Props = {
   headline?: string;
