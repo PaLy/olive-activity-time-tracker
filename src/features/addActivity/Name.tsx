@@ -12,6 +12,9 @@ type NameProps = {
 
 export const Name = (props: NameProps) => {
   const { activityNameExists } = props;
+  const intervalToggle = useCreateActivityStore(
+    (state) => state.intervalToggle,
+  );
   const toggle = useCreateActivityStore((state) => state.nameToggle);
   const setToggle = useCreateActivityStore((state) => state.setNameToggle);
   const name = useCreateActivityStore((state) => state.name);
@@ -99,7 +102,9 @@ export const Name = (props: NameProps) => {
               value: existingActivityError,
               set: setExistingActivityError,
             }}
-            getOptionDisabled={(activity) => activity.inProgress}
+            getOptionDisabled={(activity) =>
+              activity.inProgress && intervalToggle !== "finished"
+            }
             onUserInputChange={(newInputValue) => {
               setName(capitalize(newInputValue));
             }}
