@@ -4,28 +4,35 @@ export const capitalize = (str: string) =>
 export const getInitials = (name: string) =>
   name
     .split(" ")
-    .filter(createLongWordsFilter())
+    .filter(createInitialsWordsFilter())
     .slice(0, 2)
     .map((word) => word[0])
     .join("")
     .toLocaleUpperCase();
 
-const createLongWordsFilter = () => {
-  let removalsLeft: number | undefined = undefined;
+const createInitialsWordsFilter = () => {
+  const removeWord: boolean[] = [];
 
-  return (word: string, index: number, array: string[]) => {
-    if (removalsLeft === undefined) {
-      removalsLeft = array.length - 2;
+  return (_: string, index: number, array: string[]) => {
+    if (index === 0) {
+      let removalsLeft = array.length - 2;
+
+      array.toReversed().forEach((word: string) => {
+        const remove =
+          removalsLeft > 0 &&
+          (isPreposition(word) || ["&", "+", "-"].includes(word[0]));
+        if (remove) removalsLeft--;
+        removeWord.push(remove);
+      });
+
+      removeWord.reverse();
     }
-    const removed =
-      removalsLeft > 0 &&
-      (isPreposition(word) || ["&", "+", "-"].includes(word[0]));
-    if (removed) {
-      removalsLeft--;
-    }
-    return !removed;
+
+    return !removeWord[index];
   };
 };
 
 const isPreposition = (word: string) =>
-  ["a", "and", "at", "in", "of", "on", "or", "the"].includes(word);
+  ["a", "and", "at", "in", "of", "on", "or", "the"].includes(
+    word.toLowerCase(),
+  );
