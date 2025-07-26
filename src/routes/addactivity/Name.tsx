@@ -4,6 +4,7 @@ import ToggleButton from "@mui/material/ToggleButton";
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import { SelectActivity } from "./SelectActivity";
 import { useCreateActivityStore } from "./Store";
+import { capitalize } from "../../utils/Strings";
 
 type NameProps = {
   activityNameExists: boolean;
@@ -100,7 +101,7 @@ export const Name = (props: NameProps) => {
             }}
             getOptionDisabled={(activity) => activity.inProgress}
             onUserInputChange={(newInputValue) => {
-              setName(newInputValue);
+              setName(capitalize(newInputValue));
             }}
           />
         </Box>
