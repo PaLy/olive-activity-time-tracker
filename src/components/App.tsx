@@ -11,10 +11,13 @@ import { ScrollMemoryContext } from "./ScrollMemory";
 import { AppSnackbar } from "./AppSnackbar";
 import { TestThemeContext } from "./Theme";
 import { useTickingClock } from "../utils/clock";
+import { useInProgressActivitiesNotifications } from "../hooks/useInProgressActivitiesNotifications";
 
 function App() {
   const theme = useTheme();
   useTickingClock();
+
+  useInProgressActivitiesNotifications();
 
   const scrollMemory = new Map<string, number>();
 

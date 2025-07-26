@@ -1,6 +1,6 @@
 import { db } from "../db";
-import { MAX_DATE_MS } from "../../utils/date";
 import { Activity } from "../entities";
+import { getInProgressIntervalIds, getInProgressIntervals } from "./intervals";
 
 export async function checkActivityExist(activityId: number) {
   const activity = await getActivity(activityId);
@@ -13,15 +13,6 @@ export async function getActivity(activityId: number) {
     throw new Error(`Activity with ID ${activityId} does not exist.`);
   }
   return activity;
-}
-
-export async function getInProgressIntervalIds(activityId: number) {
-  const intervals = await db.intervals
-    .where("end")
-    .equals(MAX_DATE_MS)
-    .and((interval) => interval.activityId === activityId)
-    .toArray();
-  return intervals.map((interval) => interval.id);
 }
 
 export const getParent = async (activity: Activity) => {
@@ -123,13 +114,7 @@ export async function getInProgressActivitiesCount(): Promise<number> {
 
 export async function getInProgressActivityIds(): Promise<Set<number>> {
   return db.transaction("r", db.intervals, db.activities, async () => {
-    const intervals = await db.intervals
-      .where("end")
-      .equals(MAX_DATE_MS)
-      .toArray();
-    const activityIds = new Set(
-      intervals.map((interval) => interval.activityId),
-    );
+    const activityIds = await getSelfInProgressActivityIds();
 
     await Promise.all(
       Array.from(activityIds).map(async (activityId) => {
@@ -147,6 +132,13 @@ export async function getInProgressActivityIds(): Promise<Set<number>> {
 export async function isInProgress(activityId: number) {
   const inProgressActivityIds = await getInProgressActivityIds();
   return inProgressActivityIds.has(activityId);
+}
+
+export async function getSelfInProgressActivityIds() {
+  return db.transaction("r", db.intervals, db.activities, async () => {
+    const intervals = await getInProgressIntervals().toArray();
+    return new Set(intervals.map((interval) => interval.activityId));
+  });
 }
 
 export async function expandAllActivities() {
