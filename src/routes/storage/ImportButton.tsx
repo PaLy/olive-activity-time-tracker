@@ -1,4 +1,6 @@
-import { Alert, Button, Snackbar } from "@mui/material";
+import Alert from "@mui/material/Alert";
+import Button from "@mui/material/Button";
+import Snackbar from "@mui/material/Snackbar";
 import FileUploadIcon from "@mui/icons-material/FileUpload";
 import { ChangeEvent, useEffect } from "react";
 import { create } from "zustand";

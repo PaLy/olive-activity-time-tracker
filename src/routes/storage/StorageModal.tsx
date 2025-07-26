@@ -1,4 +1,6 @@
-import { Box, Grid, Typography } from "@mui/material";
+import Box from "@mui/material/Box";
+import Grid from "@mui/material/Grid";
+import Typography from "@mui/material/Typography";
 import { FullScreenModal } from "../../components/FullScreenModal";
 import { FullScreenModalHeader } from "../../components/FullScreenModalHeader";
 import { useLocation } from "../Router";

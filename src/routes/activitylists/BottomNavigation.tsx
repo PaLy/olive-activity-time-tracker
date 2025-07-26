@@ -1,9 +1,10 @@
 import BottomNavigation from "@mui/material/BottomNavigation";
 import BottomNavigationAction from "@mui/material/BottomNavigationAction";
+import Badge from "@mui/material/Badge";
+import Paper from "@mui/material/Paper";
 import TodayIcon from "@mui/icons-material/Today";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import DateRangeIcon from "@mui/icons-material/DateRange";
-import { Badge, Paper } from "@mui/material";
 import { useLocation, useNavigate } from "../Router";
 import { useLiveQuery } from "dexie-react-hooks";
 import { getInProgressActivitiesCount } from "../../db/queries/activities";

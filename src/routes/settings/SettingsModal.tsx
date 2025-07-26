@@ -1,16 +1,14 @@
 import { FullScreenModal } from "../../components/FullScreenModal";
 import { FullScreenModalHeader } from "../../components/FullScreenModalHeader";
 import { useLocation } from "../Router";
-import {
-  Box,
-  Collapse,
-  Grid,
-  MenuItem,
-  Select,
-  Switch,
-  TextField,
-  Typography,
-} from "@mui/material";
+import Box from "@mui/material/Box";
+import Collapse from "@mui/material/Collapse";
+import Grid from "@mui/material/Grid";
+import MenuItem from "@mui/material/MenuItem";
+import Select from "@mui/material/Select";
+import Switch from "@mui/material/Switch";
+import TextField from "@mui/material/TextField";
+import Typography from "@mui/material/Typography";
 import { produce } from "immer";
 import { ActivityListSettingValue, Currency } from "../../db/entities";
 import { useState } from "react";

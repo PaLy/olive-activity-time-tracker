@@ -5,7 +5,7 @@ import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import SaveIcon from "@mui/icons-material/Save";
 import { useLocation, useNavigate } from "../Router";
 import { FullScreenModal } from "../../components/FullScreenModal";
-import { Box } from "@mui/material";
+import Box from "@mui/material/Box";
 import { NameToggle, useCreateActivityStore } from "./Store";
 import { useEffectOnceAfter } from "../../utils/ReactLifecycle";
 import { Moment } from "moment";

@@ -1,4 +1,9 @@
-import { Box, Fab, Grid, Paper, useMediaQuery, useTheme } from "@mui/material";
+import Box from "@mui/material/Box";
+import Fab from "@mui/material/Fab";
+import Grid from "@mui/material/Grid";
+import Paper from "@mui/material/Paper";
+import useMediaQuery from "@mui/material/useMediaQuery";
+import { useTheme } from "@mui/material/styles";
 import { AppBarActions } from "./AppBarActions";
 import { ActivityItem } from "./ActivityItem";
 import { AppAppBar } from "../../AppBar";

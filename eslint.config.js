@@ -4,6 +4,7 @@ import prettier from "eslint-plugin-prettier/recommended";
 import reactHooks from "eslint-plugin-react-hooks";
 import react from "eslint-plugin-react";
 import typescript from "typescript-eslint";
+import importPlugin from "eslint-plugin-import";
 
 export default [
   js.configs.recommended,
@@ -15,6 +16,7 @@ export default [
   {
     plugins: {
       "react-hooks": reactHooks,
+      import: importPlugin,
     },
     settings: {
       react: {
@@ -23,6 +25,7 @@ export default [
     },
     rules: {
       ...reactHooks.configs.recommended.rules,
+      "import/no-duplicates": "error",
       "no-restricted-imports": [
         "error",
         {
@@ -34,6 +37,7 @@ export default [
                 "Please use useLocation from /src/routes/Router.tsx instead.",
             },
           ],
+          patterns: [{ regex: "^@mui/[^/]+$" }],
         },
       ],
     },
