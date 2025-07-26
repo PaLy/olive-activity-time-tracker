@@ -1,8 +1,5 @@
 import { useClockStore } from "../../utils/clock";
-import {
-  ActivityList,
-  ActivityListProps,
-} from "../../routes/activitylists/ActivityList";
+import { ActivityList, ActivityListProps } from "./ActivityList";
 import { OrderBy } from "./constants";
 import { ChipDayPicker } from "../../components/ChipDayPicker";
 import moment from "moment/moment";

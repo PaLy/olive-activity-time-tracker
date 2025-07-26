@@ -5,7 +5,7 @@ import "@fontsource/roboto/700.css";
 import { createRoot } from "react-dom/client";
 import { createHashRouter, RouterProvider } from "react-router";
 import { enableMapSet } from "immer";
-import { createRoutes } from "./router";
+import { createRoutes } from "./router/router";
 import dayjs from "dayjs";
 import duration from "dayjs/plugin/duration";
 

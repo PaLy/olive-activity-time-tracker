@@ -1,5 +1,5 @@
 import { db } from "../db";
-import { MAX_DATE_MS } from "../../utils/Date";
+import { MAX_DATE_MS } from "../../utils/date";
 import { checkActivityExist, expandSelfAndAncestors } from "./activities";
 
 type AddActivityParams = {

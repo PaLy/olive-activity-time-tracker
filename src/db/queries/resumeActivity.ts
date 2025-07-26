@@ -1,5 +1,5 @@
 import { getActivity, isInProgress, stopAncestors } from "./activities";
-import { MAX_DATE_MS } from "../../utils/Date";
+import { MAX_DATE_MS } from "../../utils/date";
 import { db } from "../db";
 
 type ResumeActivityParams = {

@@ -1,7 +1,7 @@
 import { db } from "../db";
 import { Activity, Interval } from "../entities";
 import { getAncestorsById, getInProgressActivityIds } from "./activities";
-import { MAX_DATE_MS } from "../../utils/Date";
+import { MAX_DATE_MS } from "../../utils/date";
 
 export type ActivityTreeNode = {
   id: number;
