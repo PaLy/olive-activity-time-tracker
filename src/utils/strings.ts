@@ -33,6 +33,6 @@ const createInitialsWordsFilter = () => {
 };
 
 const isPreposition = (word: string) =>
-  ["a", "and", "at", "in", "of", "on", "or", "the"].includes(
+  ["a", "an", "and", "at", "in", "of", "on", "or", "the"].includes(
     word.toLowerCase(),
   );
