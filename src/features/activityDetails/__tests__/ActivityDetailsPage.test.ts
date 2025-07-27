@@ -1,5 +1,5 @@
 import moment from "moment/moment";
-import { renderApp } from "../../../utils/__testutils__/app";
+import { element, renderApp } from "../../../utils/__testutils__/app";
 import { act, screen } from "@testing-library/react";
 import {
   PointerEventsCheckLevel,
@@ -13,8 +13,8 @@ describe("ActivityDetailsPage", () => {
   describe("after opened directly", () => {
     it("activity details", async () => {
       await db.activities.bulkAdd([
-        { name: "Parent", parentId: -1, expanded: 0 },
-        { name: "Child", parentId: 1, expanded: 0 },
+        { name: "Parent", parentId: -1, expanded: 0, notificationsEnabled: 1 },
+        { name: "Child", parentId: 1, expanded: 0, notificationsEnabled: 1 },
       ]);
       await db.intervals.bulkAdd([
         { activityId: 1, start: Date.now(), end: MAX_DATE_MS },
@@ -26,8 +26,8 @@ describe("ActivityDetailsPage", () => {
 
     it("allows to go back to the root route", async () => {
       await db.activities.bulkAdd([
-        { name: "Parent", parentId: -1, expanded: 1 },
-        { name: "Child", parentId: 1, expanded: 0 },
+        { name: "Parent", parentId: -1, expanded: 1, notificationsEnabled: 1 },
+        { name: "Child", parentId: 1, expanded: 0, notificationsEnabled: 1 },
       ]);
       await db.intervals.bulkAdd([
         { activityId: 1, start: Date.now(), end: MAX_DATE_MS },
@@ -42,7 +42,9 @@ describe("ActivityDetailsPage", () => {
   });
 
   it("can delete an interval", async () => {
-    await db.activities.bulkAdd([{ name: "Test", parentId: -1, expanded: 0 }]);
+    await db.activities.bulkAdd([
+      { name: "Test", parentId: -1, expanded: 0, notificationsEnabled: 1 },
+    ]);
     await db.intervals.bulkAdd([
       { activityId: 1, start: Date.now(), end: MAX_DATE_MS },
     ]);
@@ -61,7 +63,9 @@ describe("ActivityDetailsPage", () => {
 
   // This test is skipped because time picking does not work (in test).
   it.skip("edits just the edited interval", async () => {
-    await db.activities.bulkAdd([{ name: "Test", parentId: -1, expanded: 0 }]);
+    await db.activities.bulkAdd([
+      { name: "Test", parentId: -1, expanded: 0, notificationsEnabled: 1 },
+    ]);
     await db.intervals.bulkAdd([
       {
         activityId: 1,
@@ -98,5 +102,51 @@ describe("ActivityDetailsPage", () => {
     expect(await screen.findByText(/8:30/)).toBeVisible();
     expect(await screen.findByText(/9:00/)).toBeVisible();
     expect(await screen.findByText(/10:30/)).toBeVisible();
+  });
+
+  it("can disable activity notifications", async () => {
+    await db.activities.bulkAdd([
+      {
+        name: "Test Activity",
+        parentId: -1,
+        expanded: 0,
+        notificationsEnabled: 1,
+      },
+    ]);
+    await db.intervals.bulkAdd([
+      { activityId: 1, start: Date.now(), end: MAX_DATE_MS },
+    ]);
+
+    // Navigate to activity details page
+    await act(() => renderApp({ route: "/activities/1" }));
+
+    // Click the settings button
+    await userEvent.click(
+      await screen.findByRole("button", { name: "Activity settings" }),
+    );
+
+    // Verify we're on the settings page
+    expect(await screen.findByText("Activity Settings")).toBeVisible();
+
+    // Find and verify the notification switch is currently enabled
+    const notificationSwitch = await element.find.switch(
+      /Show notifications when this activity is in progress/i,
+    );
+    expect(notificationSwitch).toBeChecked();
+
+    // Click to disable notifications
+    await userEvent.click(notificationSwitch);
+
+    // Verify success message appears
+    expect(
+      await screen.findByText("Notification settings updated"),
+    ).toBeVisible();
+
+    // Verify the switch is now unchecked
+    expect(notificationSwitch).not.toBeChecked();
+
+    // Verify the database was updated
+    const updatedActivity = await db.activities.get(1);
+    expect(updatedActivity?.notificationsEnabled).toBe(0);
   });
 });

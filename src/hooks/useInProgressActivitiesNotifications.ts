@@ -10,7 +10,11 @@ export function useInProgressActivitiesNotifications() {
   const updateIntervalMs = 30_000;
   const isInitialized = useRef(false);
 
-  const activities = useLiveQuery(getInProgressActivitiesNotificationData);
+  const activities = useLiveQuery(async () => {
+    const data = await getInProgressActivitiesNotificationData();
+    androidNotificationService.setActivitiesData(data);
+    return data;
+  }, []);
 
   // Initialize notification service
   useEffect(() => {

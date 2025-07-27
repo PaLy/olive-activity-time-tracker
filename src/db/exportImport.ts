@@ -1,6 +1,6 @@
 import { db } from "./db";
 import { MAX_DATE_MS } from "../utils/date";
-import "dexie-export-import";
+import { importDB as dexieImportDB } from "dexie-export-import";
 
 export async function exportDB() {
   const now = Date.now();
@@ -22,10 +22,14 @@ export async function exportDB() {
 }
 
 export async function importDB(file: File) {
-  await clearDB();
-  // clearTablesBeforeImport is not atomic, so we need to clear the tables before importing
-  // see https://github.com/dexie/Dexie.js/blob/v4.0.11/addons/dexie-export-import/src/import.ts#L98
-  await db.import(file, {
+  await db.delete();
+  /*
+   clearTablesBeforeImport is not atomic, so we need to clear the tables before importing
+   see https://github.com/dexie/Dexie.js/blob/v4.0.11/addons/dexie-export-import/src/import.ts#L98
+
+   tempDB is used to support importing old db versions: https://github.com/dexie/Dexie.js/issues/1337#issuecomment-866687433
+  */
+  const tempDB = await dexieImportDB(file, {
     transform: (table, value, key) => {
       // convert date strings to timestamps
       if (table === db.intervals.name) {
@@ -35,6 +39,8 @@ export async function importDB(file: File) {
       return { value, key };
     },
   });
+  tempDB.close();
+  await db.open();
 }
 
 export async function clearDB() {

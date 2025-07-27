@@ -3,6 +3,7 @@ import App from "../components/App";
 import { ActivityDetailsPage } from "../features/activityDetails/ActivityDetailsPage";
 import { EditInterval } from "../features/activityDetails/EditInterval";
 import { ActivityListPage } from "../features/activityList/ActivityListPage";
+import { StorageModal } from "../features/storage/storagePage/StorageModal";
 
 const ErrorBoundary = () => {
   const error = useRouteError();
@@ -37,7 +38,7 @@ export const createRoutes = (): RouteObject[] => [
         element: <ActivityListPage interval={"range"} />,
       },
       {
-        path: "activities/:activityID",
+        path: "activities/:activityID/*",
         element: <ActivityDetailsPage />,
         children: [
           {
@@ -45,6 +46,10 @@ export const createRoutes = (): RouteObject[] => [
             element: <EditInterval />,
           },
         ],
+      },
+      {
+        path: "storage",
+        element: <StorageModal />,
       },
     ],
   },

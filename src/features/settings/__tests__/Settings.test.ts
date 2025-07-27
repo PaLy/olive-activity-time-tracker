@@ -14,7 +14,9 @@ describe("Settings", () => {
 
   beforeEach(async () => {
     setLocale("en-US");
-    await db.activities.bulkAdd([{ name: "Work", parentId: -1, expanded: 0 }]);
+    await db.activities.bulkAdd([
+      { name: "Work", parentId: -1, expanded: 0, notificationsEnabled: 1 },
+    ]);
     await db.intervals.bulkAdd([
       {
         activityId: 1,

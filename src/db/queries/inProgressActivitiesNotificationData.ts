@@ -11,12 +11,23 @@ export async function getInProgressActivitiesNotificationData(): Promise<InProgr
   return db.transaction("r", db.activities, db.intervals, async () => {
     const intervals = await getInProgressIntervals().sortBy("start");
 
-    return Promise.all(
+    const activitiesWithNotifications = await Promise.all(
       intervals.map(async (interval) => {
         const activity = await getActivity(interval.activityId);
+
+        // Skip activities with notifications disabled
+        if (!activity.notificationsEnabled) {
+          return null;
+        }
+
         const fullName = await getFullName(activity);
         return { fullName, start: interval.start };
       }),
+    );
+
+    // Filter out null values (activities with notifications disabled)
+    return activitiesWithNotifications.filter(
+      (item): item is NonNullable<typeof item> => item !== null,
     );
   });
 }

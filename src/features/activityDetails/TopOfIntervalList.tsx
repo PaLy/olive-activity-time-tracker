@@ -1,8 +1,11 @@
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
+import IconButton from "@mui/material/IconButton";
+import SettingsIcon from "@mui/icons-material/Settings";
 import { FullScreenModalHeader } from "../../components/FullScreenModalHeader";
 import { ActivityName } from "./ActivityName";
 import { ActivityDetailsData } from "../../db/queries/activityDetails";
+import { useNavigate } from "../../router/hooks";
 
 type TopOfIntervalListProps = {
   activityDetails: ActivityDetailsData;
@@ -28,10 +31,30 @@ export const TopOfIntervalList = (props: TopOfIntervalListProps) => {
     onCancel,
   } = props;
   const { id, activities } = activityDetails;
+  const navigate = useNavigate();
+
+  const handleSettingsClick = () => {
+    navigate(`settings`);
+  };
 
   return (
     <Box sx={{ pt: 1, pb: 1 }}>
-      <FullScreenModalHeader headline="Activity details" />
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+        }}
+      >
+        <FullScreenModalHeader headline="Activity Details" />
+        <IconButton
+          aria-label="Activity settings"
+          onClick={handleSettingsClick}
+          sx={{ mr: 2 }}
+        >
+          <SettingsIcon />
+        </IconButton>
+      </Box>
       <ActivityName
         activityId={id}
         activities={activities}

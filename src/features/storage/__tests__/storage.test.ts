@@ -26,6 +26,16 @@ describe("Import", () => {
     expectInterval(intervals[2]).start.toEqual("2024-03-28T16:49:51.264Z");
     expectInterval(intervals[2]).end.toEqual("2024-03-28T16:51:01.176Z");
   });
+
+  it("migrates v1 data to v2", async () => {
+    const dbV1 = readExportedActivities("exported-activities.json");
+    const dbV2 = readExportedActivities("exported-activities-v2.json");
+    await importDB(dbV1);
+    const json = await exportDB();
+    const jsonText = await json.text();
+    const dbV2text = await dbV2.text();
+    expect(jsonText).toEqual(dbV2text);
+  });
 });
 
 describe("Exported data", () => {
@@ -51,9 +61,9 @@ const expectInterval = (interval: Interval) => ({
 const expectEquals = (dateTime: number, isoDateTime: string) =>
   expect(new Date(dateTime).toISOString()).toEqual(isoDateTime);
 
-function readExportedActivities() {
-  const filePath = path.join(__dirname, "exported-activities.json");
-  return new File([readFileSync(filePath)], "exported-activities.json", {
+function readExportedActivities(fileName = "exported-activities-v2.json") {
+  const filePath = path.join(__dirname, fileName);
+  return new File([readFileSync(filePath)], fileName, {
     type: "application/json",
   });
 }

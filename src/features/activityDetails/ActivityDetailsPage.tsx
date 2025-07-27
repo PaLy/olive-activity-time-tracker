@@ -8,6 +8,7 @@ import { openErrorSnackbar } from "../../components/AppSnackbarStore";
 import { DeleteIntervalConfirmation } from "./DeleteIntervalConfirmation";
 import { ActivityDetailsContent } from "./ActivityDetailsContent";
 import { useActivityNameEditing } from "./useActivityNameEditing";
+import { ActivitySettingsModal } from "./ActivitySettings";
 
 export const ActivityDetailsPage = () => {
   const params = useParams<{ activityID: string }>();
@@ -49,6 +50,7 @@ export const ActivityDetailsPage = () => {
       </Paper>
       <Outlet />
       <DeleteIntervalConfirmation />
+      <ActivitySettingsModal />
     </>
   );
 };

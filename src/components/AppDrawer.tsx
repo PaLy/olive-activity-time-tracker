@@ -9,7 +9,6 @@ import ListItemText from "@mui/material/ListItemText";
 import Typography from "@mui/material/Typography";
 import SettingsIcon from "@mui/icons-material/Settings";
 import StorageIcon from "@mui/icons-material/Storage";
-import { StorageModal } from "../features/storage/storagePage/StorageModal";
 import { SettingsModal } from "../features/settings/SettingsModal";
 import SwipeableDrawer from "@mui/material/SwipeableDrawer";
 
@@ -43,13 +42,13 @@ export const AppDrawer = () => {
             <DrawerItem
               text={"Storage"}
               routePath={"/storage"}
+              absoluteRoutePath={true}
               icon={<StorageIcon />}
             />
           </List>
         </Box>
       </SwipeableDrawer>
       <SettingsModal />
-      <StorageModal />
     </>
   );
 };
@@ -57,14 +56,17 @@ export const AppDrawer = () => {
 type DrawerItemProps = {
   text: string;
   routePath: string;
+  absoluteRoutePath?: boolean;
   icon: ReactNode;
 };
 
 const DrawerItem = (props: DrawerItemProps) => {
-  const { routePath, text, icon } = props;
+  const { routePath, text, icon, absoluteRoutePath } = props;
   const navigate = useNavigate();
   const { pathname } = useLocation();
-  const mainScreenPath = pathname.substring(0, pathname.indexOf("/drawer"));
+  const mainScreenPath = absoluteRoutePath
+    ? ""
+    : pathname.substring(0, pathname.indexOf("/drawer"));
   return (
     <ListItem disablePadding>
       <ListItemButton

@@ -10,7 +10,7 @@ describe("ActivityItem", () => {
   describe("when the activity is in progress", () => {
     it("shows ticking duration", async () => {
       await db.activities.bulkAdd([
-        { name: "Test", parentId: -1, expanded: 0 },
+        { name: "Test", parentId: -1, expanded: 0, notificationsEnabled: 1 },
       ]);
       await db.intervals.bulkAdd([
         { activityId: 1, start: Date.now(), end: MAX_DATE_MS },
@@ -22,7 +22,7 @@ describe("ActivityItem", () => {
 
     it("can be stopped", async () => {
       await db.activities.bulkAdd([
-        { name: "Test", parentId: -1, expanded: 0 },
+        { name: "Test", parentId: -1, expanded: 0, notificationsEnabled: 1 },
       ]);
       await db.intervals.bulkAdd([
         { activityId: 1, start: Date.now(), end: MAX_DATE_MS },
@@ -37,8 +37,8 @@ describe("ActivityItem", () => {
 
     it("is collapsed after parent was stopped", async () => {
       await db.activities.bulkAdd([
-        { name: "Parent", parentId: -1, expanded: 1 },
-        { name: "Child", parentId: 1, expanded: 0 },
+        { name: "Parent", parentId: -1, expanded: 1, notificationsEnabled: 1 },
+        { name: "Child", parentId: 1, expanded: 0, notificationsEnabled: 1 },
       ]);
       await db.intervals.bulkAdd([
         { activityId: 1, start: Date.now(), end: MAX_DATE_MS },
@@ -59,7 +59,7 @@ describe("ActivityItem", () => {
   describe("when the activity is not in progress", () => {
     it("can be started", async () => {
       await db.activities.bulkAdd([
-        { name: "Test", parentId: -1, expanded: 0 },
+        { name: "Test", parentId: -1, expanded: 0, notificationsEnabled: 1 },
       ]);
       await db.intervals.bulkAdd([
         {
@@ -78,8 +78,8 @@ describe("ActivityItem", () => {
 
     it("is expanded after parent was started", async () => {
       await db.activities.bulkAdd([
-        { name: "Parent", parentId: -1, expanded: 1 },
-        { name: "Child", parentId: 1, expanded: 0 },
+        { name: "Parent", parentId: -1, expanded: 1, notificationsEnabled: 1 },
+        { name: "Child", parentId: 1, expanded: 0, notificationsEnabled: 1 },
       ]);
       await db.intervals.bulkAdd([
         {

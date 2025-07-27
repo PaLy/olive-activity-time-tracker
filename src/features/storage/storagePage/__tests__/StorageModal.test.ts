@@ -37,41 +37,25 @@ describe("StorageModal", () => {
   describe("export", () => {
     it("opens Android share dialog", async () => {
       await prepareData();
-      const exportMock = vi.fn();
-      window.Android = {
-        export: exportMock,
-        hasNotificationPermission(): boolean {
-          return false;
-        },
-        requestNotificationPermission(): string {
-          return "";
-        },
-        updateNotification(): string {
-          return "";
-        },
-        stopNotification(): string {
-          return "";
-        },
-      };
       Date.now = vi.fn(() => new Date("2024-03-05T08:20:37").getTime());
 
-      renderApp({ route: "/today/storage" });
+      renderApp({ route: "/storage" });
       await userEvent.click(
         await screen.findByRole("button", { name: /export/i }),
       );
 
       await waitFor(() =>
-        expect(exportMock).toHaveBeenCalledWith(
+        expect(window.Android?.export).toHaveBeenCalledWith(
           `{
   "formatName": "dexie",
   "formatVersion": 1,
   "data": {
     "databaseName": "Olive",
-    "databaseVersion": 1,
+    "databaseVersion": 2,
     "tables": [
       {
         "name": "activities",
-        "schema": "++id,name,parentId,expanded",
+        "schema": "++id,name,parentId,expanded,notificationsEnabled",
         "rowCount": 1
       },
       {
@@ -93,6 +77,7 @@ describe("StorageModal", () => {
           "name": "Test",
           "parentId": -1,
           "expanded": 0,
+          "notificationsEnabled": 1,
           "id": 1,
           "$types": {
             "": "userObject"
@@ -128,7 +113,9 @@ describe("StorageModal", () => {
 });
 
 const prepareData = async () => {
-  await db.activities.bulkAdd([{ name: "Test", parentId: -1, expanded: 0 }]);
+  await db.activities.bulkAdd([
+    { name: "Test", parentId: -1, expanded: 0, notificationsEnabled: 1 },
+  ]);
   await db.intervals.bulkAdd([
     {
       activityId: 1,

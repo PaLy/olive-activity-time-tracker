@@ -7,6 +7,7 @@ export class Activity extends Entity<OliveDB> {
   name!: string;
   parentId!: number; // ID of the parent activity, -1 if no parent
   expanded!: 1 | 0; // Whether the activity is expanded in the UI
+  notificationsEnabled!: 1 | 0; // Whether notifications are enabled for this activity
 }
 
 export class Interval extends Entity<OliveDB> {

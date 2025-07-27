@@ -13,6 +13,26 @@ export class OliveDB extends Dexie {
       intervals: "++id, activityId, start, end",
       settings: "key",
     });
+
+    // Version 2: Add notificationsEnabled field to activities
+    this.version(2)
+      .stores({
+        activities: "++id, name, parentId, expanded, notificationsEnabled",
+        intervals: "++id, activityId, start, end",
+        settings: "key",
+      })
+      .upgrade((tx) => {
+        // Set default value for existing activities
+        return tx
+          .table("activities")
+          .toCollection()
+          .modify((activity) => {
+            if (activity.notificationsEnabled === undefined) {
+              activity.notificationsEnabled = 1;
+            }
+          });
+      });
+
     this.activities.mapToClass(Activity);
     this.intervals.mapToClass(Interval);
     this.settings.mapToClass(Setting);
