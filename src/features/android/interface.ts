@@ -5,7 +5,7 @@ declare global {
     Android?: {
       export(json: string, filename: string): "ok" | "error";
       hasNotificationPermission(): boolean;
-      requestNotificationPermission(): string;
+      requestNotificationPermission(): "requested" | "not_needed";
       updateNotification(activitiesJson: string): string;
       stopNotification(): string;
     };

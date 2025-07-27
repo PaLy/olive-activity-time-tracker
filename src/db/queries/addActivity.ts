@@ -56,5 +56,6 @@ async function createActivity(name: string, parentId: number) {
     name,
     parentId,
     expanded: 0,
+    notificationsEnabled: 1,
   });
 }

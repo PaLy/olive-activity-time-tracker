@@ -1,0 +1,113 @@
+{
+  "formatName": "dexie",
+  "formatVersion": 1,
+  "data": {
+    "databaseName": "Olive",
+    "databaseVersion": 2,
+    "tables": [
+      {
+        "name": "activities",
+        "schema": "++id,name,parentId,expanded,notificationsEnabled",
+        "rowCount": 3
+      },
+      {
+        "name": "intervals",
+        "schema": "++id,activityId,start,end",
+        "rowCount": 3
+      },
+      {
+        "name": "settings",
+        "schema": "key",
+        "rowCount": 1
+      }
+    ],
+    "data": [{
+      "tableName": "activities",
+      "inbound": true,
+      "rows": [
+        {
+          "name": "Code Review",
+          "parentId": 3,
+          "expanded": 0,
+          "id": 1,
+          "notificationsEnabled": 1,
+          "$types": {
+            "": "userObject"
+          }
+        },
+        {
+          "name": "Tasks",
+          "parentId": 3,
+          "expanded": 0,
+          "id": 2,
+          "notificationsEnabled": 1,
+          "$types": {
+            "": "userObject"
+          }
+        },
+        {
+          "name": "Work",
+          "parentId": -1,
+          "expanded": 1,
+          "id": 3,
+          "notificationsEnabled": 1,
+          "$types": {
+            "": "userObject"
+          }
+        }
+      ]
+    },{
+      "tableName": "intervals",
+      "inbound": true,
+      "rows": [
+        {
+          "activityId": 1,
+          "start": "2024-03-28T16:50:44.490Z",
+          "end": "2024-03-28T16:51:01.176Z",
+          "id": 1,
+          "$types": {
+            "": "userObject"
+          }
+        },
+        {
+          "activityId": 2,
+          "start": "2024-03-28T16:50:21.428Z",
+          "end": "2024-03-28T16:50:42.508Z",
+          "id": 2,
+          "$types": {
+            "": "userObject"
+          }
+        },
+        {
+          "activityId": 3,
+          "start": "2024-03-28T16:49:51.264Z",
+          "end": "2024-03-28T16:51:01.176Z",
+          "id": 3,
+          "$types": {
+            "": "userObject"
+          }
+        }
+      ]
+    },{
+      "tableName": "settings",
+      "inbound": true,
+      "rows": [
+        {
+          "key": "activityList",
+          "value": {
+            "showPercentage": true,
+            "showCost": {
+              "show": false,
+              "perHour": "10",
+              "currency": "EUR"
+            },
+            "showDuration": true
+          },
+          "$types": {
+            "": "userObject"
+          }
+        }
+      ]
+    }]
+  }
+}

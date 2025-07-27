@@ -160,6 +160,10 @@ export class AndroidNotificationService {
       console.error("Error updating from current activities:", error);
     }
   }
+
+  setActivitiesData(data: InProgressActivitiesNotificationData) {
+    this.activitiesData = data;
+  }
 }
 
 // Export singleton instance

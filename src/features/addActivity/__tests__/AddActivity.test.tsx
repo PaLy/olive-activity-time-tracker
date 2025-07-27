@@ -40,7 +40,9 @@ describe("AddActivityModal", () => {
   });
 
   it("can start an existing activity", async () => {
-    await db.activities.bulkAdd([{ name: "Work", parentId: -1, expanded: 1 }]);
+    await db.activities.bulkAdd([
+      { name: "Work", parentId: -1, expanded: 1, notificationsEnabled: 1 },
+    ]);
     await db.intervals.bulkAdd([
       {
         activityId: 1,
@@ -64,7 +66,9 @@ describe("AddActivityModal", () => {
 
   it("can add finished activity which is currently in progress", async () => {
     // Create an activity and start it (making it in progress)
-    await db.activities.bulkAdd([{ name: "Work", parentId: -1, expanded: 1 }]);
+    await db.activities.bulkAdd([
+      { name: "Work", parentId: -1, expanded: 1, notificationsEnabled: 1 },
+    ]);
     await db.intervals.bulkAdd([
       {
         activityId: 1,

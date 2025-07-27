@@ -98,3 +98,23 @@ afterEach(() => {
   expect(consoleWarnSpy).not.toHaveBeenCalled();
   expect(consoleLogSpy).not.toHaveBeenCalled();
 });
+
+window.Android = {
+  export: vi.fn(),
+  hasNotificationPermission() {
+    return true;
+  },
+  requestNotificationPermission() {
+    return "requested";
+  },
+  updateNotification() {
+    return "ok";
+  },
+  stopNotification() {
+    return "ok";
+  },
+};
+
+afterEach(() => {
+  vi.clearAllMocks();
+});
