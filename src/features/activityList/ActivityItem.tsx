@@ -168,9 +168,9 @@ const StartStopButton = (props: StartStopActivityProps) => {
         // stops ListItemButton click
         event.stopPropagation();
         if (inProgress) {
-          stopActivity({ activity });
+          stopActivity({ activity }).then();
         } else {
-          startActivity({ activity });
+          startActivity({ activity }).then();
         }
       }}
       // stops ListItemButton click effect
