@@ -75,18 +75,20 @@ export const useStartActivity = () => {
   const openErrorSnackbar = useAppSnackbarStore((state) => state.openError);
   const [isPending, setIsPending] = useState(false);
   return {
-    mutate: (variables: { activity: ActivityTreeNode }) => {
+    mutate: async (variables: { activity: ActivityTreeNode }) => {
       const { activity } = variables;
       setIsPending(true);
-      resumeActivity({
-        activityId: activity.id,
-        startTime: new Date().getTime(),
-      })
-        .finally(() => setIsPending(false))
-        .catch((error) => {
-          console.error(error);
-          openErrorSnackbar(`Failed to start activity`);
+      try {
+        await resumeActivity({
+          activityId: activity.id,
+          startTime: new Date().getTime(),
         });
+      } catch (error) {
+        console.error(error);
+        openErrorSnackbar(`Failed to start activity`);
+      } finally {
+        setIsPending(false);
+      }
     },
     isPending,
   };
@@ -96,18 +98,20 @@ export const useStopActivity = () => {
   const openErrorSnackbar = useAppSnackbarStore((state) => state.openError);
   const [isPending, setIsPending] = useState(false);
   return {
-    mutate: (variables: { activity: ActivityTreeNode }) => {
+    mutate: async (variables: { activity: ActivityTreeNode }) => {
       const { activity } = variables;
       setIsPending(true);
-      stopActivity({
-        activityId: activity.id,
-        end: new Date().getTime(),
-      })
-        .finally(() => setIsPending(false))
-        .catch((error) => {
-          console.error(error);
-          openErrorSnackbar(`Failed to stop activity`);
+      try {
+        await stopActivity({
+          activityId: activity.id,
+          end: new Date().getTime(),
         });
+      } catch (error) {
+        console.error(error);
+        openErrorSnackbar(`Failed to stop activity`);
+      } finally {
+        setIsPending(false);
+      }
     },
     isPending,
   };
