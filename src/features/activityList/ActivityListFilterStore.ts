@@ -1,28 +1,29 @@
 import { create } from "zustand";
-import moment, { Moment } from "moment";
+import dayjs from "../../utils/dayjs";
+import { Dayjs } from "dayjs";
 
 type DateRangeFilterState = {
-  start: Moment;
-  end: Moment;
-  setStart: (start: Moment) => void;
-  setEnd: (end: Moment) => void;
+  start: Dayjs;
+  end: Dayjs;
+  setStart: (start: Dayjs) => void;
+  setEnd: (end: Dayjs) => void;
 };
 
 type DayFilterState = {
-  day: Moment;
-  setDay: (day: Moment) => void;
+  day: Dayjs;
+  setDay: (day: Dayjs) => void;
 };
 
 type MonthFilterState = {
-  month: Moment;
-  setMonth: (month: Moment) => void;
+  month: Dayjs;
+  setMonth: (month: Dayjs) => void;
 };
 
-const yesterday = () => moment().subtract(1, "day");
+const yesterday = () => dayjs().subtract(1, "day");
 
 export const useDateRangeFilterStore = create<DateRangeFilterState>((set) => ({
-  start: moment().subtract(6, "days"),
-  end: moment(),
+  start: dayjs().subtract(6, "days"),
+  end: dayjs(),
   setStart: (start) => set({ start }),
   setEnd: (end) => set({ end }),
 }));
@@ -33,6 +34,6 @@ export const useDayFilterStore = create<DayFilterState>((set) => ({
 }));
 
 export const useMonthFilterStore = create<MonthFilterState>((set) => ({
-  month: moment(),
+  month: dayjs(),
   setMonth: (month) => set({ month }),
 }));

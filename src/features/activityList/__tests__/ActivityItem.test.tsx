@@ -1,4 +1,4 @@
-import moment from "moment";
+import dayjs from "../../../utils/dayjs";
 import { activityItem } from "../__testutils__/activityItemUtils";
 import { renderApp } from "../../../utils/__testutils__/app";
 import { screen, waitFor } from "@testing-library/react";
@@ -64,7 +64,7 @@ describe("ActivityItem", () => {
       await db.intervals.bulkAdd([
         {
           activityId: 1,
-          start: +moment().subtract(1, "hour"),
+          start: +dayjs().subtract(1, "hour"),
           end: Date.now(),
         },
       ]);
@@ -84,12 +84,12 @@ describe("ActivityItem", () => {
       await db.intervals.bulkAdd([
         {
           activityId: 1,
-          start: +moment().subtract(1, "hour"),
+          start: +dayjs().subtract(1, "hour"),
           end: Date.now(),
         },
         {
           activityId: 2,
-          start: +moment().subtract(1, "hour"),
+          start: +dayjs().subtract(1, "hour"),
           end: Date.now(),
         },
       ]);

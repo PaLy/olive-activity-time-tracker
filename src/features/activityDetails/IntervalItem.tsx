@@ -4,7 +4,7 @@ import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
 import { Link } from "react-router";
 import EditIcon from "@mui/icons-material/Edit";
-import moment from "moment";
+import dayjs from "../../utils/dayjs";
 import { Activity, Interval } from "../../db/entities";
 import { useActivityFullName } from "./hooks";
 import { useIntervalDuration } from "../intervals/hooks";
@@ -22,10 +22,10 @@ const formatIntervalEnd = (interval: Interval) => {
   const { start, end } = interval;
   if (end === MAX_DATE_MS) {
     return "now";
-  } else if (moment(start).isSame(end, "day")) {
-    return moment(end).format(INTERVAL_FORMAT);
+  } else if (dayjs(start).isSame(dayjs(end), "day")) {
+    return dayjs(end).format(INTERVAL_FORMAT);
   } else {
-    return moment(end).format("ddd, MMM D, YYYY HH:mm");
+    return dayjs(end).format("ddd, MMM D, YYYY HH:mm");
   }
 };
 
@@ -42,7 +42,7 @@ export const IntervalItem = (props: IntervalItemProps) => {
   const subActivitySuffix =
     activityId !== subActivityId ? ` (${subActivityPath})` : "";
 
-  const startValue = moment(start).format(INTERVAL_FORMAT);
+  const startValue = dayjs(start).format(INTERVAL_FORMAT);
   const endValue = formatIntervalEnd(interval);
 
   return (

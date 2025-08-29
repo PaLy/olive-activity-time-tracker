@@ -8,7 +8,7 @@ import { FullScreenModal } from "../../components/FullScreenModal";
 import Box from "@mui/material/Box";
 import { NameToggle, useCreateActivityStore } from "./Store";
 import { useEffectOnceAfter } from "../../utils/reactLifecycle";
-import { Moment } from "moment";
+import { Dayjs } from "dayjs";
 import { useLiveQuery } from "dexie-react-hooks";
 import {
   AddActivityDataActivity,
@@ -126,8 +126,8 @@ type CreateActivityOptions = {
   nameToggle: NameToggle;
   parentId: number;
   name: string;
-  start: Moment;
-  end: Moment | undefined;
+  start: Dayjs;
+  end: Dayjs | undefined;
 };
 
 const useCreateActivity = () => {

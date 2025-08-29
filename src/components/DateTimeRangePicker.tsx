@@ -1,16 +1,16 @@
 import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import { renderTimeViewClock } from "@mui/x-date-pickers/timeViewRenderers";
-import { Moment } from "moment";
+import { Dayjs } from "dayjs";
 
 type Props = {
-  startTime: Moment;
+  startTime: Dayjs;
   startTimeError: string;
-  endTime: Moment | undefined;
+  endTime: Dayjs | undefined;
   endTimeError: string;
   omitEndTimePicker: boolean;
-  setStartTime: (startTime: Moment) => void;
+  setStartTime: (startTime: Dayjs) => void;
   setStartTimeError: (error: string) => void;
-  setEndTime: (endTime: Moment) => void;
+  setEndTime: (endTime: Dayjs) => void;
   setEndTimeError: (error: string) => void;
 };
 

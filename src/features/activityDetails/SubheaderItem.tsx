@@ -1,5 +1,5 @@
 import ListSubheader from "@mui/material/ListSubheader";
-import moment from "moment";
+import dayjs from "../../utils/dayjs";
 import { calendarTime } from "../../utils/date";
 
 type SubheaderItemProps = {
@@ -11,7 +11,7 @@ export const SubheaderItem = (props: SubheaderItemProps) => {
   const { dayStart, stickyItemVisible } = props;
   return (
     <ListSubheader style={{ opacity: stickyItemVisible ? 0 : 1 }}>
-      {calendarTime(moment(dayStart))}
+      {calendarTime(dayjs(dayStart))}
     </ListSubheader>
   );
 };

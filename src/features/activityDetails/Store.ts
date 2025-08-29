@@ -1,11 +1,11 @@
 import { create } from "zustand";
-import { Moment } from "moment";
+import { Dayjs } from "dayjs";
 
 type ActivityState = {
   editInterval?: {
-    start: Moment;
+    start: Dayjs;
     startError: string;
-    end?: Moment;
+    end?: Dayjs;
     endError: string;
   };
   deleteIntervalConfirmationData?: {
