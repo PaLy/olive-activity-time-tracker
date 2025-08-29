@@ -7,15 +7,7 @@ import { enableMapSet } from "immer";
 import { configure } from "@testing-library/react";
 import dayjs from "dayjs";
 import duration from "dayjs/plugin/duration";
-import {
-  afterAll,
-  afterEach,
-  beforeAll,
-  beforeEach,
-  expect,
-  MockInstance,
-  vi,
-} from "vitest";
+import { afterAll, afterEach, beforeAll, beforeEach, vi } from "vitest";
 import mediaQuery from "css-mediaquery";
 import { db } from "./db/db";
 
@@ -78,25 +70,9 @@ beforeAll(() => {
   window.matchMedia = createMatchMedia(window.innerWidth);
 });
 
-let consoleErrorSpy: MockInstance;
-let consoleWarnSpy: MockInstance;
-let consoleLogSpy: MockInstance;
-
-beforeEach(() => {
-  consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
-  consoleWarnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
-  consoleLogSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-});
-
 beforeEach(async () => {
   await db.delete();
   await db.open();
-});
-
-afterEach(() => {
-  expect(consoleErrorSpy).not.toHaveBeenCalled();
-  expect(consoleWarnSpy).not.toHaveBeenCalled();
-  expect(consoleLogSpy).not.toHaveBeenCalled();
 });
 
 window.Android = {
@@ -117,4 +93,34 @@ window.Android = {
 
 afterEach(() => {
   vi.clearAllMocks();
+});
+
+// Store original console methods
+const originalConsoleError = console.error;
+const originalConsoleWarn = console.warn;
+const originalConsoleLog = console.log;
+
+beforeEach(() => {
+  // Mock console methods to fail tests when called
+  console.error = vi.fn((message, ...args) => {
+    originalConsoleError(message, ...args);
+    throw new Error(`Test failed: console.error was called`);
+  });
+
+  console.warn = vi.fn((message, ...args) => {
+    originalConsoleWarn(message, ...args);
+    throw new Error(`Test failed: console.warn was called`);
+  });
+
+  console.log = vi.fn((message, ...args) => {
+    originalConsoleLog(message, ...args);
+    throw new Error(`Test failed: console.log was called`);
+  });
+});
+
+afterEach(() => {
+  // Restore original console methods
+  console.error = originalConsoleError;
+  console.warn = originalConsoleWarn;
+  console.log = originalConsoleLog;
 });

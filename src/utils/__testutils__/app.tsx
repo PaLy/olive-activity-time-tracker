@@ -1,4 +1,4 @@
-import { render, screen, within } from "@testing-library/react";
+import { render } from "@testing-library/react";
 import { createMemoryRouter, RouterProvider } from "react-router";
 import { createRoutes } from "../../router/router";
 import {
@@ -34,11 +34,4 @@ const testThemeContextValue: TestThemeContextType = {
       draft.transitions.duration.enteringScreen = 0;
       draft.transitions.duration.leavingScreen = 0;
     }),
-};
-
-export const element = {
-  find: {
-    switch: async (name: RegExp) =>
-      within(await screen.findByRole("switch", { name })).getByRole("checkbox"),
-  },
 };

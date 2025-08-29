@@ -1,5 +1,5 @@
 import moment from "moment/moment";
-import { element, renderApp } from "../../../utils/__testutils__/app";
+import { renderApp } from "../../../utils/__testutils__/app";
 import { act, screen } from "@testing-library/react";
 import {
   PointerEventsCheckLevel,
@@ -129,9 +129,9 @@ describe("ActivityDetailsPage", () => {
     expect(await screen.findByText("Activity Settings")).toBeVisible();
 
     // Find and verify the notification switch is currently enabled
-    const notificationSwitch = await element.find.switch(
-      /Show notifications when this activity is in progress/i,
-    );
+    const notificationSwitch = await screen.findByRole("switch", {
+      name: /Show notifications when this activity is in progress/i,
+    });
     expect(notificationSwitch).toBeChecked();
 
     // Click to disable notifications
@@ -146,7 +146,7 @@ describe("ActivityDetailsPage", () => {
     expect(notificationSwitch).not.toBeChecked();
 
     // Verify the database was updated
-    const updatedActivity = await db.activities.get(1);
+    const updatedActivity = await act(() => db.activities.get(1));
     expect(updatedActivity?.notificationsEnabled).toBe(0);
   });
 });

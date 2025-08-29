@@ -8,7 +8,8 @@
     "esModuleInterop": true,
     "moduleResolution": "bundler",
     "baseUrl": "./src",
-    "noEmitOnError": true
+    "noEmitOnError": true,
+    "skipLibCheck": true
   },
   "include": ["src/**/*.ts", "src/**/*.tsx", "index.d.ts"],
   "exclude": ["node_modules"]
