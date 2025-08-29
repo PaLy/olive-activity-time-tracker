@@ -3,9 +3,9 @@ import Button from "@mui/material/Button";
 import Snackbar from "@mui/material/Snackbar";
 import FileDownloadIcon from "@mui/icons-material/FileDownload";
 import { saveAs } from "file-saver";
-import moment from "moment";
+import dayjs from "../../../utils/dayjs";
 import { useEffect } from "react";
-import { create } from "zustand/index";
+import { create } from "zustand";
 import { useAppSnackbarStore } from "../../../components/AppSnackbarStore";
 import { exportDB } from "../../../db/exportImport";
 
@@ -21,7 +21,7 @@ export const ExportButton = () => {
           // TODO warning about in-progress activities
           try {
             const blob = await exportDB();
-            const dateTime = moment().format("YYYYMMDDHHmm");
+            const dateTime = dayjs().format("YYYYMMDDHHmm");
             const filename = `activities_${dateTime}.json`;
             if (window.Android) {
               const result = window.Android.export(await blob.text(), filename);

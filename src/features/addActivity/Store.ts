@@ -1,5 +1,5 @@
-import moment from "moment/moment";
-import { create } from "zustand/index";
+import dayjs from "../../utils/dayjs";
+import { create } from "zustand";
 import {
   AddActivityData,
   AddActivityDataActivity,
@@ -13,9 +13,9 @@ type Activity = AddActivityDataActivity;
 type CreateActivityState = {
   addActivityData?: AddActivityData;
   intervalToggle: IntervalToggle;
-  startTimeInput: moment.Moment;
+  startTimeInput: dayjs.Dayjs;
   startTimeError: string;
-  endTimeInput: moment.Moment;
+  endTimeInput: dayjs.Dayjs;
   endTimeError: string;
   nameToggle: NameToggle;
   name: string;
@@ -30,8 +30,8 @@ type CreateActivityState = {
   reset: () => void;
   validationsOff?: boolean;
   getAnyActivityLogged: () => boolean;
-  getStartTime: () => moment.Moment;
-  getEndTime: () => moment.Moment | undefined;
+  getStartTime: () => dayjs.Dayjs;
+  getEndTime: () => dayjs.Dayjs | undefined;
   getParentId: () => number;
   setIntervalToggle: (intervalToggle: IntervalToggle) => void;
   setNameToggle: (nameToggle: NameToggle) => void;
@@ -40,8 +40,8 @@ type CreateActivityState = {
   setParentActivity: (parentActivity: Activity | null) => void;
   setExistingActivity: (existingActivity: Activity | null) => void;
   setExistingActivityError: (existingActivityError: string) => void;
-  setStartTimeInput: (startTimeInput: moment.Moment) => void;
-  setEndTimeInput: (endTimeInput: moment.Moment) => void;
+  setStartTimeInput: (startTimeInput: dayjs.Dayjs) => void;
+  setEndTimeInput: (endTimeInput: dayjs.Dayjs) => void;
   setStartTimeError: (startTimeError: string) => void;
   setEndTimeError: (endTimeError: string) => void;
   setValidationsOff: (validationsOff: boolean) => void;
@@ -50,14 +50,14 @@ type CreateActivityState = {
 
 export const useCreateActivityStore = create<CreateActivityState>(
   (set, get) => {
-    let dialogOpenedTime: moment.Moment | null = null;
+    let dialogOpenedTime: dayjs.Dayjs | null = null;
 
     return {
       anyActivityLogged: false,
       intervalToggle: "now",
-      startTimeInput: moment(),
+      startTimeInput: dayjs(),
       startTimeError: "",
-      endTimeInput: moment(),
+      endTimeInput: dayjs(),
       endTimeError: "",
       nameToggle: "new",
       name: "",
@@ -67,13 +67,13 @@ export const useCreateActivityStore = create<CreateActivityState>(
       existingActivityError: "",
       validationsOff: false,
       init: () => {
-        dialogOpenedTime = moment();
+        dialogOpenedTime = dayjs();
         set({
-          startTimeInput: moment()
+          startTimeInput: dayjs()
             .subtract(30, "minutes")
-            .seconds(0)
-            .milliseconds(0),
-          endTimeInput: moment().seconds(0).milliseconds(0),
+            .second(0)
+            .millisecond(0),
+          endTimeInput: dayjs().second(0).millisecond(0),
           nameToggle: get().getAnyActivityLogged() ? "existing" : "new",
         });
       },
@@ -82,9 +82,9 @@ export const useCreateActivityStore = create<CreateActivityState>(
         dialogOpenedTime = null;
         set({
           intervalToggle: "now",
-          startTimeInput: moment(),
+          startTimeInput: dayjs(),
           startTimeError: "",
-          endTimeInput: moment(),
+          endTimeInput: dayjs(),
           endTimeError: "",
           nameToggle: "new",
           name: "",

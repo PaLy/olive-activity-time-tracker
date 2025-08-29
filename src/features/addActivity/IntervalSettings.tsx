@@ -3,7 +3,7 @@ import ToggleButton from "@mui/material/ToggleButton";
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import Typography from "@mui/material/Typography";
 import { DateTimeRangePicker } from "../../components/DateTimeRangePicker";
-import moment from "moment/moment";
+import dayjs from "../../utils/dayjs";
 import { useCreateActivityStore } from "./Store";
 import { humanize } from "../../utils/duration";
 import { useClockStore } from "../../utils/clock";
@@ -85,7 +85,7 @@ const useDuration = () => {
   const inProgress = intervalToggle !== "finished";
 
   const finalEndTime = inProgress ? time : endTimeInput;
-  const finalStartTime = moment.min(startTime, finalEndTime);
+  const finalStartTime = dayjs.min(startTime, finalEndTime);
 
   return humanize(finalEndTime.diff(finalStartTime), inProgress);
 };

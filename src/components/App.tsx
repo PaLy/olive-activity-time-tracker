@@ -6,7 +6,7 @@ import useMediaQuery from "@mui/material/useMediaQuery";
 import { useContext, useMemo } from "react";
 import { Outlet, ScrollRestoration } from "react-router";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { AdapterMoment } from "@mui/x-date-pickers/AdapterMoment";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { ScrollMemoryContext } from "./ScrollMemory";
 import { AppSnackbar } from "./AppSnackbar";
 import { TestThemeContext } from "./Theme";
@@ -22,7 +22,7 @@ function App() {
   const scrollMemory = new Map<string, number>();
 
   return (
-    <LocalizationProvider dateAdapter={AdapterMoment}>
+    <LocalizationProvider dateAdapter={AdapterDayjs}>
       <ThemeProvider theme={theme}>
         <CssBaseline />
         <ScrollRestoration />

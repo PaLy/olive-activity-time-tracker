@@ -2,7 +2,7 @@ import { useClockStore } from "../../utils/clock";
 import { ActivityList, ActivityListProps } from "./ActivityList";
 import { OrderBy } from "./constants";
 import { ChipDayPicker } from "../../components/ChipDayPicker";
-import moment from "moment/moment";
+import dayjs from "../../utils/dayjs";
 import { ChipDatePicker } from "../../components/ChipDatePicker";
 import Grid from "@mui/material/Grid";
 import { SimpleInterval } from "../../utils/types";
@@ -82,7 +82,7 @@ const useDayActivityList = (): ActivityListProps => {
   };
 };
 
-const yesterday = () => moment().subtract(1, "day");
+const yesterday = () => dayjs().subtract(1, "day");
 
 const useMonthActivityList = (): ActivityListProps => {
   const { month, setMonth } = useMonthFilterStore();
@@ -102,7 +102,7 @@ const useMonthActivityList = (): ActivityListProps => {
           openTo={"month"}
           value={month}
           onChange={setMonth}
-          isMaxDate={(value) => value.isSame(moment(), "month")}
+          isMaxDate={(value) => value.isSame(dayjs(), "month")}
           onBefore={(value) => value.clone().subtract(1, "month")}
           onNext={(value) => value.clone().add(1, "month")}
         />

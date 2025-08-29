@@ -1,10 +1,10 @@
-import moment from "moment";
+import dayjs from "./dayjs";
 import { useEffect } from "react";
-import { create } from "zustand/index";
+import { create } from "zustand";
 import { produce } from "immer";
 
 type ClockStore = {
-  time: moment.Moment;
+  time: dayjs.Dayjs;
   frozen: boolean;
   freeze: () => void;
   unfreeze: () => void;
@@ -12,15 +12,15 @@ type ClockStore = {
 };
 
 export const useClockStore = create<ClockStore>((set) => ({
-  time: moment(),
+  time: dayjs(),
   frozen: false,
   freeze: () => set({ frozen: true }),
-  unfreeze: () => set({ frozen: false, time: moment() }),
+  unfreeze: () => set({ frozen: false, time: dayjs() }),
   tick: () =>
     set(
       produce((state) => {
         if (!state.frozen) {
-          state.time = moment();
+          state.time = dayjs();
         }
       }),
     ),

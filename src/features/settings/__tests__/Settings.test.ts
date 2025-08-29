@@ -1,4 +1,4 @@
-import moment from "moment";
+import dayjs from "../../../utils/dayjs";
 import { act, screen } from "@testing-library/react";
 import { renderApp } from "../../../utils/__testutils__/app";
 import { userEvent } from "@testing-library/user-event";
@@ -20,8 +20,8 @@ describe("Settings", () => {
     await db.intervals.bulkAdd([
       {
         activityId: 1,
-        start: +moment().endOf("day").subtract(30, "minutes"),
-        end: +moment().endOf("day"),
+        start: +dayjs().endOf("day").subtract(30, "minutes"),
+        end: +dayjs().endOf("day"),
       },
     ]);
   });

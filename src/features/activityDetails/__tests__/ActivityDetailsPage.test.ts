@@ -1,4 +1,4 @@
-import moment from "moment/moment";
+import dayjs from "../../../utils/dayjs";
 import { renderApp } from "../../../utils/__testutils__/app";
 import { act, screen } from "@testing-library/react";
 import {
@@ -69,13 +69,13 @@ describe("ActivityDetailsPage", () => {
     await db.intervals.bulkAdd([
       {
         activityId: 1,
-        start: +moment().hour(8).startOf("hour"),
-        end: +moment().hour(8).minute(30).startOf("minute"),
+        start: +dayjs().hour(8).startOf("hour"),
+        end: +dayjs().hour(8).minute(30).startOf("minute"),
       },
       {
         activityId: 1,
-        start: +moment().hour(10).startOf("hour"),
-        end: +moment().hour(10).minute(30).startOf("minute"),
+        start: +dayjs().hour(10).startOf("hour"),
+        end: +dayjs().hour(10).minute(30).startOf("minute"),
       },
     ]);
     renderApp();

@@ -4,7 +4,7 @@ import {
   DatePickerProps,
 } from "@mui/x-date-pickers/DatePicker";
 import { usePickerContext } from "@mui/x-date-pickers/hooks";
-import { Moment } from "moment";
+import { Dayjs } from "dayjs";
 import Chip from "@mui/material/Chip";
 import Grid from "@mui/material/Grid";
 import IconButton from "@mui/material/IconButton";
@@ -16,12 +16,12 @@ export type ChipDatePickerProps = Omit<
   DatePickerProps,
   "value" | "onChange" | "onClose" | "onOpen" | "open" | "slots" | "slotProps"
 > & {
-  value: Moment;
-  onChange: (value: Moment) => void;
-  isMaxDate?: (value: Moment) => boolean;
-  onBefore?: (value: Moment) => Moment;
-  onNext?: (value: Moment) => Moment;
-  toLabel?: (value: Moment) => string;
+  value: Dayjs;
+  onChange: (value: Dayjs) => void;
+  isMaxDate?: (value: Dayjs) => boolean;
+  onBefore?: (value: Dayjs) => Dayjs;
+  onNext?: (value: Dayjs) => Dayjs;
+  toLabel?: (value: Dayjs) => string;
 };
 
 export const ChipDatePicker = (props: ChipDatePickerProps) => {
@@ -64,10 +64,10 @@ export const ChipDatePicker = (props: ChipDatePickerProps) => {
 };
 
 type MyChipAdditionalProps = {
-  isMaxDate?: (value: Moment) => boolean;
-  onBefore?: (value: Moment) => Moment;
-  onNext?: (value: Moment) => Moment;
-  toLabel?: (value: Moment) => string;
+  isMaxDate?: (value: Dayjs) => boolean;
+  onBefore?: (value: Dayjs) => Dayjs;
+  onNext?: (value: Dayjs) => Dayjs;
+  toLabel?: (value: Dayjs) => string;
 };
 
 type MyChipProps = DatePickerFieldProps & MyChipAdditionalProps;

@@ -1,17 +1,22 @@
-import moment from "moment/moment";
+import dayjs from "../../../../utils/dayjs";
 import { renderApp } from "../../../../utils/__testutils__/app";
 import { userEvent } from "@testing-library/user-event";
 import { screen, waitFor } from "@testing-library/react";
 import { storageModal } from "../__testutils__/storageModalTestUtils";
 import path from "path";
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
 import { db } from "../../../../db/db";
+import MockDate from "mockdate";
 
 describe("StorageModal", () => {
+  afterEach(() => {
+    MockDate.reset();
+  });
+
   describe("import", () => {
     it("clears the old data", async () => {
       await prepareData();
-      Date.now = vi.fn(() => new Date("2025-02-15T18:58:40").getTime());
+      MockDate.set(new Date("2025-02-15T18:58:40"));
 
       renderApp();
       await waitFor(async () =>
@@ -37,7 +42,7 @@ describe("StorageModal", () => {
   describe("export", () => {
     it("opens Android share dialog", async () => {
       await prepareData();
-      Date.now = vi.fn(() => new Date("2024-03-05T08:20:37").getTime());
+      MockDate.set(new Date("2024-03-05T08:20:37"));
 
       renderApp({ route: "/storage" });
       await userEvent.click(
@@ -119,8 +124,8 @@ const prepareData = async () => {
   await db.intervals.bulkAdd([
     {
       activityId: 1,
-      start: +moment("2025-02-15T18:52:40.637Z"),
-      end: +moment("2025-02-15T18:57:40.637Z"),
+      start: +dayjs("2025-02-15T18:52:40.637Z"),
+      end: +dayjs("2025-02-15T18:57:40.637Z"),
     },
   ]);
 };

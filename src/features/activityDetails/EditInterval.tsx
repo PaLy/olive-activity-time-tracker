@@ -15,7 +15,7 @@ import { useNavigate } from "../../router/hooks";
 import { useAppSnackbarStore } from "../../components/AppSnackbarStore";
 import { useActivityStore } from "./Store";
 import { useState } from "react";
-import moment from "moment";
+import dayjs from "../../utils/dayjs";
 import { useLiveQuery } from "dexie-react-hooks";
 import {
   EditIntervalData,
@@ -103,7 +103,7 @@ const Content = (props: ContentProps) => {
                 </Typography>
                 <DateTimeRangePicker
                   // TODO limit by own and descendant intervals
-                  startTime={moment(state.start)}
+                  startTime={dayjs(state.start)}
                   setStartTime={(start) =>
                     setState({ ...state, start: +start })
                   }
@@ -111,7 +111,7 @@ const Content = (props: ContentProps) => {
                   setStartTimeError={(startError) =>
                     setState({ ...state, startError })
                   }
-                  endTime={moment(state.end)}
+                  endTime={dayjs(state.end)}
                   setEndTime={(end) => setState({ ...state, end: +end })}
                   endTimeError={state.endError}
                   setEndTimeError={(endError) =>

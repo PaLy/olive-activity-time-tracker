@@ -1,8 +1,8 @@
-import { Moment } from "moment";
+import { Dayjs } from "dayjs";
 
 export const MAX_DATE_MS = 8_640_000_000_000_000;
 
-export const calendarTime = (value: Moment) =>
+export const calendarTime = (value: Dayjs) =>
   value?.calendar(null, {
     lastDay: "[Yesterday]",
     sameDay: "[Today]",
