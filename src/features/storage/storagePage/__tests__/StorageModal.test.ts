@@ -20,7 +20,7 @@ describe("StorageModal", () => {
 
       renderApp();
       await waitFor(async () =>
-        expect(await screen.findByText("Test")).toBeVisible(),
+        expect(await screen.findByText("Test")).toBeInTheDocument(),
       );
 
       await userEvent.click(

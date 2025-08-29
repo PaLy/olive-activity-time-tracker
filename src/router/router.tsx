@@ -1,9 +1,28 @@
 import { RouteObject, useRouteError } from "react-router";
+import { lazy } from "react";
 import App from "../components/App";
-import { ActivityDetailsPage } from "../features/activityDetails/ActivityDetailsPage";
-import { EditInterval } from "../features/activityDetails/EditInterval";
-import { ActivityListPage } from "../features/activityList/ActivityListPage";
-import { StorageModal } from "../features/storage/storagePage/StorageModal";
+
+// Lazy load route components for code-splitting
+const ActivityDetailsPage = lazy(() =>
+  import("../features/activityDetails/ActivityDetailsPage").then((m) => ({
+    default: m.ActivityDetailsPage,
+  })),
+);
+const EditInterval = lazy(() =>
+  import("../features/activityDetails/EditInterval").then((m) => ({
+    default: m.EditInterval,
+  })),
+);
+const ActivityListPage = lazy(() =>
+  import("../features/activityList/ActivityListPage").then((m) => ({
+    default: m.ActivityListPage,
+  })),
+);
+const StorageModal = lazy(() =>
+  import("../features/storage/storagePage/StorageModal").then((m) => ({
+    default: m.StorageModal,
+  })),
+);
 
 const ErrorBoundary = () => {
   const error = useRouteError();
