@@ -81,7 +81,9 @@ const Content = () => {
                 checked={!!activity.notificationsEnabled}
                 onChange={(e) => handleNotificationToggle(e.target.checked)}
                 disabled={saving}
-                role={"switch"}
+                aria-label={
+                  "Show notifications when this activity is in progress"
+                }
               />
             }
             label="Show notifications when this activity is in progress"

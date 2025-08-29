@@ -14,6 +14,7 @@ import { ActivityListSettingValue, Currency } from "../../db/entities";
 import { useState } from "react";
 import { updateActivityListSettings } from "../../db/queries/settings";
 import { useActivityListSettings } from "./services";
+import FormControlLabel from "@mui/material/FormControlLabel";
 
 export const SettingsModal = () => {
   const { pathname } = useLocation();
@@ -35,7 +36,7 @@ const Content = () => {
         <Typography variant="h6" sx={{ pb: 2 }}>
           Activity list
         </Typography>
-        <Box sx={{ pl: 2 }}>
+        <Grid container direction={"column"} gap={3} sx={{ pl: 2 }}>
           <SettingsSwitch
             label={"Show percentage"}
             checked={activityListSettings.showPercentage}
@@ -47,7 +48,7 @@ const Content = () => {
             checked={activityListSettings.showDuration}
             onChange={setShowDuration}
           />
-        </Box>
+        </Grid>
       </Box>
     </>
   );
@@ -120,21 +121,17 @@ type SettingsSwitchProps = {
 const SettingsSwitch = (props: SettingsSwitchProps) => {
   const { onChange, label, checked } = props;
   return (
-    <Grid
-      container
-      justifyContent={"space-between"}
-      alignItems={"center"}
-      sx={{ pb: 1 }}
-    >
-      <div>{label}</div>
-      <Switch
-        aria-label={label}
-        role={"switch"}
-        color="primary"
-        checked={checked}
-        onChange={(event, checked) => onChange(checked)}
-      />
-    </Grid>
+    <FormControlLabel
+      control={
+        <Switch
+          aria-label={label}
+          color="primary"
+          checked={checked}
+          onChange={(event, checked) => onChange(checked)}
+        />
+      }
+      label={label}
+    />
   );
 };
 
