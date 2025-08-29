@@ -46,6 +46,7 @@ export const ChipDatePicker = (props: ChipDatePickerProps) => {
           onChange(newValue);
         }
       }}
+      closeOnSelect={true}
       slots={{ field: MyChip }}
       slotProps={{
         field: {
