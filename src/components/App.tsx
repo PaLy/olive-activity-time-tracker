@@ -3,10 +3,11 @@ import Container from "@mui/material/Container";
 import CssBaseline from "@mui/material/CssBaseline";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
-import { useContext, useMemo } from "react";
+import { useContext, useMemo, Suspense } from "react";
 import { Outlet, ScrollRestoration } from "react-router";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import CircularProgress from "@mui/material/CircularProgress";
 import { ScrollMemoryContext } from "./ScrollMemory";
 import { AppSnackbar } from "./AppSnackbar";
 import { TestThemeContext } from "./Theme";
@@ -41,7 +42,22 @@ function App() {
               style={{ height: "100%", position: "relative" }}
               disableGutters
             >
-              <Outlet />
+              <Suspense
+                fallback={
+                  <Box
+                    sx={{
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      height: "100vh",
+                    }}
+                  >
+                    <CircularProgress />
+                  </Box>
+                }
+              >
+                <Outlet />
+              </Suspense>
             </Container>
           </Box>
         </ScrollMemoryContext.Provider>

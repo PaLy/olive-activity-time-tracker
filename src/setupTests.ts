@@ -17,6 +17,11 @@ enableMapSet();
 
 configure({ asyncUtilTimeout: 3000 });
 
+// Ensure window is defined globally for the test environment
+if (typeof global.window === "undefined") {
+  global.window = window;
+}
+
 const noop = () => {};
 Object.defineProperty(window, "scrollTo", { value: noop, writable: true });
 
