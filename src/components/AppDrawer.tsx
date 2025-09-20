@@ -9,8 +9,10 @@ import ListItemText from "@mui/material/ListItemText";
 import Typography from "@mui/material/Typography";
 import SettingsIcon from "@mui/icons-material/Settings";
 import StorageIcon from "@mui/icons-material/Storage";
+import BugReportIcon from "@mui/icons-material/BugReport";
 import { SettingsModal } from "../features/settings/SettingsModal";
 import SwipeableDrawer from "@mui/material/SwipeableDrawer";
+import Divider from "@mui/material/Divider";
 
 export const AppDrawer = () => {
   const navigate = useNavigate();
@@ -25,7 +27,12 @@ export const AppDrawer = () => {
         onOpen={() => navigate(`${pathname}/drawer`)} // used when opening by swipe
       >
         <Box
-          sx={{ width: 250 }}
+          sx={{
+            width: 250,
+            height: "100%",
+            display: "flex",
+            flexDirection: "column",
+          }}
           role="presentation"
           onClick={() => navigate(-1)}
           onKeyDown={() => navigate(-1)}
@@ -44,6 +51,16 @@ export const AppDrawer = () => {
               routePath={"/storage"}
               absoluteRoutePath={true}
               icon={<StorageIcon />}
+            />
+          </List>
+          <Box sx={{ flexGrow: 1 }} />
+          <Divider />
+          <List>
+            <DrawerItem
+              text={"Debug"}
+              routePath={"/debug"}
+              absoluteRoutePath={true}
+              icon={<BugReportIcon />}
             />
           </List>
         </Box>
