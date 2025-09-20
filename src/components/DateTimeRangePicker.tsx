@@ -1,6 +1,7 @@
 import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import { renderTimeViewClock } from "@mui/x-date-pickers/timeViewRenderers";
 import { Dayjs } from "dayjs";
+import { useDialog } from "../utils/dialog";
 
 type Props = {
   startTime: Dayjs;
@@ -27,6 +28,8 @@ export const DateTimeRangePicker = (props: Props) => {
     setEndTimeError,
   } = props;
 
+  const { open, onOpen, onClose } = useDialog();
+
   return (
     <>
       <DateTimePicker
@@ -38,6 +41,9 @@ export const DateTimeRangePicker = (props: Props) => {
             setStartTime(value);
           }
         }}
+        open={open}
+        onOpen={onOpen}
+        onClose={onClose}
         maxDateTime={endTime}
         disableFuture
         ampm={false}
