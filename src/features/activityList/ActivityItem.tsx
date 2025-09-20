@@ -20,7 +20,7 @@ import { setExpanded } from "../../db/queries/activities";
 import { ActivityTreeNode } from "../../db/queries/activitiesTree";
 import {
   depth,
-  isInProgressInDateRange,
+  useIsInProgressInInterval,
   useDuration,
   useDurationPercentage,
   useStartActivity,
@@ -187,10 +187,10 @@ type ActivityRow2Props = {
 };
 
 const ActivityRow2 = (props: ActivityRow2Props) => {
-  const { activity } = props;
-  const durationPercentage = useDurationPercentage(activity);
-  const duration = useDuration(activity);
-  const inProgress = isInProgressInDateRange(activity);
+  const { activity, interval } = props;
+  const durationPercentage = useDurationPercentage(activity, interval);
+  const duration = useDuration(activity, interval);
+  const inProgress = useIsInProgressInInterval(activity, interval);
   const humanizedDuration = useHumanizedDuration(duration, inProgress);
   const { showDuration, showCost, showPercentage } = useActivityListSettings();
   const cost = getCost(duration, showCost);
