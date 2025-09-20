@@ -2,7 +2,6 @@ import Box from "@mui/material/Box";
 import Container from "@mui/material/Container";
 import CssBaseline from "@mui/material/CssBaseline";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
-import useMediaQuery from "@mui/material/useMediaQuery";
 import { useContext, useMemo, Suspense } from "react";
 import { Outlet, ScrollRestoration } from "react-router";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
@@ -10,15 +9,18 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import CircularProgress from "@mui/material/CircularProgress";
 import { ScrollMemoryContext } from "./ScrollMemory";
 import { AppSnackbar } from "./AppSnackbar";
-import { TestThemeContext } from "./Theme";
+import { TestThemeContext, useDarkMode } from "./Theme";
 import { useTickingClock } from "../utils/clock";
 import { useInProgressActivitiesNotifications } from "../hooks/useInProgressActivitiesNotifications";
+import { useConsoleHook } from "../features/debug/useConsoleHook";
 
 function App() {
   const theme = useTheme();
   useTickingClock();
-
   useInProgressActivitiesNotifications();
+
+  // Initialize console hook globally to capture logs from app start
+  useConsoleHook();
 
   const scrollMemory = new Map<string, number>();
 
@@ -68,14 +70,14 @@ function App() {
 }
 
 const useTheme = () => {
-  const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
+  const darkMode = useDarkMode();
   const { modifyTheme } = useContext(TestThemeContext);
   return useMemo(
     () =>
       createTheme(
         modifyTheme({
           palette: {
-            mode: prefersDarkMode ? "dark" : "light",
+            mode: darkMode ? "dark" : "light",
             primary: {
               // 800 from dark olive green #556B2F
               main: "#778d3e",
@@ -83,7 +85,7 @@ const useTheme = () => {
           },
         }),
       ),
-    [modifyTheme, prefersDarkMode],
+    [modifyTheme, darkMode],
   );
 };
 
