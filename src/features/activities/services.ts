@@ -6,6 +6,7 @@ import { useState } from "react";
 import { resumeActivity } from "../../db/queries/resumeActivity";
 import { stopActivity } from "../../db/queries/stopActivity";
 import { useClockStore } from "../../utils/clock";
+import { SimpleInterval } from "../../utils/types";
 
 export const getNonRootAncestors = <A extends { id: number; parent?: A }>(
   activity: A,
@@ -37,8 +38,13 @@ export const activityFullName = <
     .join(ACTIVITY_FULL_NAME_SEPARATOR);
 };
 
-export const isInProgressInDateRange = (activity: ActivityTreeNode) =>
-  activity.subtreeLastEndTime === MAX_DATE_MS;
+export const useIsInProgressInInterval = (
+  activity: ActivityTreeNode,
+  interval: SimpleInterval,
+) => {
+  const time = useClockStore((state) => state.time);
+  return activity.subtreeLastEndTime === MAX_DATE_MS && +time < interval.end;
+};
 
 export const depth = (activity: ActivityTreeNode): number => {
   if (!activity.parent || activity.parent.id === -1) {
@@ -48,26 +54,46 @@ export const depth = (activity: ActivityTreeNode): number => {
   }
 };
 
-export function activityDuration(a: ActivityTreeNode, time: number) {
+export function activityDuration(
+  a: ActivityTreeNode,
+  interval: SimpleInterval,
+  time: number,
+) {
   if (a.subtreeLastEndTime === MAX_DATE_MS) {
-    return a.subtreeDuration + (time - a.subtreeDurationComputedAt);
+    const inProgressInInterval = time < interval.end;
+    if (inProgressInInterval) {
+      return a.subtreeDuration + (time - a.subtreeDurationComputedAt);
+    } else {
+      const endTime = Math.min(time, interval.end);
+      if (endTime > a.subtreeDurationComputedAt) {
+        return a.subtreeDuration + (endTime - a.subtreeDurationComputedAt);
+      } else {
+        return a.subtreeDuration;
+      }
+    }
   } else {
     return a.subtreeDuration;
   }
 }
 
-export const useDuration = (activity: ActivityTreeNode | undefined) => {
+export const useDuration = (
+  activity: ActivityTreeNode | undefined,
+  interval: SimpleInterval,
+) => {
   const time = useClockStore((state) => state.time);
   if (!activity) {
     return 0;
   }
-  return activityDuration(activity, +time);
+  return activityDuration(activity, interval, +time);
 };
 
-export const useDurationPercentage = (activity: ActivityTreeNode) => {
+export const useDurationPercentage = (
+  activity: ActivityTreeNode,
+  interval: SimpleInterval,
+) => {
   const parentActivity = activity.parent;
-  const activityDuration = useDuration(activity);
-  const parentDuration = useDuration(parentActivity);
+  const activityDuration = useDuration(activity, interval);
+  const parentDuration = useDuration(parentActivity, interval);
   return Math.round((activityDuration / parentDuration) * 100);
 };
 

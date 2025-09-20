@@ -172,8 +172,8 @@ const useFilteredActivities = (orderBy: OrderBy, interval: SimpleInterval) => {
   const time = useClockStore((state) => state.time);
 
   return useMemo(
-    () => getOrderedActivities(activities, orderBy, +time),
-    [activities, orderBy, time],
+    () => getOrderedActivities(activities, orderBy, interval, +time),
+    [activities, orderBy, time, interval],
   );
 };
 
@@ -185,14 +185,15 @@ const useFilteredActivities = (orderBy: OrderBy, interval: SimpleInterval) => {
 function getOrderedActivities(
   parent: ActivityTreeNode | undefined,
   orderBy: OrderBy,
+  interval: SimpleInterval,
   time: number,
 ): ActivityTreeNode[] {
   if (!parent) return [];
 
   if (parent.id === -1 || parent.expanded) {
     const children = parent.children
-      .toSorted(activitiesComparator(orderBy, time))
-      .flatMap((child) => getOrderedActivities(child, orderBy, time));
+      .toSorted(activitiesComparator(orderBy, interval, time))
+      .flatMap((child) => getOrderedActivities(child, orderBy, interval, time));
 
     if (parent.id === -1) {
       return children;
@@ -204,19 +205,25 @@ function getOrderedActivities(
   }
 }
 
-function activitiesComparator(orderBy: OrderBy, time: number) {
+function activitiesComparator(
+  orderBy: OrderBy,
+  interval: SimpleInterval,
+  time: number,
+) {
   switch (orderBy) {
     // order by duration descending, then by last end time descending, then by name ascending
     case OrderBy.Duration:
       return (a: ActivityTreeNode, b: ActivityTreeNode) =>
-        activityDuration(b, time) - activityDuration(a, time) ||
+        activityDuration(b, interval, time) -
+          activityDuration(a, interval, time) ||
         b.subtreeLastEndTime - a.subtreeLastEndTime ||
         a.name.localeCompare(b.name);
     // order by last end time descending, then by duration descending, then by name ascending
     case OrderBy.LastEndTime:
       return (a: ActivityTreeNode, b: ActivityTreeNode) =>
         b.subtreeLastEndTime - a.subtreeLastEndTime ||
-        activityDuration(b, time) - activityDuration(a, time) ||
+        activityDuration(b, interval, time) -
+          activityDuration(a, interval, time) ||
         a.name.localeCompare(b.name);
   }
 }
