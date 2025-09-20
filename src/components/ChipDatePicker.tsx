@@ -10,7 +10,7 @@ import Grid from "@mui/material/Grid";
 import IconButton from "@mui/material/IconButton";
 import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
-import { useState } from "react";
+import { useDialog } from "../utils/dialog";
 
 export type ChipDatePickerProps = Omit<
   DatePickerProps,
@@ -34,9 +34,8 @@ export const ChipDatePicker = (props: ChipDatePickerProps) => {
     toLabel,
     ...datePickerProps
   } = props;
-  const [open, setOpen] = useState(false);
-  const onOpen = () => setOpen(true);
-  const onClose = () => setOpen(false);
+
+  const { open, onOpen, onClose } = useDialog();
 
   return (
     <DatePicker
