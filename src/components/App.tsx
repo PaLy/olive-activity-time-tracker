@@ -2,7 +2,7 @@ import Box from "@mui/material/Box";
 import Container from "@mui/material/Container";
 import CssBaseline from "@mui/material/CssBaseline";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
-import { useContext, useMemo, Suspense } from "react";
+import { Suspense, useContext, useMemo } from "react";
 import { Outlet, ScrollRestoration } from "react-router";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
@@ -13,8 +13,10 @@ import { TestThemeContext, useDarkMode } from "./Theme";
 import { useTickingClock } from "../utils/clock";
 import { useInProgressActivitiesNotifications } from "../hooks/useInProgressActivitiesNotifications";
 import { useConsoleHook } from "../features/debug/useConsoleHook";
+import { useDbAutoclose } from "../db/db";
 
 function App() {
+  useDbAutoclose();
   const theme = useTheme();
   useTickingClock();
   useInProgressActivitiesNotifications();
