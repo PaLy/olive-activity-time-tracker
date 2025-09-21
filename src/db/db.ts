@@ -1,5 +1,6 @@
 import Dexie, { EntityTable } from "dexie";
 import { Activity, Interval, Setting } from "./entities";
+import { useEffect } from "react";
 
 export class OliveDB extends Dexie {
   activities!: EntityTable<Activity, "id">;
@@ -40,3 +41,19 @@ export class OliveDB extends Dexie {
 }
 
 export const db = new OliveDB();
+
+export const useDbAutoclose = () => {
+  useEffect(() => {
+    const onVisibilityChange = () => {
+      if (document.visibilityState === "hidden") {
+        db.close({ disableAutoOpen: false });
+        console.log("Dexie database closed.");
+      }
+    };
+
+    document.addEventListener("visibilitychange", onVisibilityChange);
+    return () => {
+      document.removeEventListener("visibilitychange", onVisibilityChange);
+    };
+  }, []);
+};
