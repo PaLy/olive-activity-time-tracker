@@ -4,7 +4,9 @@ import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.os.Bundle
+import android.util.Log
 import android.view.View
+import android.webkit.RenderProcessGoneDetail
 import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
 import android.webkit.WebView
@@ -16,7 +18,6 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.webkit.WebViewAssetLoader
 import androidx.webkit.WebViewAssetLoader.AssetsPathHandler
 import androidx.webkit.WebViewClientCompat
-
 
 class MainActivity : ComponentActivity() {
     private lateinit var myWebView: WebView
@@ -89,6 +90,14 @@ class MainActivity : ComponentActivity() {
         myWebView.webViewClient = object : WebViewClientCompat() {
             override fun shouldInterceptRequest(view: WebView?, request: WebResourceRequest): WebResourceResponse? {
                 return assetLoader.shouldInterceptRequest(request.url)
+            }
+
+            override fun onRenderProcessGone(view: WebView, detail: RenderProcessGoneDetail): Boolean {
+                Log.e("MainActivity", "WebView render process gone. Terminated: " + detail.didCrash())
+                view.destroy()
+                createWebView()
+                Log.i("MainActivity", "WebView recreated after render process crash.")
+                return true
             }
         }
 
