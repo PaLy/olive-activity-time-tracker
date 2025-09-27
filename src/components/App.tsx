@@ -12,7 +12,6 @@ import { AppSnackbar } from "./AppSnackbar";
 import { TestThemeContext, useDarkMode } from "./Theme";
 import { useTickingClock } from "../utils/clock";
 import { useInProgressActivitiesNotifications } from "../hooks/useInProgressActivitiesNotifications";
-import { useConsoleHook } from "../features/debug/useConsoleHook";
 import { useDbAutoclose } from "../db/db";
 
 function App() {
@@ -22,7 +21,7 @@ function App() {
   useInProgressActivitiesNotifications();
 
   // Initialize console hook globally to capture logs from app start
-  useConsoleHook();
+  // useConsoleHook();
 
   const scrollMemory = new Map<string, number>();
 
