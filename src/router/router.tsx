@@ -23,11 +23,11 @@ const StorageModal = lazy(() =>
     default: m.StorageModal,
   })),
 );
-const DebugPage = lazy(() =>
-  import("../features/debug/DebugPage").then((m) => ({
-    default: m.DebugPage,
-  })),
-);
+// const DebugPage = lazy(() =>
+//   import("../features/debug/DebugPage").then((m) => ({
+//     default: m.DebugPage,
+//   })),
+// );
 
 const ErrorBoundary = () => {
   const error = useRouteError();
@@ -75,10 +75,10 @@ export const createRoutes = (): RouteObject[] => [
         path: "storage",
         element: <StorageModal />,
       },
-      {
-        path: "debug",
-        element: <DebugPage />,
-      },
+      // {
+      //   path: "debug",
+      //   element: <DebugPage />,
+      // },
     ],
   },
 ];
