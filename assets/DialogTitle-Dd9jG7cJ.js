@@ -1,0 +1,2 @@
+import{r as i,t as x,j as m,x as u,y as g,z as D}from"./index-C3CwVjDz.js";import{h as d,j as T,T as f}from"./Slide-CF8_0LcF.js";const y=t=>{const{classes:s}=t;return D({root:["root"]},T,s)},h=u(f,{name:"MuiDialogTitle",slot:"Root"})({padding:"16px 24px",flex:"0 0 auto"}),R=i.forwardRef(function(s,o){const a=x({props:s,name:"MuiDialogTitle"}),{className:r,id:e,...n}=a,l=a,c=y(l),{titleId:p=e}=i.useContext(d);return m.jsx(h,{component:"h2",className:g(c.root,r),ownerState:l,ref:o,variant:"h6",id:e??p,...n})});export{R as D};
+//# sourceMappingURL=DialogTitle-Dd9jG7cJ.js.map
