@@ -2,19 +2,17 @@ import Box from "@mui/material/Box";
 import Fab from "@mui/material/Fab";
 import Grid from "@mui/material/Grid";
 import Paper from "@mui/material/Paper";
-import useMediaQuery from "@mui/material/useMediaQuery";
-import { useTheme } from "@mui/material/styles";
+import { styled } from "@mui/material/styles";
 import { AppBarActions } from "./AppBarActions";
 import { ActivityItem } from "./ActivityItem";
 import { AppAppBar } from "../../components/AppBar";
 import { AppBottomNavigation } from "./BottomNavigation";
 import { Flipper } from "react-flip-toolkit";
-import { ElementType, ReactNode, Ref, useEffect, useMemo, useRef } from "react";
+import { ElementType, ReactNode, useMemo } from "react";
 import { useLocation, useNavigate } from "../../router/hooks";
 import AddIcon from "@mui/icons-material/Add";
 import { AddActivityModal } from "../addActivity/AddActivityModal";
-import { ResizableList, SingleItemData } from "../../components/ResizableList";
-import AutoSizer from "react-virtualized-auto-sizer";
+import { ResizableList, SingleRowData } from "../../components/ResizableList";
 import { useLiveQuery } from "dexie-react-hooks";
 import {
   ActivityTreeNode,
@@ -40,99 +38,68 @@ export type ActivityListFilter = {
   initialHeight: number;
 };
 
+const BOTTOM_NAVIGATION_HEIGHT = 56;
+
 export const ActivityList = (props: ActivityListProps) => {
   return (
     <Grid container direction={"column"} height={"100%"}>
-      <Paper square sx={{ flex: 1, display: "flex", flexDirection: "column" }}>
-        <AutoSizer>
-          {({ width, height }) => (
-            <List {...props} width={width} height={height} />
-          )}
-        </AutoSizer>
+      <Paper
+        square
+        sx={{ height: `calc(100% - ${BOTTOM_NAVIGATION_HEIGHT}px)` }}
+      >
+        <List {...props} />
+        <Box
+          sx={{
+            position: "absolute",
+            bottom: 24 + BOTTOM_NAVIGATION_HEIGHT,
+            right: 28,
+          }}
+        >
+          <AddActivityOpener />
+          <AddActivityModal />
+        </Box>
       </Paper>
       <AppBottomNavigation />
     </Grid>
   );
 };
 
-type ListProps = ActivityListProps & { height: number; width: number };
-
-const List = (props: ListProps) => {
-  const { height, width, ...otherProps } = props;
+const List = (props: ActivityListProps) => {
+  const { ...otherProps } = props;
   const { interval, orderBy } = props;
   const activities = useFilteredActivities(orderBy, interval);
-  const itemData = useItemData(otherProps, activities);
-  const innerRef = useRef<HTMLDivElement>(null);
-  const { flipKey, forceUpdate } = useFlipKey(activities);
-
-  useEffect(() => {
-    innerRef.current!.style.minHeight = `${height}px`;
-  }, [height]);
+  const rowData = useRowData(otherProps, activities);
+  const { flipKey } = useFlipKey(activities);
 
   const freezeClock = useClockStore((state) => state.freeze);
   const unfreezeClock = useClockStore((state) => state.unfreeze);
 
   return (
-    <Flipper flipKey={flipKey} onStart={freezeClock} onComplete={unfreezeClock}>
-      <ResizableList
-        itemData={itemData}
-        width={width}
-        height={height}
-        innerElementType={InnerElementType}
-        innerRef={innerRef}
-        onResetAfterIndex={forceUpdate}
-      />
-    </Flipper>
-  );
-};
-
-type InnerElementTypeProps = {
-  children: ReactNode;
-  style: { [key: string]: unknown };
-  ref: Ref<HTMLDivElement>;
-};
-
-const InnerElementType = (props: InnerElementTypeProps) => {
-  const { style, ref, ...rest } = props;
-  return (
-    <div
-      ref={ref}
-      style={{
-        ...style,
-        height: `${parseFloat(style.height as string) + 80}px`,
-        flex: 1,
-        display: "flex",
-        flexDirection: "column",
-      }}
-      {...rest}
+    <StyledFlipper
+      flipKey={flipKey}
+      onStart={freezeClock}
+      onComplete={unfreezeClock}
     >
-      {rest.children}
-      <Box
-        sx={{
-          position: "sticky",
-          bottom: 24,
-          mr: 3,
-          alignSelf: "end",
-          marginTop: "auto",
-        }}
-      >
-        <AddActivityOpener />
-        <AddActivityModal />
-      </Box>
-    </div>
+      <ResizableList
+        defaultRowHeight={92}
+        rowData={rowData}
+        style={{ paddingBottom: "64px" }}
+      />
+    </StyledFlipper>
   );
 };
+
+const StyledFlipper = styled(Flipper)`
+  height: 100%;
+`;
 
 const FILTER_PADDING_TOP = 16;
 
-const useItemData = (
+const useRowData = (
   props: ActivityListProps,
   activities: ActivityTreeNode[],
 ) => {
   const { header, filter, interval } = props;
-
-  const theme = useTheme();
-  const largeAppBar = useMediaQuery(theme.breakpoints.up("sm"));
 
   return useMemo(
     () =>
@@ -140,22 +107,16 @@ const useItemData = (
         {
           RowComponent: Header,
           rowProps: { header, filter },
-          rowData: {
-            size:
-              (filter ? filter.initialHeight + FILTER_PADDING_TOP : 0) +
-              (largeAppBar ? 64 : 56),
-          },
-        } as SingleItemData<typeof Header>,
+        } as SingleRowData<typeof Header>,
         ...activities.map(
           (activity) =>
             ({
               RowComponent: ActivityItem,
               rowProps: { activity, interval },
-              rowData: { size: 92.03125 },
-            }) as SingleItemData<typeof ActivityItem>,
+            }) as SingleRowData<typeof ActivityItem>,
         ),
-      ] as SingleItemData<ElementType>[],
-    [activities, filter, header, interval, largeAppBar],
+      ] as SingleRowData<ElementType>[],
+    [activities, filter, header, interval],
   );
 };
 

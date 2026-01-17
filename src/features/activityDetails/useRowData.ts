@@ -1,5 +1,5 @@
 import { useMemo, ElementType } from "react";
-import { SingleItemData } from "../../components/ResizableList";
+import { SingleRowData } from "../../components/ResizableList";
 import { ActivityDetailsData } from "../../db/queries/activityDetails";
 import { TopOfIntervalList } from "./TopOfIntervalList";
 import { SubheaderItem } from "./SubheaderItem";
@@ -33,20 +33,18 @@ export const useRowData = (
           onSave,
           onCancel,
         },
-        rowData: { size: 104 },
       },
       ...intervalsByDay.flatMap((dayIntervals) => {
         const { dayStart, intervals } = dayIntervals;
         const finalIndex = index;
-        const subheaderData: SingleItemData<typeof SubheaderItem> = {
+        const subheaderData: SingleRowData<typeof SubheaderItem> = {
           RowComponent: SubheaderItem,
           rowProps: {
             dayStart,
             stickyItemVisible: visibleStartIndex === finalIndex,
           },
-          rowData: { size: 48 },
         };
-        const intervalsRowData: SingleItemData<typeof IntervalItem>[] =
+        const intervalsRowData: SingleRowData<typeof IntervalItem>[] =
           intervals.map((interval) => ({
             RowComponent: IntervalItem,
             rowProps: {
@@ -54,13 +52,13 @@ export const useRowData = (
               activities,
               activityId: activityDetails.id,
             },
-            rowData: { size: 60.03125 },
           }));
         const items = [subheaderData, ...intervalsRowData];
+        // eslint-disable-next-line react-hooks/immutability
         index += items.length;
         return items;
       }),
-    ] as SingleItemData<ElementType>[];
+    ] as SingleRowData<ElementType>[];
   }, [
     activityDetails,
     visibleStartIndex,

@@ -1,10 +1,9 @@
-import { useState, useMemo } from "react";
-import AutoSizer from "react-virtualized-auto-sizer";
-import { ResizableList, SingleItemData } from "../../components/ResizableList";
+import { useMemo, useState } from "react";
+import { ResizableList, SingleRowData } from "../../components/ResizableList";
 import { ActivityDetailsData } from "../../db/queries/activityDetails";
 import { useRowData } from "./useRowData";
-import { InnerElementType, InnerElementTypeRef } from "./InnerElementType";
 import { IntervalItem } from "./IntervalItem";
+import { StickySubheader } from "./StickySubheader";
 
 type ActivityDetailsContentProps = {
   activityDetails: ActivityDetailsData;
@@ -47,7 +46,7 @@ export const ActivityDetailsContent = (props: ActivityDetailsContentProps) => {
         .find(
           (
             singleRowData,
-          ): singleRowData is SingleItemData<typeof IntervalItem> =>
+          ): singleRowData is SingleRowData<typeof IntervalItem> =>
             singleRowData.RowComponent === IntervalItem,
         )?.rowProps.interval;
     } else {
@@ -56,21 +55,16 @@ export const ActivityDetailsContent = (props: ActivityDetailsContentProps) => {
   }, [rowData, visibleStartIndex]);
 
   return (
-    <AutoSizer>
-      {({ width, height }) => (
-        <ResizableList
-          height={height}
-          width={width}
-          itemData={rowData}
-          innerElementType={InnerElementType}
-          innerRef={(ref: InnerElementTypeRef | null) =>
-            ref?.setTopInterval(topInterval)
-          }
-          onItemsRendered={({ visibleStartIndex }) => {
-            setVisibleStartIndex(visibleStartIndex);
-          }}
-        />
-      )}
-    </AutoSizer>
+    <>
+      <ResizableList
+        defaultRowHeight={60}
+        rowData={rowData}
+        onRowsRendered={(visibleRows) => {
+          setVisibleStartIndex(visibleRows.startIndex);
+        }}
+      >
+        <StickySubheader interval={topInterval} />
+      </ResizableList>
+    </>
   );
 };

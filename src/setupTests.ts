@@ -34,7 +34,16 @@ const originalOffsetWidth = Object.getOwnPropertyDescriptor(
   "offsetWidth",
 )!;
 
-vi.mock("react-virtualized-auto-sizer");
+const ResizeObserverMock = vi.fn(function () {
+  return {
+    observe: vi.fn(),
+    unobserve: vi.fn(),
+    disconnect: vi.fn(),
+  };
+});
+vi.stubGlobal("ResizeObserver", ResizeObserverMock);
+
+HTMLElement.prototype.scrollTo = vi.fn();
 
 beforeAll(() => {
   Object.defineProperty(HTMLElement.prototype, "offsetHeight", {
