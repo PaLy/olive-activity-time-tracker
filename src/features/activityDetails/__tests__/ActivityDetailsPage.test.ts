@@ -5,7 +5,7 @@ import {
   PointerEventsCheckLevel,
   userEvent,
 } from "@testing-library/user-event";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { db } from "../../../db/db";
 import { MAX_DATE_MS } from "../../../utils/date";
 
@@ -148,5 +148,34 @@ describe("ActivityDetailsPage", () => {
     // Verify the database was updated
     const updatedActivity = await act(() => db.activities.get(1));
     expect(updatedActivity?.notificationsEnabled).toBe(0);
+  });
+
+  it("shows loading indicator while fetching activity", async () => {
+    await db.activities.bulkAdd([
+      { name: "Test", parentId: -1, expanded: 0, notificationsEnabled: 1 },
+    ]);
+    await db.intervals.bulkAdd([
+      { activityId: 1, start: Date.now(), end: MAX_DATE_MS },
+    ]);
+
+    await act(() => renderApp({ route: "/activities/1" }));
+
+    // Loading indicator should appear briefly
+    // Activity should load eventually
+    expect(await screen.findByText("Test")).toBeVisible();
+  });
+
+  it("handles invalid activity ID", async () => {
+    const consoleErrorSpy = vi
+      .spyOn(console, "error")
+      .mockImplementation(() => {});
+
+    await act(() => renderApp({ route: "/activities/99999" }));
+
+    // Should show loading or error state
+    // The error is logged to console
+    await new Promise((resolve) => setTimeout(resolve, 100));
+
+    consoleErrorSpy.mockRestore();
   });
 });

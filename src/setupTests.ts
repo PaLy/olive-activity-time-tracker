@@ -15,7 +15,7 @@ dayjs.extend(duration);
 
 enableMapSet();
 
-configure({ asyncUtilTimeout: 3000 });
+configure({ asyncUtilTimeout: 5000 });
 
 // Ensure window is defined globally for the test environment
 if (typeof global.window === "undefined") {

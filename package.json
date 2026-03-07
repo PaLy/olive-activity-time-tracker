@@ -75,7 +75,7 @@
     "predeploy-to-android": "npm run build",
     "deploy-to-android": "rm -rf android/app/src/main/assets/www && mv dist android/app/src/main/assets/www",
     "test": "vitest",
-    "test-coverage": "vitest --coverage",
+    "test-coverage": "vitest run --coverage",
     "check-updates": "npx npm-check-updates",
     "upgrade": "npx npm-check-updates -u --target minor",
     "npm-audit-fix": "npm audit fix",
