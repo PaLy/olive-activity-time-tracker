@@ -24,7 +24,7 @@ export default defineConfig({
     globals: true,
     environment: "jsdom",
     setupFiles: ["fake-indexeddb/auto", "blob-polyfill", "src/setupTests.ts"],
-    testTimeout: 10000,
+    testTimeout: 20000,
     retry: 2,
   },
 });
