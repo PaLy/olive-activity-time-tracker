@@ -127,9 +127,7 @@ const useDateRangeActivityList = (): ActivityListProps => {
       element: (
         <Grid
           container
-          justifyContent={"center"}
-          sx={{ gap: 1 }}
-          alignItems={"center"}
+          sx={{ justifyContent: "center", gap: 1, alignItems: "center" }}
         >
           <ChipDayPicker value={start} onChange={setStart} maxDate={end} />
           —

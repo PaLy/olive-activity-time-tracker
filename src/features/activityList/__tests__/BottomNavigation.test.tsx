@@ -39,7 +39,6 @@ describe("AppBottomNavigation", () => {
       hash: "",
       state: null,
       key: "default",
-      unstable_mask: undefined,
     });
 
     render(<AppBottomNavigation />);
@@ -57,7 +56,6 @@ describe("AppBottomNavigation", () => {
       hash: "",
       state: null,
       key: "default",
-      unstable_mask: undefined,
     });
     vi.mocked(useLiveQuery).mockReturnValue(3);
 
@@ -74,7 +72,6 @@ describe("AppBottomNavigation", () => {
       hash: "",
       state: null,
       key: "default",
-      unstable_mask: undefined,
     });
 
     render(<AppBottomNavigation />);
@@ -95,7 +92,6 @@ describe("AppBottomNavigation", () => {
       hash: "",
       state: null,
       key: "default",
-      unstable_mask: undefined,
     });
 
     render(<AppBottomNavigation />);
@@ -116,7 +112,6 @@ describe("AppBottomNavigation", () => {
       hash: "",
       state: null,
       key: "default",
-      unstable_mask: undefined,
     });
 
     render(<AppBottomNavigation />);
@@ -137,7 +132,6 @@ describe("AppBottomNavigation", () => {
       hash: "",
       state: null,
       key: "default",
-      unstable_mask: undefined,
     });
 
     render(<AppBottomNavigation />);
@@ -158,7 +152,6 @@ describe("AppBottomNavigation", () => {
       hash: "",
       state: null,
       key: "default",
-      unstable_mask: undefined,
     });
 
     render(<AppBottomNavigation />);
@@ -181,7 +174,6 @@ describe("AppBottomNavigation", () => {
       hash: "",
       state: null,
       key: "default",
-      unstable_mask: undefined,
     });
 
     const consoleErrorSpy = vi
@@ -222,7 +214,6 @@ describe("AppBottomNavigation", () => {
       hash: "",
       state: null,
       key: "default",
-      unstable_mask: undefined,
     });
 
     render(<AppBottomNavigation />);

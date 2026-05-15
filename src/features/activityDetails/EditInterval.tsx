@@ -120,7 +120,7 @@ const Content = (props: ContentProps) => {
                   omitEndTimePicker={omitEndTimePicker}
                 />
                 <Typography sx={{ m: 1 }}>{duration}</Typography>
-                <Grid container justifyContent={"space-between"}>
+                <Grid container sx={{ justifyContent: "space-between" }}>
                   <IconButton
                     aria-label="delete"
                     onClick={() => openDeleteIntervalConfirmation(interval.id)}

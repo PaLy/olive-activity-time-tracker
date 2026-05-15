@@ -15,7 +15,6 @@ type DeleteState = {
   error: string;
   reset: () => void;
   clearError: () => void;
-  isSnackbarOpen: () => boolean;
   closeSnackbar: () => void;
   start: () => void;
   cancel: () => void;
@@ -24,13 +23,12 @@ type DeleteState = {
   setError: (error: string) => void;
 };
 
-const useDeleteStore = create<DeleteState>((set, get) => ({
+const useDeleteStore = create<DeleteState>((set) => ({
   step: "not-started",
   error: "",
   reset: () => set({ step: "not-started", error: "" }),
   clearError: () => set({ error: "" }),
   closeSnackbar: () => set({ step: "not-started" }),
-  isSnackbarOpen: () => get().step === "result",
   start: () => set({ step: "confirm" }),
   cancel: () => set({ step: "not-started" }),
   confirm: () => set({ step: "in-progress" }),
@@ -91,11 +89,11 @@ const Confirmation = () => {
 };
 
 const Result = () => {
+  const step = useDeleteStore((state) => state.step);
   const error = useDeleteStore((state) => state.error);
   const reset = useDeleteStore((state) => state.reset);
   const clearError = useDeleteStore((state) => state.clearError);
   const closeSnackbar = useDeleteStore((state) => state.closeSnackbar);
-  const isSnackbarOpen = useDeleteStore((state) => state.isSnackbarOpen);
 
   useEffect(() => {
     return reset;
@@ -103,10 +101,14 @@ const Result = () => {
 
   return (
     <Snackbar
-      open={isSnackbarOpen()}
+      open={step === "result"}
       autoHideDuration={6000}
       onClose={closeSnackbar}
-      TransitionProps={{ onExited: clearError }}
+      slotProps={{
+        transition: {
+          onExited: clearError,
+        },
+      }}
     >
       <Alert
         onClose={closeSnackbar}

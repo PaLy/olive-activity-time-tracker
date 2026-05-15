@@ -86,7 +86,11 @@ const Result = () => {
       open={resultOpen}
       autoHideDuration={6000}
       onClose={closeResult}
-      TransitionProps={{ onExited: clearError }}
+      slotProps={{
+        transition: {
+          onExited: clearError,
+        },
+      }}
     >
       <Alert
         onClose={closeResult}

@@ -17,15 +17,11 @@ export const FullScreenModalHeader = (props: Props) => {
     <>
       <Grid
         container
-        justifyContent={"space-between"}
-        direction="row"
-        sx={{ pb: 1, pt: 1, pl: 0.5, pr: 1 }}
+        sx={{ justifyContent: "space-between", pb: 1, pt: 1, pl: 0.5, pr: 1 }}
       >
         <Grid
           container
-          alignItems={"start"}
-          width={"fit-content"}
-          flexWrap={"nowrap"}
+          sx={{ alignItems: "start", width: "fit-content", flexWrap: "nowrap" }}
         >
           <IconButton aria-label={"back"} onClick={() => navigate(-1)}>
             <ArrowBackIcon />

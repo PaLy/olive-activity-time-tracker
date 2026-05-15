@@ -54,8 +54,10 @@ export const AppBarMenu = () => {
       anchorEl={anchorEl}
       open={open}
       onClose={closeMenu}
-      MenuListProps={{
-        "aria-labelledby": "app-menu-actions",
+      slotProps={{
+        list: {
+          "aria-labelledby": "app-menu-actions",
+        },
       }}
     >
       <MenuItem

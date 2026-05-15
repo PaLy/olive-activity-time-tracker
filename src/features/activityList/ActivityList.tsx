@@ -42,7 +42,7 @@ const BOTTOM_NAVIGATION_HEIGHT = 56;
 
 export const ActivityList = (props: ActivityListProps) => {
   return (
-    <Grid container direction={"column"} height={"100%"}>
+    <Grid container sx={{ flexDirection: "column", height: "100%" }}>
       <Paper
         square
         sx={{ height: `calc(100% - ${BOTTOM_NAVIGATION_HEIGHT}px)` }}
@@ -92,8 +92,6 @@ const List = (props: ActivityListProps) => {
 const StyledFlipper = styled(Flipper)`
   height: 100%;
 `;
-
-const FILTER_PADDING_TOP = 16;
 
 const useRowData = (
   props: ActivityListProps,
@@ -199,8 +197,11 @@ const Header = (props: HeaderProps) => {
       {filter && (
         <Grid
           container
-          style={{ padding: FILTER_PADDING_TOP, paddingBottom: 0 }}
-          justifyContent={"center"}
+          sx={{
+            paddingTop: 2,
+            paddingBottom: 0,
+            justifyContent: "center",
+          }}
         >
           {filter?.element}
         </Grid>

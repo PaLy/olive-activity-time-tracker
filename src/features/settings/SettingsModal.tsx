@@ -36,7 +36,7 @@ const Content = () => {
         <Typography variant="h6" sx={{ pb: 2 }}>
           Activity list
         </Typography>
-        <Grid container direction={"column"} gap={3} sx={{ pl: 2 }}>
+        <Grid container sx={{ flexDirection: "column", gap: 3, pl: 2 }}>
           <SettingsSwitch
             label={"Show percentage"}
             checked={activityListSettings.showPercentage}

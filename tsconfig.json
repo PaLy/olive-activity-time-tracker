@@ -8,8 +8,10 @@
     "esModuleInterop": true,
     "moduleResolution": "bundler",
     "baseUrl": "./src",
+    "ignoreDeprecations": "6.0",
     "noEmitOnError": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "types": ["node", "vitest/globals"]
   },
   "include": ["src/**/*.ts", "src/**/*.tsx", "index.d.ts"],
   "exclude": ["node_modules"]

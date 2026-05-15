@@ -1,9 +1,7 @@
-declare global {
-  namespace NodeJS {
-    interface ProcessEnv {
-      NODE_ENV: "development" | "production" | "test";
-    }
+declare namespace NodeJS {
+  interface ProcessEnv {
+    NODE_ENV: "development" | "production" | "test";
   }
 }
 
-export {};
+declare module "*.css";

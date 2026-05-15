@@ -80,10 +80,12 @@ const MyChip = (props: MyChipProps) => {
   return (
     <Grid
       container
-      alignItems={"center"}
-      width={"initial"}
-      minHeight={40}
-      sx={{ gap: 2 }}
+      sx={{
+        alignItems: "center",
+        width: "initial",
+        minHeight: 40,
+        gap: 2,
+      }}
     >
       {onBefore && (
         <IconButton

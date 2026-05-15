@@ -19,8 +19,10 @@ export const AppSnackbar = () => {
       open={open}
       autoHideDuration={6000}
       onClose={close}
-      TransitionProps={{
-        onExited: reset,
+      slotProps={{
+        transition: {
+          onExited: reset,
+        },
       }}
     >
       <Alert onClose={close} severity={severity} sx={{ width: "100%" }}>
