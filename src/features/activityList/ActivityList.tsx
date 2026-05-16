@@ -198,7 +198,7 @@ const Header = (props: HeaderProps) => {
         <Grid
           container
           sx={{
-            paddingTop: 2,
+            padding: 2,
             paddingBottom: 0,
             justifyContent: "center",
           }}

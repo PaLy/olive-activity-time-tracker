@@ -70,7 +70,7 @@ const ParentActivityItem = (props: ActivityItemProps) => {
 
   return (
     <ListItemButton
-      sx={{ pl: activityPL, pr: 0 }}
+      sx={{ pl: activityPL, pr: 2 }}
       onClick={() =>
         setExpanded(activity.id, !expanded).catch((e) => {
           console.error(e);
@@ -112,7 +112,7 @@ const LeafActivityItem = (props: ActivityItemProps) => {
   const activityPL = useActivityPL(activity);
 
   return (
-    <ListItem sx={{ pl: activityPL, pr: 0 }}>
+    <ListItem sx={{ pl: activityPL, pr: 2 }}>
       <ActivityAvatar activity={activity} />
       <ListItemText
         primary={name}
