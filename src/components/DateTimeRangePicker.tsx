@@ -54,11 +54,13 @@ export const DateTimeRangePicker = (props: Props) => {
         format={DATE_TIME_PICKER_FORMAT}
         onError={(error) => {
           switch (true) {
-            case error === "maxTime" && omitEndTimePicker:
+            case (error === "maxTime" || error === "maxDate") &&
+              omitEndTimePicker:
             case error === "disableFuture":
               setStartTimeError("Please select a past time");
               return;
-            case error === "maxTime" && !omitEndTimePicker:
+            case (error === "maxTime" || error === "maxDate") &&
+              !omitEndTimePicker:
               setStartTimeError("Please select a time before the end time");
               return;
             default:
@@ -90,7 +92,7 @@ export const DateTimeRangePicker = (props: Props) => {
               case error === "disableFuture":
                 setEndTimeError("Please select a past time");
                 return;
-              case error === "minTime":
+              case error === "minTime" || error === "minDate":
                 setEndTimeError("Please select a time after the start time");
                 return;
               default:

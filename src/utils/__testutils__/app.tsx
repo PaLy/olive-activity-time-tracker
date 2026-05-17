@@ -15,13 +15,13 @@ type RenderAppOptions = {
 export const renderApp = (options?: RenderAppOptions) => {
   const { route = "/" } = options ?? {};
   return render(
-    <TestThemeContext.Provider value={testThemeContextValue}>
+    <TestThemeContext value={testThemeContextValue}>
       <RouterProvider
         router={createMemoryRouter(createRoutes(), {
           initialEntries: [route],
         })}
       ></RouterProvider>
-    </TestThemeContext.Provider>,
+    </TestThemeContext>,
   );
 };
 

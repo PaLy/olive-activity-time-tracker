@@ -2,7 +2,7 @@ import Box from "@mui/material/Box";
 import Container from "@mui/material/Container";
 import CssBaseline from "@mui/material/CssBaseline";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
-import { Suspense, useContext, useMemo } from "react";
+import { Suspense, use, useMemo } from "react";
 import { Outlet, ScrollRestoration } from "react-router";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
@@ -30,7 +30,7 @@ function App() {
       <ThemeProvider theme={theme}>
         <CssBaseline />
         <ScrollRestoration />
-        <ScrollMemoryContext.Provider value={scrollMemory}>
+        <ScrollMemoryContext value={scrollMemory}>
           <Box
             sx={{
               position: "absolute",
@@ -63,7 +63,7 @@ function App() {
               </Suspense>
             </Container>
           </Box>
-        </ScrollMemoryContext.Provider>
+        </ScrollMemoryContext>
         <AppSnackbar />
       </ThemeProvider>
     </LocalizationProvider>
@@ -72,7 +72,7 @@ function App() {
 
 const useTheme = () => {
   const darkMode = useDarkMode();
-  const { modifyTheme } = useContext(TestThemeContext);
+  const { modifyTheme } = use(TestThemeContext);
   return useMemo(
     () =>
       createTheme(

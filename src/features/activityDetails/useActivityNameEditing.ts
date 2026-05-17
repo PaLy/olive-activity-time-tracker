@@ -14,12 +14,12 @@ type EditingState = {
 };
 
 export const useActivityNameEditing = (activityId: number) => {
-  const [editingState, setEditingState] = useState<EditingState>({
+  const [editingState, setEditingState] = useState<EditingState>(() => ({
     editMode: false,
     name: "",
     siblingNames: new Set(),
     validationError: "",
-  });
+  }));
 
   const validateName = (nameToValidate: string, siblingNames: Set<string>) => {
     if (nameToValidate.trim() === "") {

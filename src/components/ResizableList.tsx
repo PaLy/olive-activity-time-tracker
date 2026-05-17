@@ -5,7 +5,7 @@ import {
   useDynamicRowHeight,
   useListRef,
 } from "react-window";
-import { ComponentProps, ElementType, useContext, useRef } from "react";
+import { ComponentProps, ElementType, use, useRef } from "react";
 import { ScrollMemoryContext } from "./ScrollMemory";
 import { useLocation } from "../router/hooks";
 
@@ -31,7 +31,7 @@ export const ResizableList = <Component extends ElementType>(
   const listRef = useListRef(null);
 
   const { pathname: scrollID } = useLocation();
-  const scrollMemory = useContext(ScrollMemoryContext);
+  const scrollMemory = use(ScrollMemoryContext);
   const initialScroll = useRef(scrollMemory.get(scrollID) || 0).current;
   const initialScrollApplied = useRef(false);
 

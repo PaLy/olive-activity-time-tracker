@@ -1,21 +1,16 @@
 import js from "@eslint/js";
-import tanstackQuery from "@tanstack/eslint-plugin-query";
-import prettier from "eslint-plugin-prettier/recommended";
-import reactHooks from "eslint-plugin-react-hooks";
-import react from "eslint-plugin-react";
+import eslintConfigPrettier from "eslint-config-prettier";
+import react from "eslint-plugin-react-x";
 import typescript from "typescript-eslint";
-import importPlugin from "eslint-plugin-import";
+import importPlugin from "eslint-plugin-import-x";
 
 export default [
   js.configs.recommended,
   ...typescript.configs.recommended,
-  ...tanstackQuery.configs["flat/recommended"],
-  react.configs.flat.recommended,
-  react.configs.flat["jsx-runtime"],
-  prettier,
+  react.configs["recommended-typescript"],
+  eslintConfigPrettier,
   {
     plugins: {
-      "react-hooks": reactHooks,
       import: importPlugin,
     },
     settings: {
@@ -24,7 +19,6 @@ export default [
       },
     },
     rules: {
-      ...reactHooks.configs.recommended.rules,
       "import/no-duplicates": "error",
       "no-restricted-imports": [
         "error",

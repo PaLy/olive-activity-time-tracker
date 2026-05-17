@@ -54,7 +54,6 @@ export const useRowData = (
             },
           }));
         const items = [subheaderData, ...intervalsRowData];
-        // eslint-disable-next-line react-hooks/immutability
         index += items.length;
         return items;
       }),

@@ -62,7 +62,7 @@ const onActivityAppear = (el: HTMLElement, i: number) => {
 const ParentActivityItem = (props: ActivityItemProps) => {
   const { activity, interval } = props;
   const { name } = activity;
-  const activityPL = useActivityPL(activity);
+  const activityPL = getActivityPL(activity);
   const expanded = activity.expanded;
   const childrenCount = activity.children.length;
 
@@ -109,7 +109,7 @@ const ParentActivityItem = (props: ActivityItemProps) => {
 const LeafActivityItem = (props: ActivityItemProps) => {
   const { activity, interval } = props;
   const { name } = activity;
-  const activityPL = useActivityPL(activity);
+  const activityPL = getActivityPL(activity);
 
   return (
     <ListItem sx={{ pl: activityPL, pr: 2 }}>
@@ -125,7 +125,7 @@ const LeafActivityItem = (props: ActivityItemProps) => {
   );
 };
 
-const useActivityPL = (activity: ActivityTreeNode) => 2 + 2 * depth(activity);
+const getActivityPL = (activity: ActivityTreeNode) => 2 + 2 * depth(activity);
 
 type ActivityAvatarProps = {
   activity: ActivityTreeNode;

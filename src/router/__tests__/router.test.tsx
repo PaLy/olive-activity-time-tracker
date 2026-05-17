@@ -33,13 +33,13 @@ describe("router", () => {
       .mockImplementation(() => {});
 
     render(
-      <TestThemeContext.Provider value={testThemeContextValue}>
+      <TestThemeContext value={testThemeContextValue}>
         <RouterProvider
           router={createMemoryRouter(createRoutes(), {
             initialEntries: ["/this-route-does-not-exist"],
           })}
         />
-      </TestThemeContext.Provider>,
+      </TestThemeContext>,
     );
 
     expect(await screen.findByText("Not Found")).toBeInTheDocument();

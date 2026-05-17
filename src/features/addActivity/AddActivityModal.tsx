@@ -36,7 +36,6 @@ const Content = () => {
   const finished = useCreateActivityStore((state) => state.isFinished());
   const checkValid = useCreateActivityStore((state) => state.checkValid);
   const navigate = useNavigate();
-  const createActivity = useCreateActivity();
   const name = useCreateActivityStore((state) => state.name);
   const nameToggle = useCreateActivityStore((state) => state.nameToggle);
   const parentActivity = useCreateActivityStore(
@@ -130,33 +129,30 @@ type CreateActivityOptions = {
   end: Dayjs | undefined;
 };
 
-const useCreateActivity = () => {
-  return async (options: CreateActivityOptions) => {
-    const { existingActivity, nameToggle, parentId, name, start, end } =
-      options;
+const createActivity = async (options: CreateActivityOptions) => {
+  const { existingActivity, nameToggle, parentId, name, start, end } = options;
 
-    if (nameToggle === "new") {
-      await addActivity({
-        parentId,
-        name: name,
-        interval: {
-          start: +start,
-          end: end?.valueOf(),
-        },
-      });
-    } else {
-      if (!existingActivity) {
-        throw new Error(
-          "Existing activity is required for existing activity toggle.",
-        );
-      }
-      await addActivity({
-        existingActivityId: existingActivity.id,
-        interval: {
-          start: +start,
-          end: end?.valueOf(),
-        },
-      });
+  if (nameToggle === "new") {
+    await addActivity({
+      parentId,
+      name: name,
+      interval: {
+        start: +start,
+        end: end?.valueOf(),
+      },
+    });
+  } else {
+    if (!existingActivity) {
+      throw new Error(
+        "Existing activity is required for existing activity toggle.",
+      );
     }
-  };
+    await addActivity({
+      existingActivityId: existingActivity.id,
+      interval: {
+        start: +start,
+        end: end?.valueOf(),
+      },
+    });
+  }
 };
