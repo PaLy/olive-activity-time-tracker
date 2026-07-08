@@ -1,0 +1,13 @@
+diff --git a/node_modules/vite-plugin-checker/dist/logger.js b/node_modules/vite-plugin-checker/dist/logger.js
+index 896b9e3..957275d 100644
+--- a/node_modules/vite-plugin-checker/dist/logger.js
++++ b/node_modules/vite-plugin-checker/dist/logger.js
+@@ -36,7 +36,7 @@ function diagnosticToTerminalLog(d, name) {
+ 	const position = d.loc ? `${colors.yellow(d.loc.start.line)}:${colors.yellow(d.loc.start.column || "")}` : "";
+ 	return [
+ 		`${levelLabel} ${d.message}`,
+-		`${fileLabel + d.id}:${position}${os.EOL}`,
++		`${fileLabel}file://${d.id}:${position}${os.EOL}`,
+ 		d.codeFrame + os.EOL,
+ 		d.conclusion
+ 	].filter(Boolean).join(os.EOL);
