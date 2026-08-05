@@ -5,7 +5,6 @@ import Typography from "@mui/material/Typography";
 import { ReactNode } from "react";
 import MenuIcon from "@mui/icons-material/Menu";
 import { useLocation, useNavigate } from "../router/hooks";
-import { AppDrawer } from "./AppDrawer";
 
 type AppAppBarProps = {
   header?: string;
@@ -24,7 +23,6 @@ export const AppAppBar = (props: AppAppBarProps) => {
       // removes lightening
       sx={{ backgroundImage: "initial" }}
     >
-      <AppDrawer />
       <Toolbar>
         <IconButton
           size="large"

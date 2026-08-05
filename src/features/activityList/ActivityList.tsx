@@ -24,6 +24,7 @@ import { SimpleInterval } from "../../utils/types";
 import { useClockStore } from "../../utils/clock";
 import { activityDuration } from "../activities/services";
 import { useAppSnackbarStore } from "../../components/AppSnackbarStore";
+import { AppDrawer } from "../../components/AppDrawer";
 
 export type ActivityListProps = {
   interval: SimpleInterval;
@@ -43,6 +44,7 @@ const BOTTOM_NAVIGATION_HEIGHT = 56;
 export const ActivityList = (props: ActivityListProps) => {
   return (
     <Grid container sx={{ flexDirection: "column", height: "100%" }}>
+      <AppDrawer />
       <Paper
         square
         sx={{ height: `calc(100% - ${BOTTOM_NAVIGATION_HEIGHT}px)` }}
