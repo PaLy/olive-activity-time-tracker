@@ -8,10 +8,13 @@ import DateRangeIcon from "@mui/icons-material/DateRange";
 import { useLocation, useNavigate } from "../../router/hooks";
 import { useLiveQuery } from "dexie-react-hooks";
 import { getInProgressActivitiesCount } from "../../db/queries/activities";
+import { useTheme } from "@mui/material/styles";
+import Box from "@mui/material/Box";
 
 export const AppBottomNavigation = () => {
   const navigate = useNavigate();
   const { pathname } = useLocation();
+  const theme = useTheme();
 
   const currentPagePathnameEndIndex = pathname.indexOf("/", 1);
   const currentPagePathname =
@@ -29,14 +32,7 @@ export const AppBottomNavigation = () => {
   );
 
   return (
-    <Paper
-      elevation={3}
-      sx={{
-        position: "sticky",
-        bottom: 0,
-        paddingBottom: "env(safe-area-inset-bottom)",
-      }}
-    >
+    <Paper elevation={3} sx={{ position: "sticky", bottom: 0 }}>
       <BottomNavigation
         showLabels
         value={currentPagePathname}
@@ -81,6 +77,13 @@ export const AppBottomNavigation = () => {
           icon={<DateRangeIcon />}
         />
       </BottomNavigation>
+      <Box
+        sx={{
+          width: "100%",
+          height: "env(safe-area-inset-bottom)",
+          backgroundColor: theme.palette.background.default,
+        }}
+      />
     </Paper>
   );
 };
