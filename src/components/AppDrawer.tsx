@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import { useLocation, useNavigate } from "../router/hooks";
 import Box from "@mui/material/Box";
 import List from "@mui/material/List";
@@ -15,13 +15,20 @@ import SwipeableDrawer from "@mui/material/SwipeableDrawer";
 export const AppDrawer = () => {
   const navigate = useNavigate();
   const { pathname } = useLocation();
+  const key = useDrawerKey();
 
   return (
     <>
       <SwipeableDrawer
+        key={key}
         anchor={"left"}
         open={pathname.endsWith("/drawer")}
-        onClose={() => navigate(-1)}
+        onClose={() => {
+          // it does not end with drawer when it was just partially open
+          if (pathname.endsWith("/drawer")) {
+            navigate(-1);
+          }
+        }}
         onOpen={() => navigate(`${pathname}/drawer`)} // used when opening by swipe
       >
         <Box
@@ -66,6 +73,26 @@ export const AppDrawer = () => {
       <SettingsModal />
     </>
   );
+};
+
+export const useDrawerKey = () => {
+  const [key, setKey] = useState(0);
+
+  useEffect(() => {
+    const onVisibilityChange = () => {
+      if (document.visibilityState === "hidden") {
+        // fixes drawer stays partially open after app reopen after it was closed by swiping from left
+        setKey((prev) => prev + 1);
+      }
+    };
+
+    document.addEventListener("visibilitychange", onVisibilityChange);
+    return () => {
+      document.removeEventListener("visibilitychange", onVisibilityChange);
+    };
+  }, []);
+
+  return key;
 };
 
 type DrawerItemProps = {
