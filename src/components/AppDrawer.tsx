@@ -79,16 +79,17 @@ export const useDrawerKey = () => {
   const [key, setKey] = useState(0);
 
   useEffect(() => {
-    const onVisibilityChange = () => {
-      if (document.visibilityState === "hidden") {
-        // fixes drawer stays partially open after app reopen after it was closed by swiping from left
-        setKey((prev) => prev + 1);
-      }
+    const onTouchCancel = () => {
+      // fixes drawer stays partially open
+      // - after app reopen after it was closed by swiping from left
+      // - after swiping from left to navigate back and then swipe back to left to cancel it
+      setKey((prev) => prev + 1);
     };
 
-    document.addEventListener("visibilitychange", onVisibilityChange);
+    document.addEventListener("touchcancel", onTouchCancel);
     return () => {
-      document.removeEventListener("visibilitychange", onVisibilityChange);
+      // document.removeEventListener("visibilitychange", onVisibilityChange);
+      document.removeEventListener("touchcancel", onTouchCancel);
     };
   }, []);
 
