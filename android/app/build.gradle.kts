@@ -12,8 +12,8 @@ android {
         applicationId = "com.paly.olive"
         minSdk = 29
         targetSdk = 36
-        versionCode = 24
-        versionName = "1.16"
+        versionCode = 25
+        versionName = "1.17"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {

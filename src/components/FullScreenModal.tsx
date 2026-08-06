@@ -16,7 +16,14 @@ export const FullScreenModal = (props: Props) => {
     <Modal open={open}>
       <Slide direction="left" in={open} mountOnEnter unmountOnExit>
         <Container maxWidth={"sm"} style={{ height: "100%" }} disableGutters>
-          <Paper square sx={{ pt: 1, pb: 1, height: "100%" }}>
+          <Paper
+            square
+            sx={{
+              paddingTop: "calc(env(safe-area-inset-top) + 8px)",
+              paddingBottom: "calc(env(safe-area-inset-bottom) + 8px)",
+              height: "100%",
+            }}
+          >
             <Box sx={{ height: "100%", overflow: "auto" }}>{children}</Box>
           </Paper>
         </Container>
