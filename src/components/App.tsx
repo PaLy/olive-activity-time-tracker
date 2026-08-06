@@ -34,7 +34,17 @@ function App() {
           <Box
             sx={{
               position: "absolute",
+              height: "env(safe-area-inset-top)",
               top: 0,
+              left: 0,
+              right: 0,
+              backgroundColor: theme.palette.primary.main,
+            }}
+          />
+          <Box
+            sx={{
+              position: "absolute",
+              top: "env(safe-area-inset-top)",
               bottom: 0,
               left: 0,
               right: 0,

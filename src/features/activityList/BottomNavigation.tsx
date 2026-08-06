@@ -29,7 +29,14 @@ export const AppBottomNavigation = () => {
   );
 
   return (
-    <Paper elevation={3} sx={{ position: "sticky", bottom: 0 }}>
+    <Paper
+      elevation={3}
+      sx={{
+        position: "sticky",
+        bottom: 0,
+        paddingBottom: "env(safe-area-inset-bottom)",
+      }}
+    >
       <BottomNavigation
         showLabels
         value={currentPagePathname}

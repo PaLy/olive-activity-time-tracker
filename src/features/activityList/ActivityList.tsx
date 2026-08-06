@@ -47,13 +47,15 @@ export const ActivityList = (props: ActivityListProps) => {
       <AppDrawer />
       <Paper
         square
-        sx={{ height: `calc(100% - ${BOTTOM_NAVIGATION_HEIGHT}px)` }}
+        sx={{
+          height: `calc(100% - ${BOTTOM_NAVIGATION_HEIGHT}px - env(safe-area-inset-bottom))`,
+        }}
       >
         <List {...props} />
         <Box
           sx={{
             position: "absolute",
-            bottom: 24 + BOTTOM_NAVIGATION_HEIGHT,
+            bottom: `calc(24px + ${BOTTOM_NAVIGATION_HEIGHT}px + env(safe-area-inset-bottom))`,
             right: 28,
           }}
         >

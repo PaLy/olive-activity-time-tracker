@@ -34,6 +34,7 @@ export const AppDrawer = () => {
         <Box
           sx={{
             width: 250,
+            paddingTop: "env(safe-area-inset-top)",
             height: "100%",
             display: "flex",
             flexDirection: "column",

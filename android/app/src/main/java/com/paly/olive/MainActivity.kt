@@ -5,16 +5,13 @@ import android.content.pm.PackageManager
 import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
-import android.view.View
 import android.webkit.RenderProcessGoneDetail
 import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
 import android.webkit.WebView
 import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
-import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
-import androidx.core.view.WindowInsetsCompat
 import androidx.webkit.WebViewAssetLoader
 import androidx.webkit.WebViewAssetLoader.AssetsPathHandler
 import androidx.webkit.WebViewClientCompat
@@ -64,19 +61,6 @@ class MainActivity : ComponentActivity() {
     private fun createWebView() {
         setContentView(R.layout.activity_main)
         myWebView = findViewById(R.id.webview)
-        val statusBar = findViewById<View>(R.id.status_bar)
-        val navigationBar = findViewById<View>(R.id.navigation_bar)
-
-        ViewCompat.setOnApplyWindowInsetsListener(myWebView) { v: View, insets: WindowInsetsCompat ->
-            val systemBarsInsets = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            val imeInsets = insets.getInsets(WindowInsetsCompat.Type.ime()) // Get keyboard insets
-
-            statusBar.layoutParams.height = systemBarsInsets.top + imeInsets.top
-            navigationBar.layoutParams.height = systemBarsInsets.bottom + imeInsets.bottom
-            statusBar.requestLayout()
-            navigationBar.requestLayout()
-            WindowInsetsCompat.CONSUMED
-        }
 
         myWebView.setBackgroundColor(Color.TRANSPARENT)
 
