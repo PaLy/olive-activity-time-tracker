@@ -7,7 +7,6 @@
     "strict": true,
     "esModuleInterop": true,
     "moduleResolution": "bundler",
-    "baseUrl": "./src",
     "ignoreDeprecations": "6.0",
     "noEmitOnError": true,
     "skipLibCheck": true,
