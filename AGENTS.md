@@ -13,7 +13,7 @@
 - Duration calculations must account for overlapping intervals and in-progress intervals (see `getDuration` in `src/db/queries/activitiesTree.ts`).
 
 ## Routing + UI Patterns
-- Always import navigation hooks from `src/router/hooks.ts` (ESLint blocks direct `useNavigate`/`useLocation` imports from `react-router`).
+- Always import navigation hooks from `src/router/hooks.ts` (oxlint blocks direct `useNavigate`/`useLocation` imports from `react-router`).
 - Many screens are route-driven modals: open state is derived from path suffix checks like `pathname.endsWith("/storage")` (`StorageModal`, `SettingsModal`, `AddActivityModal`).
 - Navigation often uses history semantics (`navigate(-1)`) for closing modals/drawer; `useNavigate` wrapper provides safe fallback to `/`.
 - Large lists use `react-window` via `src/components/ResizableList.tsx` and preserve scroll by pathname using `ScrollMemoryContext`.
@@ -30,11 +30,12 @@
 
 ## Dev Workflows (from package.json)
 - Dev server: `npm start`
+- Lint: `npm run lint` (oxlint, config in `.oxlintrc.json`)
 - Test watch: `npm test`; coverage run: `npm run test-coverage`
 - Production build: `npm run build`
 - GitHub Pages flow: `npm run predeploy-to-gh` then `npm run deploy-to-gh`
 - Android web assets sync: `npm run predeploy-to-android` then `npm run deploy-to-android`
-- No dedicated lint script; lint/type checks run through `vite-plugin-checker` during non-test Vite runs (`vite.config.ts`).
+- Type checks run through `vite-plugin-checker` during non-test Vite runs (`vite.config.ts`); lint is separate via `npm run lint`.
 
 ## Testing Gotchas
 - Test setup (`src/setupTests.ts`) resets Dexie before each test and stubs browser APIs (`ResizeObserver`, `matchMedia`, `window.Android`).
