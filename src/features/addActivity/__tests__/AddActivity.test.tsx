@@ -103,8 +103,13 @@ describe("AddActivityModal", () => {
     // Save the finished activity
     await userEvent.click(await screen.findByRole("button", { name: "Save" }));
 
+    // the new interval overlaps the running one and is concatenated with it
+    await userEvent.click(
+      await screen.findByRole("button", { name: "confirm" }),
+    );
+
     await act(async () => {
-      expect(await db.intervals.count()).toBe(2);
+      expect(await db.intervals.count()).toBe(1);
     });
   });
 });

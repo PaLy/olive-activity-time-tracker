@@ -14,7 +14,10 @@ import {
   AddActivityDataActivity,
   getAddActivityData,
 } from "../../db/queries/getAddActivityData";
-import { addActivity } from "../../db/queries/addActivity";
+import { addActivity, planAddActivity } from "../../db/queries/addActivity";
+import { IntervalChangesDialog } from "../../components/IntervalChangesDialog";
+import { IntervalChange } from "../../db/queries/intervalOverlaps";
+import { useState } from "react";
 import { useActivityNameExists } from "./hooks";
 import { openErrorSnackbar } from "../../components/AppSnackbarStore";
 
@@ -65,6 +68,21 @@ const Content = () => {
       });
   }, [setAddActivityData]);
 
+  const [pending, setPending] = useState<{
+    options: CreateActivityOptions;
+    changes: IntervalChange[];
+  }>();
+
+  const submit = async (options: CreateActivityOptions) => {
+    // it takes some time while the modal is closed and the creation of the new activity would show validation errors
+    setValidationsOff(true);
+    await createActivity(options).catch((e) => {
+      console.error(e);
+      openErrorSnackbar("Failed to create/start activity");
+    });
+    navigate(-1);
+  };
+
   const activityNameExists =
     useActivityNameExists(
       name,
@@ -98,13 +116,17 @@ const Content = () => {
                   end: state.getEndTime(),
                 };
 
-                // it takes some time while the modal is closed and the creation of the new activity would show validation errors
-                setValidationsOff(true);
-                await createActivity(createActivityOptions).catch((e) => {
+                const changes = await planCreateActivity(
+                  createActivityOptions,
+                ).catch((e) => {
                   console.error(e);
-                  openErrorSnackbar("Failed to create/start activity");
+                  return [];
                 });
-                navigate(-1);
+                if (changes.length > 0) {
+                  setPending({ options: createActivityOptions, changes });
+                } else {
+                  await submit(createActivityOptions);
+                }
               }
             },
             children: finished ? "Save" : "Start",
@@ -115,6 +137,15 @@ const Content = () => {
           <IntervalSettings />
           <Name activityNameExists={activityNameExists} />
         </Box>
+        <IntervalChangesDialog
+          changes={pending?.changes}
+          onConfirm={() => {
+            const options = pending!.options;
+            setPending(undefined);
+            return submit(options);
+          }}
+          onCancel={() => setPending(undefined)}
+        />
       </>
     )
   );
@@ -155,4 +186,15 @@ const createActivity = async (options: CreateActivityOptions) => {
       },
     });
   }
+};
+
+const planCreateActivity = async (options: CreateActivityOptions) => {
+  const { existingActivity, nameToggle, parentId, start, end } = options;
+  const interval = { start: +start, end: end?.valueOf() };
+  const plan = await planAddActivity(
+    nameToggle === "new"
+      ? { parentId, name: "", interval }
+      : { existingActivityId: existingActivity!.id, interval },
+  );
+  return plan.changes;
 };

@@ -5,6 +5,7 @@ import {
   expandSelfAndAncestors,
   stopAncestors,
 } from "./activities";
+import { applyAncestorChanges, planIntervalChanges } from "./intervalOverlaps";
 
 type AddActivityParams = {
   interval: {
@@ -24,6 +25,17 @@ type AddActivityParams = {
     }
 );
 
+export async function planAddActivity(params: AddActivityParams) {
+  const { interval, existingActivityId, parentId = -1 } = params;
+  return planIntervalChanges({
+    start: interval.start,
+    end: interval.end ?? MAX_DATE_MS,
+    ...(existingActivityId !== undefined
+      ? { activityId: existingActivityId }
+      : { parentId }),
+  });
+}
+
 export async function addActivity(params: AddActivityParams) {
   return db.transaction("rw", db.activities, db.intervals, async () => {
     const {
@@ -38,7 +50,12 @@ export async function addActivity(params: AddActivityParams) {
         ? await checkActivityExist(existingActivityId)
         : await createActivity(name, parentId);
 
-    const addInterval = db.intervals.add({ activityId, start, end });
+    const plan = await planIntervalChanges({ activityId, start, end });
+    await applyAncestorChanges(plan.ancestorChanges);
+    await db.intervals.bulkDelete(plan.absorbedIds);
+    const addInterval = db.intervals.bulkAdd(
+      plan.pieces.map((piece) => ({ activityId, ...piece })) as never,
+    );
     const expandActivities = expandSelfAndAncestors(activityId);
     await Promise.all([addInterval, expandActivities]);
 
