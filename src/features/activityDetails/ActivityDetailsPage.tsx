@@ -1,6 +1,7 @@
 import Box from "@mui/material/Box";
 import CircularProgress from "@mui/material/CircularProgress";
 import Paper from "@mui/material/Paper";
+import { useCoversPreviousPage } from "../../utils/useCoversPreviousPage";
 import { Outlet, useParams } from "react-router";
 import { useLiveQuery } from "dexie-react-hooks";
 import { getActivityDetails } from "../../db/queries/activityDetails";
@@ -22,6 +23,8 @@ export const ActivityDetailsPage = () => {
     handleCancel,
   } = useActivityNameEditing(activityId);
 
+  useCoversPreviousPage();
+
   const activityDetailsData = useLiveQuery(
     () =>
       getActivityDetails(activityId).catch((e) => {
@@ -34,7 +37,10 @@ export const ActivityDetailsPage = () => {
 
   return (
     <>
-      <Paper square sx={{ height: "100%" }}>
+      <Paper
+        square
+        sx={{ height: "100%", viewTransitionName: "activity-details" }}
+      >
         {activityDetailsData ? (
           <ActivityDetailsContent
             activityDetails={activityDetailsData}

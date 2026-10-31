@@ -139,6 +139,7 @@ const ActivityAvatar = (props: ActivityAvatarProps) => {
       <Avatar
         component={Link}
         to={`/activities/${id}`}
+        viewTransition
         sx={{ textDecoration: "none" }}
         onClick={(event) => event.stopPropagation()}
       >

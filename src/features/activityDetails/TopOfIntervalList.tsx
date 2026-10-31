@@ -34,7 +34,7 @@ export const TopOfIntervalList = (props: TopOfIntervalListProps) => {
   const navigate = useNavigate();
 
   const handleSettingsClick = () => {
-    navigate(`settings`);
+    navigate(`settings`, { viewTransition: true });
   };
 
   return (

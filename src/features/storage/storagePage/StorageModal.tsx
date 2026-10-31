@@ -4,12 +4,14 @@ import Typography from "@mui/material/Typography";
 import { FullScreenModal } from "../../../components/FullScreenModal";
 import { FullScreenModalHeader } from "../../../components/FullScreenModalHeader";
 import { useLocation } from "../../../router/hooks";
+import { useCoversPreviousPage } from "../../../utils/useCoversPreviousPage";
 import { DeleteDataButton } from "./DeleteDataButton";
 import { ExportButton } from "./ExportButton";
 import { ImportButton } from "./ImportButton";
 
 export const StorageModal = () => {
   const { pathname } = useLocation();
+  useCoversPreviousPage();
   return (
     <FullScreenModal open={pathname.endsWith("/storage")}>
       <Content />

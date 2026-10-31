@@ -1,18 +1,15 @@
 import { RouteObject, useRouteError } from "react-router";
 import { lazy } from "react";
 import App from "../components/App";
+// Not lazy: suspending would swap in the fallback during the view transition.
+// Likewise EditInterval loads its data in a loader, so it is ready on first render.
+import { ActivityDetailsPage } from "../features/activityDetails/ActivityDetailsPage";
+import {
+  EditInterval,
+  editIntervalLoader,
+} from "../features/activityDetails/EditInterval";
 
 // Lazy load route components for code-splitting
-const ActivityDetailsPage = lazy(() =>
-  import("../features/activityDetails/ActivityDetailsPage").then((m) => ({
-    default: m.ActivityDetailsPage,
-  })),
-);
-const EditInterval = lazy(() =>
-  import("../features/activityDetails/EditInterval").then((m) => ({
-    default: m.EditInterval,
-  })),
-);
 const ActivityListPage = lazy(() =>
   import("../features/activityList/ActivityListPage").then((m) => ({
     default: m.ActivityListPage,
@@ -68,6 +65,7 @@ export const createRoutes = (): RouteObject[] => [
           {
             path: "interval/:intervalID",
             element: <EditInterval />,
+            loader: editIntervalLoader,
           },
         ],
       },

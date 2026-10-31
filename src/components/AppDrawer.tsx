@@ -29,7 +29,8 @@ export const AppDrawer = () => {
             navigate(-1);
           }
         }}
-        onOpen={() => navigate(`${pathname}/drawer`)} // used when opening by swipe
+        // used when opening by swipe
+        onOpen={() => navigate(`${pathname}/drawer`, { viewTransition: true })}
       >
         <Box
           sx={{
@@ -116,7 +117,10 @@ const DrawerItem = (props: DrawerItemProps) => {
       <ListItemButton
         aria-label={text}
         onClick={(event) => {
-          navigate(`${mainScreenPath}${routePath}`, { replace: true });
+          navigate(`${mainScreenPath}${routePath}`, {
+            replace: true,
+            viewTransition: true,
+          });
           event.stopPropagation();
         }}
       >

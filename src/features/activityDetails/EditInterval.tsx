@@ -5,12 +5,12 @@ import Grid from "@mui/material/Grid";
 import IconButton from "@mui/material/IconButton";
 import Modal from "@mui/material/Modal";
 import Paper from "@mui/material/Paper";
-import Slide from "@mui/material/Slide";
 import Typography from "@mui/material/Typography";
-import { useParams } from "react-router";
+import { LoaderFunctionArgs, useLoaderData, useParams } from "react-router";
 import SaveIcon from "@mui/icons-material/Save";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { DateTimeRangePicker } from "../../components/DateTimeRangePicker";
+import { modalSlotProps } from "../../components/FullScreenModal";
 import { useNavigate } from "../../router/hooks";
 import { useAppSnackbarStore } from "../../components/AppSnackbarStore";
 import { useActivityStore } from "./Store";
@@ -29,7 +29,15 @@ type Params = {
   intervalID: string;
 };
 
+export const editIntervalLoader = async ({ params }: LoaderFunctionArgs) =>
+  getEditIntervalData(parseInt(params.intervalID ?? "")).catch((e) => {
+    console.error(e);
+    useAppSnackbarStore.getState().openError("Interval not found");
+    return undefined;
+  });
+
 export const EditInterval = () => {
+  const loaderData = useLoaderData<EditIntervalData | undefined>();
   const params = useParams() as Params;
   // TODO validate intervalID is a number
   const intervalId = parseInt(params.intervalID ?? "");
@@ -42,6 +50,7 @@ export const EditInterval = () => {
         return undefined;
       }),
     [intervalId],
+    loaderData,
   );
 
   if (!editIntervalData) {
@@ -86,60 +95,59 @@ const Content = (props: ContentProps) => {
 
   return (
     <>
-      <Modal open={true} onClose={() => navigate(-1)}>
-        <Slide direction="up" in={true} mountOnEnter unmountOnExit>
-          <Box
-            sx={{
-              position: "absolute",
-              bottom: 0,
-              left: 0,
-              right: 0,
-            }}
-          >
-            <Container maxWidth={"sm"} disableGutters>
-              <Paper square sx={{ p: 2, borderRadius: "32px 32px 0 0" }}>
-                <Typography variant="h6" sx={{ m: 1 }}>
-                  {activityFullName}
-                </Typography>
-                <DateTimeRangePicker
-                  // TODO limit by own and descendant intervals
-                  startTime={dayjs(state.start)}
-                  setStartTime={(start) =>
-                    setState({ ...state, start: +start })
-                  }
-                  startTimeError={state.startError}
-                  setStartTimeError={(startError) =>
-                    setState({ ...state, startError })
-                  }
-                  endTime={dayjs(state.end)}
-                  setEndTime={(end) => setState({ ...state, end: +end })}
-                  endTimeError={state.endError}
-                  setEndTimeError={(endError) =>
-                    setState({ ...state, endError })
-                  }
-                  omitEndTimePicker={omitEndTimePicker}
-                />
-                <Typography sx={{ m: 1 }}>{duration}</Typography>
-                <Grid container sx={{ justifyContent: "space-between" }}>
-                  <IconButton
-                    aria-label="delete"
-                    onClick={() => openDeleteIntervalConfirmation(interval.id)}
-                  >
-                    <DeleteIcon />
-                  </IconButton>
-                  <Button
-                    variant="text"
-                    startIcon={<SaveIcon />}
-                    onClick={save}
-                    disabled={saving || !!state.startError || !!state.endError}
-                  >
-                    Save
-                  </Button>
-                </Grid>
-              </Paper>
-            </Container>
-          </Box>
-        </Slide>
+      <Modal
+        open={true}
+        onClose={() => navigate(-1)}
+        slotProps={modalSlotProps}
+      >
+        <Box
+          sx={{
+            viewTransitionName: "bottom-sheet",
+            position: "absolute",
+            bottom: 0,
+            left: 0,
+            right: 0,
+          }}
+        >
+          <Container maxWidth={"sm"} disableGutters>
+            <Paper square sx={{ p: 2, borderRadius: "32px 32px 0 0" }}>
+              <Typography variant="h6" sx={{ m: 1 }}>
+                {activityFullName}
+              </Typography>
+              <DateTimeRangePicker
+                // TODO limit by own and descendant intervals
+                startTime={dayjs(state.start)}
+                setStartTime={(start) => setState({ ...state, start: +start })}
+                startTimeError={state.startError}
+                setStartTimeError={(startError) =>
+                  setState({ ...state, startError })
+                }
+                endTime={dayjs(state.end)}
+                setEndTime={(end) => setState({ ...state, end: +end })}
+                endTimeError={state.endError}
+                setEndTimeError={(endError) => setState({ ...state, endError })}
+                omitEndTimePicker={omitEndTimePicker}
+              />
+              <Typography sx={{ m: 1 }}>{duration}</Typography>
+              <Grid container sx={{ justifyContent: "space-between" }}>
+                <IconButton
+                  aria-label="delete"
+                  onClick={() => openDeleteIntervalConfirmation(interval.id)}
+                >
+                  <DeleteIcon />
+                </IconButton>
+                <Button
+                  variant="text"
+                  startIcon={<SaveIcon />}
+                  onClick={save}
+                  disabled={saving || !!state.startError || !!state.endError}
+                >
+                  Save
+                </Button>
+              </Grid>
+            </Paper>
+          </Container>
+        </Box>
       </Modal>
     </>
   );
