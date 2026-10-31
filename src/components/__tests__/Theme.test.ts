@@ -14,7 +14,7 @@ describe("Theme", () => {
 
   describe("TestThemeContext", () => {
     it("has default modifyTheme function", () => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // oxlint-disable-next-line typescript/no-explicit-any
       const contextValue = (TestThemeContext as any)._currentValue;
       expect(contextValue).toBeDefined();
       expect(contextValue.modifyTheme).toBeDefined();
@@ -22,7 +22,7 @@ describe("Theme", () => {
 
     it("modifyTheme returns theme unchanged by default", () => {
       const testTheme = { palette: { primary: { main: "#000" } } };
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // oxlint-disable-next-line typescript/no-explicit-any
       const result = (TestThemeContext as any)._currentValue.modifyTheme(
         testTheme,
       );

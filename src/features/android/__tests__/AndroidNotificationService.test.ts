@@ -12,7 +12,7 @@ describe("AndroidNotificationService", () => {
 
   beforeEach(() => {
     // Reset singleton instance
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // oxlint-disable-next-line typescript/no-explicit-any
     (AndroidNotificationService as any).instance = undefined;
     service = AndroidNotificationService.getInstance();
 
@@ -23,13 +23,13 @@ describe("AndroidNotificationService", () => {
       updateNotification: vi.fn().mockReturnValue("success"),
       stopNotification: vi.fn().mockReturnValue("success"),
     };
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // oxlint-disable-next-line typescript/no-explicit-any
     (window as any).Android = mockAndroid;
   });
 
   afterEach(() => {
     vi.clearAllTimers();
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // oxlint-disable-next-line typescript/no-explicit-any
     delete (window as any).Android;
   });
 
@@ -53,7 +53,7 @@ describe("AndroidNotificationService", () => {
     });
 
     it("returns false when Android interface is not available", () => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // oxlint-disable-next-line typescript/no-explicit-any
       delete (window as any).Android;
       expect(service.hasPermission()).toBe(false);
     });
@@ -79,7 +79,7 @@ describe("AndroidNotificationService", () => {
     });
 
     it("returns false when Android interface is not available", async () => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // oxlint-disable-next-line typescript/no-explicit-any
       delete (window as any).Android;
       const result = await service.requestPermission();
       expect(result).toBe(false);
@@ -154,7 +154,7 @@ describe("AndroidNotificationService", () => {
     });
 
     it("returns false when Android interface is not available", async () => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // oxlint-disable-next-line typescript/no-explicit-any
       delete (window as any).Android;
       const result = await service.updateNotification([
         { fullName: "Task 1", start: Date.now() },
@@ -213,7 +213,7 @@ describe("AndroidNotificationService", () => {
     });
 
     it("returns false when Android interface is not available", () => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // oxlint-disable-next-line typescript/no-explicit-any
       delete (window as any).Android;
       const result = service.stopNotification();
       expect(result).toBe(false);

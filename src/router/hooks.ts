@@ -2,9 +2,9 @@ import {
   NavigateFunction,
   NavigateOptions,
   To,
-  // eslint-disable-next-line no-restricted-imports
+  // oxlint-disable-next-line no-restricted-imports
   useLocation as useRRDLocation,
-  // eslint-disable-next-line no-restricted-imports
+  // oxlint-disable-next-line no-restricted-imports
   useNavigate as useRRDNavigate,
 } from "react-router";
 
