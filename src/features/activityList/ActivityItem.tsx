@@ -1,4 +1,5 @@
 import { getInitials } from "../../utils/strings";
+import { getIdColor } from "../../utils/color";
 import Avatar from "@mui/material/Avatar";
 import IconButton from "@mui/material/IconButton";
 import ListItem from "@mui/material/ListItem";
@@ -134,13 +135,14 @@ type ActivityAvatarProps = {
 const ActivityAvatar = (props: ActivityAvatarProps) => {
   const { id, name } = props.activity;
   const initials = useMemo(() => getInitials(name), [name]);
+  const color = getIdColor(id);
   return (
     <ListItemAvatar>
       <Avatar
         component={Link}
         to={`/activities/${id}`}
         viewTransition
-        sx={{ textDecoration: "none" }}
+        sx={{ textDecoration: "none", bgcolor: color, color: "#fff" }}
         onClick={(event) => event.stopPropagation()}
       >
         {initials}
