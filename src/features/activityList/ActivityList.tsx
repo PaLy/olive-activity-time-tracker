@@ -10,6 +10,9 @@ import { AppBottomNavigation } from "./BottomNavigation";
 import { Flipper } from "react-flip-toolkit";
 import { ElementType, ReactNode, useMemo } from "react";
 import { useLocation, useNavigate } from "../../router/hooks";
+import Typography from "@mui/material/Typography";
+import EventBusyIcon from "@mui/icons-material/EventBusy";
+import PlaylistAddIcon from "@mui/icons-material/PlaylistAdd";
 import AddIcon from "@mui/icons-material/Add";
 import { AddActivityModal } from "../addActivity/AddActivityModal";
 import { ResizableList, SingleRowData } from "../../components/ResizableList";
@@ -18,6 +21,7 @@ import {
   ActivityTreeNode,
   getActivitiesTree,
 } from "../../db/queries/activitiesTree";
+import { db } from "../../db/db";
 import { OrderBy } from "./constants";
 import { useFlipKey } from "./hooks";
 import { SimpleInterval } from "../../utils/types";
@@ -74,22 +78,30 @@ const List = (props: ActivityListProps) => {
   const activities = useFilteredActivities(orderBy, interval);
   const rowData = useRowData(otherProps, activities);
   const { flipKey } = useFlipKey(activities);
+  const anyActivityExists = useLiveQuery(
+    async () => (await db.activities.count()) > 0,
+  );
 
   const freezeClock = useClockStore((state) => state.freeze);
   const unfreezeClock = useClockStore((state) => state.unfreeze);
 
   return (
-    <StyledFlipper
-      flipKey={flipKey}
-      onStart={freezeClock}
-      onComplete={unfreezeClock}
-    >
-      <ResizableList
-        defaultRowHeight={92}
-        rowData={rowData}
-        style={{ paddingBottom: "64px" }}
-      />
-    </StyledFlipper>
+    <Box sx={{ position: "relative", height: "100%" }}>
+      <StyledFlipper
+        flipKey={flipKey}
+        onStart={freezeClock}
+        onComplete={unfreezeClock}
+      >
+        <ResizableList
+          defaultRowHeight={92}
+          rowData={rowData}
+          style={{ paddingBottom: "64px" }}
+        />
+      </StyledFlipper>
+      {activities.length === 0 && (
+        <EmptyPlaceholder filtered={!!props.filter && !!anyActivityExists} />
+      )}
+    </Box>
   );
 };
 
@@ -213,6 +225,41 @@ const Header = (props: HeaderProps) => {
     </>
   );
 };
+
+const EmptyPlaceholder = ({ filtered }: { filtered: boolean }) => (
+  <Grid
+    container
+    sx={{
+      position: "absolute",
+      inset: 0,
+      flexDirection: "column",
+      alignItems: "center",
+      justifyContent: "center",
+      padding: 4,
+      color: "text.secondary",
+      textAlign: "center",
+      pointerEvents: "none",
+    }}
+  >
+    {filtered ? (
+      <>
+        <EventBusyIcon sx={{ fontSize: 64, mb: 2 }} />
+        <Typography variant="h6">No activities in this period</Typography>
+        <Typography variant="body2">
+          Try selecting a different date or range.
+        </Typography>
+      </>
+    ) : (
+      <>
+        <PlaylistAddIcon sx={{ fontSize: 64, mb: 2 }} />
+        <Typography variant="h6">No activities yet</Typography>
+        <Typography variant="body2">
+          Tap the Add button to start tracking your first activity.
+        </Typography>
+      </>
+    )}
+  </Grid>
+);
 
 const AddActivityOpener = () => {
   const navigate = useNavigate();
