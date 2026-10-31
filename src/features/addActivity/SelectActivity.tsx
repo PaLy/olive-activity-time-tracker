@@ -1,7 +1,11 @@
 import Autocomplete, { createFilterOptions } from "@mui/material/Autocomplete";
 import TextField from "@mui/material/TextField";
-import { chain } from "lodash";
+import { useLiveQuery } from "dexie-react-hooks";
 import { useMemo } from "react";
+import {
+  getActivityScores,
+  sortByScore,
+} from "../../db/queries/activityRanking";
 import {
   AddActivityData,
   AddActivityDataActivity,
@@ -94,12 +98,15 @@ const filter = createFilterOptions<AddActivityDataActivity>({ trim: true });
 const useOptions = (addActivityData: AddActivityData | undefined) => {
   const { activities = new Map() } = addActivityData ?? {};
   const activityFullNames = useActivityFullNames(addActivityData);
+  const scores = useLiveQuery(() => getActivityScores(), []);
   return useMemo(
     () =>
-      chain([...activities.values()])
-        .filter((a) => a.id !== -1) // Exclude root activity
-        .sortBy((activity) => activityFullNames.get(activity.id))
-        .value(),
-    [activityFullNames, activities],
+      sortByScore(
+        [...activities.values()].filter((a) => a.id !== -1), // Exclude root activity
+        scores ?? new Map(),
+        (activity) => activity.id,
+        (activity) => activityFullNames.get(activity.id) ?? activity.name,
+      ),
+    [activityFullNames, activities, scores],
   );
 };

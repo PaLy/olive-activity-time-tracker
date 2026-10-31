@@ -1,5 +1,6 @@
 import { db } from "../db";
 import { Activity } from "../entities";
+import { getActivityScores, sortByScore } from "./activityRanking";
 import { getInProgressIntervalIds, getInProgressIntervals } from "./intervals";
 
 export async function checkActivityExist(activityId: number) {
@@ -257,9 +258,12 @@ export type ActivityOption = { id: number; fullName: string };
 /** The synthetic root activity, parent of all activities. */
 export const ROOT_ACTIVITY_ID = -1;
 
-/** All activities with their full path, e.g. "work / project / task", sorted by it. */
+/** All activities with their full path, e.g. "work / project / task", the most likely to be picked first. */
 export async function getActivityOptions(): Promise<ActivityOption[]> {
-  const activities = await db.activities.toArray();
+  const [activities, scores] = await Promise.all([
+    db.activities.toArray(),
+    getActivityScores(),
+  ]);
   const byId = new Map(activities.map((activity) => [activity.id, activity]));
   const fullName = (id: number): string => {
     const activity = byId.get(id);
@@ -269,7 +273,13 @@ export async function getActivityOptions(): Promise<ActivityOption[]> {
     const parent = fullName(activity.parentId);
     return parent ? `${parent} / ${activity.name}` : activity.name;
   };
-  return activities
-    .map((activity) => ({ id: activity.id, fullName: fullName(activity.id) }))
-    .sort((a, b) => a.fullName.localeCompare(b.fullName));
+  return sortByScore(
+    activities.map((activity) => ({
+      id: activity.id,
+      fullName: fullName(activity.id),
+    })),
+    scores,
+    (option) => option.id,
+    (option) => option.fullName,
+  );
 }
