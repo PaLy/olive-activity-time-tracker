@@ -7,6 +7,7 @@ import ListItemButton from "@mui/material/ListItemButton";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
 import Typography from "@mui/material/Typography";
+import BarChartIcon from "@mui/icons-material/BarChart";
 import SettingsIcon from "@mui/icons-material/Settings";
 import StorageIcon from "@mui/icons-material/Storage";
 import { SettingsModal } from "../features/settings/SettingsModal";
@@ -48,6 +49,12 @@ export const AppDrawer = () => {
             Olive: Activity Time Tracker
           </Typography>
           <List>
+            <DrawerItem
+              text={"Charts"}
+              routePath={"/charts"}
+              absoluteRoutePath={true}
+              icon={<BarChartIcon />}
+            />
             <DrawerItem
               text={"Settings"}
               routePath={"/settings"}

@@ -20,6 +20,11 @@ const StorageModal = lazy(() =>
     default: m.StorageModal,
   })),
 );
+const ChartsModal = lazy(() =>
+  import("../features/charts/ChartsModal").then((m) => ({
+    default: m.ChartsModal,
+  })),
+);
 // const DebugPage = lazy(() =>
 //   import("../features/debug/DebugPage").then((m) => ({
 //     default: m.DebugPage,
@@ -72,6 +77,10 @@ export const createRoutes = (): RouteObject[] => [
       {
         path: "storage",
         element: <StorageModal />,
+      },
+      {
+        path: "charts",
+        element: <ChartsModal />,
       },
       // {
       //   path: "debug",
