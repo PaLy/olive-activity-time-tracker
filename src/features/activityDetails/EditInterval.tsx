@@ -44,11 +44,8 @@ export const EditInterval = () => {
 
   const editIntervalData = useLiveQuery(
     () =>
-      getEditIntervalData(intervalId).catch((e) => {
-        console.error(e);
-        useAppSnackbarStore.getState().openError("Interval not found");
-        return undefined;
-      }),
+      // The interval may have just been deleted; the loader reports a missing one on entry.
+      getEditIntervalData(intervalId).catch(() => undefined),
     [intervalId],
     loaderData,
   );
@@ -132,7 +129,12 @@ const Content = (props: ContentProps) => {
               <Grid container sx={{ justifyContent: "space-between" }}>
                 <IconButton
                   aria-label="delete"
-                  onClick={() => openDeleteIntervalConfirmation(interval.id)}
+                  onClick={() => {
+                    openDeleteIntervalConfirmation(interval.id);
+                    navigate(".", {
+                      state: { deleteIntervalConfirmation: true },
+                    });
+                  }}
                 >
                   <DeleteIcon />
                 </IconButton>

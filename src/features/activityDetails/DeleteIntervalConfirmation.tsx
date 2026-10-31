@@ -3,26 +3,27 @@ import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
-import { useNavigate } from "../../router/hooks";
+import { useLocation, useNavigate } from "../../router/hooks";
 import { useAppSnackbarStore } from "../../components/AppSnackbarStore";
 import { useActivityStore } from "./Store";
 import { deleteInterval } from "../../db/queries/editInterval";
 
 export const DeleteIntervalConfirmation = () => {
-  const open = useActivityStore((state) =>
+  const storeOpen = useActivityStore((state) =>
     state.isDeleteIntervalConfirmationOpen(),
   );
+  // The dialog is a history entry, so navigating back closes only the dialog.
+  const { state } = useLocation();
+  const open = storeOpen && !!state?.deleteIntervalConfirmation;
+  const navigate = useNavigate();
   return (
-    <Dialog open={open}>
+    <Dialog open={open} onClose={() => navigate(-1)}>
       <Content />
     </Dialog>
   );
 };
 
 const Content = () => {
-  const closeDeleteIntervalConfirmation = useActivityStore(
-    (state) => state.closeDeleteIntervalConfirmation,
-  );
   const deleteIntervalConfirmationData = useActivityStore(
     (state) => state.deleteIntervalConfirmationData,
   );
@@ -32,8 +33,8 @@ const Content = () => {
   const navigate = useNavigate();
 
   const yesDelete = () => {
-    closeDeleteIntervalConfirmation();
-    navigate(-1);
+    // Close both the dialog and the edit interval view.
+    navigate(-2);
     deleteInterval(intervalId!)
       .then(() => {
         openSuccessSnackbar("Interval successfully deleted");
@@ -46,11 +47,7 @@ const Content = () => {
       <DialogTitle>Are you sure you want to delete the interval?</DialogTitle>
       <DialogContent>You cannot undo this action.</DialogContent>
       <DialogActions>
-        <Button
-          autoFocus
-          aria-label={"no"}
-          onClick={closeDeleteIntervalConfirmation}
-        >
+        <Button autoFocus aria-label={"no"} onClick={() => navigate(-1)}>
           No
         </Button>
         <Button aria-label={"yes"} onClick={yesDelete}>
