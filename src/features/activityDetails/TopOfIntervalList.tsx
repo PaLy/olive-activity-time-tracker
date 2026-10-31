@@ -14,7 +14,7 @@ type TopOfIntervalListProps = {
   onEditStart: () => void;
   onNameChange: (newName: string) => void;
   onParentChange: (parentId: number) => void;
-  onSave: () => void;
+  onSave: (latestName?: string) => void;
   onCancel: () => void;
 };
 

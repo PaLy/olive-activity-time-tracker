@@ -93,8 +93,9 @@ export const useActivityNameEditing = (activityId: number) => {
     }
   };
 
-  const handleSave = () => {
-    const trimmedName = editingState.name.trim();
+  // The name may be newer than the debounced state when saving right after typing.
+  const handleSave = (latestName?: string) => {
+    const trimmedName = (latestName ?? editingState.name).trim();
     const validationError = validateName(
       trimmedName,
       editingState.siblingNames,
