@@ -27,6 +27,10 @@ import {
   useStartActivity,
   useStopActivity,
 } from "../activities/services";
+import {
+  ACTIVITY_FULL_NAME_SEPARATOR,
+  ACTIVITY_LIST_MAX_DEPTH,
+} from "../activities/constants";
 import { SimpleInterval } from "../../utils/types";
 import { useHumanizedDuration } from "../../utils/duration";
 import { useActivityListSettings } from "../settings/services";
@@ -62,7 +66,7 @@ const onActivityAppear = (el: HTMLElement, i: number) => {
 
 const ParentActivityItem = (props: ActivityItemProps) => {
   const { activity, interval } = props;
-  const { name } = activity;
+  const name = getDisplayName(activity);
   const activityPL = getActivityPL(activity);
   const expanded = activity.expanded;
   const childrenCount = activity.children.length;
@@ -109,7 +113,7 @@ const ParentActivityItem = (props: ActivityItemProps) => {
 
 const LeafActivityItem = (props: ActivityItemProps) => {
   const { activity, interval } = props;
-  const { name } = activity;
+  const name = getDisplayName(activity);
   const activityPL = getActivityPL(activity);
 
   return (
@@ -126,7 +130,28 @@ const LeafActivityItem = (props: ActivityItemProps) => {
   );
 };
 
-const getActivityPL = (activity: ActivityTreeNode) => 2 + 2 * depth(activity);
+const getActivityPL = (activity: ActivityTreeNode) =>
+  2 + 2 * Math.min(depth(activity), ACTIVITY_LIST_MAX_DEPTH);
+
+// Beyond the max depth, descendants are not indented further, so the path
+// below the max-depth level is prepended to the name instead.
+const getDisplayName = (activity: ActivityTreeNode) => {
+  const activityDepth = depth(activity);
+  if (activityDepth <= ACTIVITY_LIST_MAX_DEPTH) {
+    return activity.name;
+  }
+  const subpath: string[] = [];
+  let ancestor = activity.parent;
+  for (
+    let d = activityDepth - 1;
+    d >= ACTIVITY_LIST_MAX_DEPTH && ancestor;
+    d--
+  ) {
+    subpath.unshift(ancestor.name);
+    ancestor = ancestor.parent;
+  }
+  return [...subpath, activity.name].join(ACTIVITY_FULL_NAME_SEPARATOR);
+};
 
 type ActivityAvatarProps = {
   activity: ActivityTreeNode;
