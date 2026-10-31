@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { db } from "../../db";
 import {
   getActivityBreakdown,
-  getActivityOptions,
+  getChartActivityOptions,
   getFirstIntervalStart,
   getSwitchCounts,
   getSessionLengthHistogram,
@@ -95,7 +95,7 @@ describe("charts", () => {
       ]);
       const period = { start: 0, end: 1000 };
 
-      expect((await getActivityOptions())[0]).toEqual({
+      expect((await getChartActivityOptions())[0]).toEqual({
         id: -1,
         fullName: "All activities",
       });

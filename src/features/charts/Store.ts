@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { ROOT_ACTIVITY_ID } from "../../db/queries/charts";
+import { ROOT_ACTIVITY_ID } from "../../db/queries/activities";
 import { Period } from "./periods";
 
 export type Granularity = "day" | "month" | "year";

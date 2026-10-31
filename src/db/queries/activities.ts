@@ -205,3 +205,25 @@ export async function editActivityName(
 ): Promise<void> {
   await db.activities.update(activityId, { name: newName });
 }
+
+export type ActivityOption = { id: number; fullName: string };
+
+/** The synthetic root activity, parent of all activities. */
+export const ROOT_ACTIVITY_ID = -1;
+
+/** All activities with their full path, e.g. "work / project / task", sorted by it. */
+export async function getActivityOptions(): Promise<ActivityOption[]> {
+  const activities = await db.activities.toArray();
+  const byId = new Map(activities.map((activity) => [activity.id, activity]));
+  const fullName = (id: number): string => {
+    const activity = byId.get(id);
+    if (!activity) {
+      return "";
+    }
+    const parent = fullName(activity.parentId);
+    return parent ? `${parent} / ${activity.name}` : activity.name;
+  };
+  return activities
+    .map((activity) => ({ id: activity.id, fullName: fullName(activity.id) }))
+    .sort((a, b) => a.fullName.localeCompare(b.fullName));
+}

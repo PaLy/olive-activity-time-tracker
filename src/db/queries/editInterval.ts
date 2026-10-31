@@ -1,5 +1,5 @@
 import { db } from "../db";
-import { getFullName } from "./activities";
+import { getActivity, getFullName } from "./activities";
 import { Interval } from "../entities";
 
 export type EditIntervalData = {
@@ -34,16 +34,22 @@ export async function updateInterval(
   intervalId: number,
   newStart: number,
   newEnd: number,
+  newActivityId?: number,
 ): Promise<void> {
-  return db.transaction("rw", db.intervals, async () => {
+  return db.transaction("rw", db.intervals, db.activities, async () => {
     // Validate the new start and end times
     if (newStart >= newEnd) {
       throw new Error("Start time must be less than end time.");
     }
 
+    if (newActivityId !== undefined) {
+      await getActivity(newActivityId);
+    }
+
     const updated = await db.intervals.update(intervalId, {
       start: newStart,
       end: newEnd,
+      ...(newActivityId !== undefined && { activityId: newActivityId }),
     });
     if (!updated) {
       throw new Error(`Interval with ID ${intervalId} does not exist.`);
