@@ -84,6 +84,17 @@ beforeAll(() => {
   window.matchMedia = createMatchMedia(window.innerWidth);
 });
 
+// jsdom has no View Transitions API; run the update synchronously
+document.startViewTransition = ((callback?: () => void | Promise<void>) => {
+  const done = Promise.resolve(callback?.());
+  return {
+    finished: done,
+    ready: done,
+    updateCallbackDone: done,
+    skipTransition: () => {},
+  };
+}) as unknown as typeof document.startViewTransition;
+
 beforeEach(async () => {
   await db.delete();
   await db.open();

@@ -61,6 +61,7 @@ export const IntervalItem = (props: IntervalItemProps) => {
           aria-label={"edit interval"}
           component={Link}
           to={`interval/${interval.id}`}
+          viewTransition
         >
           <EditIcon />
         </IconButton>

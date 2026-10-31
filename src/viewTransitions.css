@@ -1,0 +1,138 @@
+/*
+ * Activity details and full screen modals slide in from the right and out to
+ * the right, while the page underneath stays visible. The class on <html>
+ * tells which direction we are going (set while such a page is mounted).
+ */
+::view-transition-group(activity-details),
+::view-transition-group(fullscreen-modal),
+::view-transition-old(activity-details),
+::view-transition-old(fullscreen-modal),
+::view-transition-new(activity-details),
+::view-transition-new(fullscreen-modal) {
+  animation-duration: 225ms;
+  animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
+  mix-blend-mode: normal;
+}
+
+::view-transition-group(activity-details),
+::view-transition-group(fullscreen-modal) {
+  animation: none;
+}
+
+::view-transition-old(activity-details):only-child,
+::view-transition-old(fullscreen-modal):only-child {
+  animation-name: slide-out-to-right;
+  animation-fill-mode: both;
+}
+
+::view-transition-new(activity-details):only-child,
+::view-transition-new(fullscreen-modal):only-child {
+  animation-name: slide-in-from-right;
+  animation-fill-mode: both;
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+/* the panel stays on screen across the navigation (e.g. a modal opened over details) */
+::view-transition-old(activity-details):not(:only-child),
+::view-transition-old(fullscreen-modal):not(:only-child),
+::view-transition-new(activity-details):not(:only-child),
+::view-transition-new(fullscreen-modal):not(:only-child) {
+  animation: none;
+}
+
+/* opening: the new root has an empty area where the list was */
+html.covers-previous-page::view-transition-new(root) {
+  display: none;
+}
+
+/* closing: the old root has an empty area where the list will be */
+html:not(.covers-previous-page)::view-transition-old(root) {
+  display: none;
+}
+
+@keyframes slide-in-from-right {
+  from {
+    transform: translateX(calc(50vw + 50%));
+  }
+}
+
+@keyframes slide-out-to-right {
+  to {
+    transform: translateX(calc(50vw + 50%));
+  }
+}
+
+/* Bottom sheets slide up from and down to the bottom of the window */
+::view-transition-group(bottom-sheet) {
+  animation: none;
+}
+
+::view-transition-old(bottom-sheet),
+::view-transition-new(bottom-sheet) {
+  animation-duration: 225ms;
+  animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
+  animation-fill-mode: both;
+  mix-blend-mode: normal;
+}
+
+::view-transition-old(bottom-sheet) {
+  animation-name: slide-out-to-bottom;
+}
+
+::view-transition-new(bottom-sheet) {
+  animation-name: slide-in-from-bottom;
+}
+
+@keyframes slide-in-from-bottom {
+  from {
+    transform: translateY(100%);
+  }
+}
+
+@keyframes slide-out-to-bottom {
+  to {
+    transform: translateY(100%);
+  }
+}
+
+/* Modal backdrop fades in and out together with the panel */
+::view-transition-group(modal-backdrop) {
+  animation: none;
+}
+
+::view-transition-old(modal-backdrop),
+::view-transition-new(modal-backdrop) {
+  animation-duration: 225ms;
+  animation-fill-mode: both;
+  mix-blend-mode: normal;
+}
+
+::view-transition-old(modal-backdrop):only-child {
+  animation-name: fade-out;
+}
+
+::view-transition-new(modal-backdrop):only-child {
+  animation-name: fade-in;
+}
+
+::view-transition-old(modal-backdrop):not(:only-child),
+::view-transition-new(modal-backdrop):not(:only-child) {
+  animation: none;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes fade-out {
+  to {
+    opacity: 0;
+  }
+}

@@ -222,7 +222,9 @@ const AddActivityOpener = () => {
       color="primary"
       variant={"extended"}
       aria-label="start new activity"
-      onClick={() => navigate(`${pathname}/activity/add`)}
+      onClick={() =>
+        navigate(`${pathname}/activity/add`, { viewTransition: true })
+      }
     >
       <AddIcon sx={{ mr: 1 }} />
       Add

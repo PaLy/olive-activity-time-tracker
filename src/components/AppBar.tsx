@@ -30,7 +30,9 @@ export const AppAppBar = (props: AppAppBarProps) => {
           color="inherit"
           aria-label="menu"
           sx={{ mr: 2 }}
-          onClick={() => navigate(`${pathname}/drawer`)}
+          onClick={() =>
+            navigate(`${pathname}/drawer`, { viewTransition: true })
+          }
         >
           <MenuIcon />
         </IconButton>
