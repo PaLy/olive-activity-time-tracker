@@ -22,11 +22,14 @@ import { useLiveQuery } from "dexie-react-hooks";
 import {
   EditIntervalData,
   getEditIntervalData,
+  planUpdateInterval,
   updateInterval,
 } from "../../db/queries/editInterval";
 import { MAX_DATE_MS } from "../../utils/date";
 import { useIntervalDuration } from "../intervals/hooks";
 import { getActivityOptions } from "../../db/queries/activities";
+import { IntervalChangesDialog } from "../../components/IntervalChangesDialog";
+import { IntervalChange } from "../../db/queries/intervalOverlaps";
 import { ActivityPicker } from "../../components/ActivityPicker";
 
 type Params = {
@@ -98,7 +101,7 @@ const Content = (props: ContentProps) => {
 
   const omitEndTimePicker = state.end === MAX_DATE_MS;
 
-  const { save, saving } = useSave(
+  const { save, saving, pendingChanges, confirm, cancel } = useSave(
     editIntervalData,
     editedInterval,
     activityId,
@@ -173,6 +176,11 @@ const Content = (props: ContentProps) => {
           </Container>
         </Box>
       </Modal>
+      <IntervalChangesDialog
+        changes={pendingChanges}
+        onConfirm={confirm}
+        onCancel={cancel}
+      />
     </>
   );
 };
@@ -188,22 +196,47 @@ const useSave = (
   const openErrorSnackbar = useAppSnackbarStore((state) => state.openError);
   const navigate = useNavigate();
   const [saving, setSaving] = useState(false);
+  const [pendingChanges, setPendingChanges] = useState<IntervalChange[]>();
+
+  const doSave = async () => {
+    setPendingChanges(undefined);
+    setSaving(true);
+    return updateInterval(interval.id, start, end, activityId)
+      .then(() => {
+        openSuccessSnackbar("Interval successfully changed");
+        navigate(-1);
+      })
+      .finally(() => setSaving(false))
+      .catch((e) => {
+        console.error(e);
+        openErrorSnackbar("Failed to update interval");
+      });
+  };
 
   return {
     save: async () => {
-      // TODO update ancestors
       setSaving(true);
-      return updateInterval(interval.id, start, end, activityId)
-        .then(() => {
-          openSuccessSnackbar("Interval successfully changed");
-          navigate(-1);
-        })
-        .finally(() => setSaving(false))
-        .catch((e) => {
-          console.error(e);
-          openErrorSnackbar("Failed to update interval");
-        });
+      const plan = await planUpdateInterval(
+        interval.id,
+        start,
+        end,
+        activityId,
+      ).catch((e) => {
+        console.error(e);
+        openErrorSnackbar("Failed to update interval");
+        return undefined;
+      });
+      setSaving(false);
+      if (!plan) return;
+      if (plan.changes.length > 0) {
+        setPendingChanges(plan.changes);
+      } else {
+        await doSave();
+      }
     },
     saving,
+    pendingChanges,
+    confirm: doSave,
+    cancel: () => setPendingChanges(undefined),
   };
 };

@@ -1,6 +1,7 @@
 import { db } from "../db";
 import { getActivity, getFullName } from "./activities";
 import { Interval } from "../entities";
+import { applyAncestorChanges, planIntervalChanges } from "./intervalOverlaps";
 
 export type EditIntervalData = {
   interval: Interval;
@@ -46,14 +47,48 @@ export async function updateInterval(
       await getActivity(newActivityId);
     }
 
-    const updated = await db.intervals.update(intervalId, {
-      start: newStart,
-      end: newEnd,
-      ...(newActivityId !== undefined && { activityId: newActivityId }),
-    });
-    if (!updated) {
+    const existing = await db.intervals.get(intervalId);
+    if (!existing) {
       throw new Error(`Interval with ID ${intervalId} does not exist.`);
     }
+    const activityId = newActivityId ?? existing.activityId;
+
+    const plan = await planIntervalChanges({
+      activityId,
+      start: newStart,
+      end: newEnd,
+      excludeIntervalId: intervalId,
+    });
+    await applyAncestorChanges(plan.ancestorChanges);
+    await db.intervals.bulkDelete(plan.absorbedIds);
+
+    const [first, ...rest] = plan.pieces;
+    if (first) {
+      await db.intervals.update(intervalId, { ...first, activityId });
+      await db.intervals.bulkAdd(
+        rest.map((piece) => ({ activityId, ...piece })) as never,
+      );
+    } else {
+      await db.intervals.delete(intervalId);
+    }
+  });
+}
+
+export async function planUpdateInterval(
+  intervalId: number,
+  newStart: number,
+  newEnd: number,
+  newActivityId?: number,
+) {
+  const existing = await db.intervals.get(intervalId);
+  if (!existing) {
+    throw new Error(`Interval with ID ${intervalId} does not exist.`);
+  }
+  return planIntervalChanges({
+    activityId: newActivityId ?? existing.activityId,
+    start: newStart,
+    end: newEnd,
+    excludeIntervalId: intervalId,
   });
 }
 
