@@ -12,6 +12,8 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import { DateTimeRangePicker } from "../../components/DateTimeRangePicker";
 import { modalSlotProps } from "../../components/FullScreenModal";
 import { useNavigate } from "../../router/hooks";
+import { useHistoryDialog } from "../../router/useHistoryDialog";
+import { DELETE_INTERVAL_DIALOG_KEY } from "./DeleteIntervalConfirmation";
 import { useAppSnackbarStore } from "../../components/AppSnackbarStore";
 import { useActivityStore } from "./Store";
 import { useState } from "react";
@@ -85,6 +87,7 @@ const Content = (props: ContentProps) => {
     true,
   );
   const navigate = useNavigate();
+  const deleteDialog = useHistoryDialog(DELETE_INTERVAL_DIALOG_KEY);
 
   const omitEndTimePicker = state.end === MAX_DATE_MS;
 
@@ -131,9 +134,7 @@ const Content = (props: ContentProps) => {
                   aria-label="delete"
                   onClick={() => {
                     openDeleteIntervalConfirmation(interval.id);
-                    navigate(".", {
-                      state: { deleteIntervalConfirmation: true },
-                    });
+                    deleteDialog.open();
                   }}
                 >
                   <DeleteIcon />

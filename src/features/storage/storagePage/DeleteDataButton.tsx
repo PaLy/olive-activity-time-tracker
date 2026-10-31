@@ -9,6 +9,8 @@ import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 import { useEffect } from "react";
 import { create } from "zustand/index";
 import { clearDB } from "../../../db/exportImport";
+import { useNavigate } from "../../../router/hooks";
+import { useHistoryDialog } from "../../../router/useHistoryDialog";
 
 type DeleteState = {
   step: "not-started" | "confirm" | "in-progress" | "result";
@@ -22,6 +24,8 @@ type DeleteState = {
   finish: () => void;
   setError: (error: string) => void;
 };
+
+const DIALOG_KEY = "deleteDataConfirmation";
 
 const useDeleteStore = create<DeleteState>((set) => ({
   step: "not-started",
@@ -38,13 +42,17 @@ const useDeleteStore = create<DeleteState>((set) => ({
 
 export const DeleteDataButton = () => {
   const start = useDeleteStore((state) => state.start);
+  const { open } = useHistoryDialog(DIALOG_KEY);
   return (
     <>
       <Button
         variant={"text"}
         color={"error"}
         startIcon={<DeleteForeverIcon />}
-        onClick={start}
+        onClick={() => {
+          start();
+          open();
+        }}
       >
         Delete data
       </Button>
@@ -60,18 +68,26 @@ const Confirmation = () => {
   const confirm = useDeleteStore((state) => state.confirm);
   const finish = useDeleteStore((state) => state.finish);
   const setError = useDeleteStore((state) => state.setError);
+  const navigate = useNavigate();
+  const { isOpen, close: closeDialog } = useHistoryDialog(DIALOG_KEY);
+  const open = step === "confirm" && isOpen;
+  const close = () => {
+    cancel();
+    closeDialog();
+  };
   return (
-    <Dialog open={step === "confirm"}>
+    <Dialog open={open} onClose={close}>
       <DialogTitle>
         Are you sure you want to delete all the data forever?
       </DialogTitle>
       <DialogContent>You cannot undo this action.</DialogContent>
       <DialogActions>
-        <Button autoFocus onClick={cancel}>
+        <Button autoFocus onClick={close}>
           No
         </Button>
         <Button
           onClick={async () => {
+            navigate(-1);
             confirm();
             clearDB()
               .catch((e) => {

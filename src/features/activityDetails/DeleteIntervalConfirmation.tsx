@@ -3,27 +3,27 @@ import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
-import { useLocation, useNavigate } from "../../router/hooks";
+import { useNavigate } from "../../router/hooks";
+import { useHistoryDialog } from "../../router/useHistoryDialog";
 import { useAppSnackbarStore } from "../../components/AppSnackbarStore";
 import { useActivityStore } from "./Store";
 import { deleteInterval } from "../../db/queries/editInterval";
+
+export const DELETE_INTERVAL_DIALOG_KEY = "deleteIntervalConfirmation";
 
 export const DeleteIntervalConfirmation = () => {
   const storeOpen = useActivityStore((state) =>
     state.isDeleteIntervalConfirmationOpen(),
   );
-  // The dialog is a history entry, so navigating back closes only the dialog.
-  const { state } = useLocation();
-  const open = storeOpen && !!state?.deleteIntervalConfirmation;
-  const navigate = useNavigate();
+  const { isOpen, close } = useHistoryDialog(DELETE_INTERVAL_DIALOG_KEY);
   return (
-    <Dialog open={open} onClose={() => navigate(-1)}>
-      <Content />
+    <Dialog open={storeOpen && isOpen} onClose={close}>
+      <Content close={close} />
     </Dialog>
   );
 };
 
-const Content = () => {
+const Content = ({ close }: { close: () => void }) => {
   const deleteIntervalConfirmationData = useActivityStore(
     (state) => state.deleteIntervalConfirmationData,
   );
@@ -47,7 +47,7 @@ const Content = () => {
       <DialogTitle>Are you sure you want to delete the interval?</DialogTitle>
       <DialogContent>You cannot undo this action.</DialogContent>
       <DialogActions>
-        <Button autoFocus aria-label={"no"} onClick={() => navigate(-1)}>
+        <Button autoFocus aria-label={"no"} onClick={close}>
           No
         </Button>
         <Button aria-label={"yes"} onClick={yesDelete}>
