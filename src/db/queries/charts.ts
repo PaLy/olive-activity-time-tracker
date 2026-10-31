@@ -1,6 +1,11 @@
 import dayjs from "dayjs";
 import { db } from "../db";
 import { MAX_DATE_MS } from "../../utils/date";
+import {
+  ActivityOption,
+  getActivityOptions,
+  ROOT_ACTIVITY_ID,
+} from "./activities";
 import { ActivityTreeNode, getActivitiesTree } from "./activitiesTree";
 
 export type ActivityDuration = {
@@ -159,27 +164,12 @@ export async function getTimeByWeekdayHour(
   return result;
 }
 
-export type ActivityOption = { id: number; fullName: string };
-
-/** The synthetic root activity, parent of all activities. */
-export const ROOT_ACTIVITY_ID = -1;
-
-/** All activities with their full path, e.g. "work / project / task". The root comes first. */
-export async function getActivityOptions(): Promise<ActivityOption[]> {
-  const activities = await db.activities.toArray();
-  const byId = new Map(activities.map((activity) => [activity.id, activity]));
-  const fullName = (id: number): string => {
-    const activity = byId.get(id);
-    if (!activity) {
-      return "";
-    }
-    const parent = fullName(activity.parentId);
-    return parent ? `${parent} / ${activity.name}` : activity.name;
-  };
-  const options = activities
-    .map((activity) => ({ id: activity.id, fullName: fullName(activity.id) }))
-    .sort((a, b) => a.fullName.localeCompare(b.fullName));
-  return [{ id: ROOT_ACTIVITY_ID, fullName: "All activities" }, ...options];
+/** All activities for charts; the root comes first as "All activities". */
+export async function getChartActivityOptions(): Promise<ActivityOption[]> {
+  return [
+    { id: ROOT_ACTIVITY_ID, fullName: "All activities" },
+    ...(await getActivityOptions()),
+  ];
 }
 
 /** Start time of the earliest interval, or undefined when nothing is tracked. */

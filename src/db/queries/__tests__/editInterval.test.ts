@@ -48,6 +48,27 @@ describe("editInterval", () => {
   });
 
   describe("updateInterval", () => {
+    it("moves interval to another activity", async () => {
+      await db.activities.bulkAdd([
+        { name: "A", parentId: -1, expanded: 0, notificationsEnabled: 1 },
+        { name: "B", parentId: -1, expanded: 0, notificationsEnabled: 1 },
+      ]);
+      await db.intervals.add({ activityId: 1, start: 1000, end: 2000 });
+
+      await updateInterval(1, 1000, 2000, 2);
+
+      expect((await db.intervals.get(1))?.activityId).toBe(2);
+    });
+
+    it("rejects moving to a non-existent activity", async () => {
+      await db.intervals.add({ activityId: 1, start: 1000, end: 2000 });
+
+      await expect(updateInterval(1, 1000, 2000, 999)).rejects.toThrow(
+        "Activity with ID 999 does not exist.",
+      );
+      expect((await db.intervals.get(1))?.activityId).toBe(1);
+    });
+
     it("updates interval start and end times", async () => {
       // Setup test data
       await db.intervals.add({

@@ -26,6 +26,8 @@ import {
 } from "../../db/queries/editInterval";
 import { MAX_DATE_MS } from "../../utils/date";
 import { useIntervalDuration } from "../intervals/hooks";
+import { getActivityOptions } from "../../db/queries/activities";
+import { ActivityPicker } from "../../components/ActivityPicker";
 
 type Params = {
   intervalID: string;
@@ -66,6 +68,11 @@ type ContentProps = {
 const Content = (props: ContentProps) => {
   const { editIntervalData } = props;
   const { interval, activityFullName } = editIntervalData;
+  const [activityId, setActivityId] = useState(interval.activityId);
+  const activityOptions = useLiveQuery(() => getActivityOptions(), []);
+  const selectedActivity = activityOptions?.find(
+    (option) => option.id === activityId,
+  );
   const [state, setState] = useState({
     start: interval.start,
     startError: "",
@@ -91,7 +98,11 @@ const Content = (props: ContentProps) => {
 
   const omitEndTimePicker = state.end === MAX_DATE_MS;
 
-  const { save, saving } = useSave(editIntervalData, editedInterval);
+  const { save, saving } = useSave(
+    editIntervalData,
+    editedInterval,
+    activityId,
+  );
 
   return (
     <>
@@ -114,6 +125,16 @@ const Content = (props: ContentProps) => {
               <Typography variant="h6" sx={{ m: 1 }}>
                 {activityFullName}
               </Typography>
+              {activityOptions && selectedActivity && (
+                <ActivityPicker
+                  options={activityOptions}
+                  selected={selectedActivity}
+                  onChange={setActivityId}
+                  size="medium"
+                  label="Move to"
+                  sx={{ m: 1, mt: 3, mb: 3 }}
+                />
+              )}
               <DateTimeRangePicker
                 // TODO limit by own and descendant intervals
                 startTime={dayjs(state.start)}
@@ -159,6 +180,7 @@ const Content = (props: ContentProps) => {
 const useSave = (
   editIntervalData: EditIntervalData,
   editedInterval: { start: number; end: number },
+  activityId: number,
 ) => {
   const { interval } = editIntervalData;
   const { start, end } = editedInterval;
@@ -171,7 +193,7 @@ const useSave = (
     save: async () => {
       // TODO update ancestors
       setSaving(true);
-      return updateInterval(interval.id, start, end)
+      return updateInterval(interval.id, start, end, activityId)
         .then(() => {
           openSuccessSnackbar("Interval successfully changed");
           navigate(-1);
