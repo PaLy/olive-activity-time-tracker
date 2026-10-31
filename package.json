@@ -26,6 +26,7 @@
     "react-flip-toolkit": "^7.2.4",
     "react-router": "^8.5.1",
     "react-window": "^2.5.2",
+    "recharts": "^3.10.1",
     "usehooks-ts": "^3.1.1",
     "zustand": "^5.0.16"
   },
