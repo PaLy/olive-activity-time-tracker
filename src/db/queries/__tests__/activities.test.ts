@@ -9,7 +9,8 @@ import {
   setExpanded,
   expandSelfAndAncestors,
   getSiblingActivities,
-  editActivityName,
+  editActivity,
+  getParentOptions,
 } from "../activities";
 
 describe("activities", () => {
@@ -273,19 +274,53 @@ describe("activities", () => {
     });
   });
 
-  describe("editActivityName", () => {
-    it("updates activity name", async () => {
-      await db.activities.add({
-        name: "Old Name",
-        parentId: -1,
+  describe("editActivity", () => {
+    const add = (name: string, parentId: number) =>
+      db.activities.add({
+        name,
+        parentId,
         expanded: 0,
         notificationsEnabled: 1,
       });
 
-      await editActivityName(1, "New Name");
+    it("updates activity name", async () => {
+      await add("Old Name", -1);
 
-      const activity = await db.activities.get(1);
-      expect(activity?.name).toBe("New Name");
+      await editActivity(1, "New Name", -1);
+
+      expect((await db.activities.get(1))?.name).toBe("New Name");
+    });
+
+    it("moves activity under another parent and expands it", async () => {
+      await add("A", -1);
+      await add("B", -1);
+
+      await editActivity(2, "B", 1);
+
+      expect((await db.activities.get(2))?.parentId).toBe(1);
+      expect((await db.activities.get(1))?.expanded).toBe(1);
+    });
+
+    it("rejects moving under a descendant", async () => {
+      await add("A", -1);
+      await add("B", 1);
+
+      await expect(editActivity(1, "A", 2)).rejects.toThrow();
+      expect((await db.activities.get(1))?.parentId).toBe(-1);
+    });
+  });
+
+  describe("getParentOptions", () => {
+    it("excludes self and descendants and starts with root", async () => {
+      await db.activities.bulkAdd([
+        { name: "A", parentId: -1, expanded: 0, notificationsEnabled: 1 },
+        { name: "B", parentId: 1, expanded: 0, notificationsEnabled: 1 },
+        { name: "C", parentId: -1, expanded: 0, notificationsEnabled: 1 },
+      ]);
+
+      const options = await getParentOptions(1);
+
+      expect(options.map((o) => o.id)).toEqual([-1, 3]);
     });
   });
 });

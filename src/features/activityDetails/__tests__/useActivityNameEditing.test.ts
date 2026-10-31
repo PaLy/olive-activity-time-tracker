@@ -348,6 +348,46 @@ describe("useActivityNameEditing", () => {
     });
   });
 
+  describe("parent change", () => {
+    it("revalidates against the new parent's children and saves the move", async () => {
+      await db.activities.bulkAdd([
+        { name: "A", parentId: -1, expanded: 0, notificationsEnabled: 1 },
+        { name: "B", parentId: -1, expanded: 0, notificationsEnabled: 1 },
+        { name: "B", parentId: 1, expanded: 0, notificationsEnabled: 1 },
+      ]);
+      const activities = new Map();
+      activities.set(2, { id: 2, name: "B", parentId: -1 });
+      const data = { activities } as ActivityDetailsData;
+
+      const { result } = renderHook(() => useActivityNameEditing(2));
+      await act(async () => {
+        await result.current.handleEditStart(data);
+      });
+      expect(
+        result.current.editingState.parentOptions.map((o) => o.id),
+      ).toEqual([-1, 1, 3]);
+
+      await act(async () => {
+        await result.current.handleParentChange(1);
+      });
+      expect(result.current.editingState.validationError).toBe(
+        "An activity with this name already exists in the same parent",
+      );
+
+      act(() => {
+        result.current.handleNameChange("C");
+      });
+      await act(async () => {
+        result.current.handleSave();
+        await new Promise((r) => setTimeout(r, 50));
+      });
+
+      const moved = await db.activities.get(2);
+      expect(moved?.parentId).toBe(1);
+      expect(moved?.name).toBe("C");
+    });
+  });
+
   describe("handleCancel", () => {
     it("resets editing state", async () => {
       await db.activities.bulkAdd([

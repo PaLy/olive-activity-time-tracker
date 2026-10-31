@@ -6,17 +6,14 @@ import { FullScreenModalHeader } from "../../components/FullScreenModalHeader";
 import { ActivityName } from "./ActivityName";
 import { ActivityDetailsData } from "../../db/queries/activityDetails";
 import { useNavigate } from "../../router/hooks";
+import { EditingState } from "./useActivityNameEditing";
 
 type TopOfIntervalListProps = {
   activityDetails: ActivityDetailsData;
-  editingState: {
-    editMode: boolean;
-    name: string;
-    siblingNames: Set<string>;
-    validationError: string;
-  };
+  editingState: EditingState;
   onEditStart: () => void;
   onNameChange: (newName: string) => void;
+  onParentChange: (parentId: number) => void;
   onSave: () => void;
   onCancel: () => void;
 };
@@ -27,6 +24,7 @@ export const TopOfIntervalList = (props: TopOfIntervalListProps) => {
     editingState,
     onEditStart,
     onNameChange,
+    onParentChange,
     onSave,
     onCancel,
   } = props;
@@ -60,9 +58,12 @@ export const TopOfIntervalList = (props: TopOfIntervalListProps) => {
         activities={activities}
         editMode={editingState.editMode}
         name={editingState.name}
+        parentId={editingState.parentId}
+        parentOptions={editingState.parentOptions}
         validationError={editingState.validationError}
         onEditStart={onEditStart}
         onNameChange={onNameChange}
+        onParentChange={onParentChange}
         onSave={onSave}
         onCancel={onCancel}
       />

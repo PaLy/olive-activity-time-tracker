@@ -19,6 +19,7 @@ export const ActivityDetailsPage = () => {
     editingState,
     handleEditStart,
     handleNameChange,
+    handleParentChange,
     handleSave,
     handleCancel,
   } = useActivityNameEditing(activityId);
@@ -47,6 +48,7 @@ export const ActivityDetailsPage = () => {
             editingState={editingState}
             onEditStart={() => handleEditStart(activityDetailsData)}
             onNameChange={handleNameChange}
+            onParentChange={handleParentChange}
             onSave={handleSave}
             onCancel={handleCancel}
           />

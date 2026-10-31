@@ -4,18 +4,15 @@ import { ActivityDetailsData } from "../../db/queries/activityDetails";
 import { TopOfIntervalList } from "./TopOfIntervalList";
 import { SubheaderItem } from "./SubheaderItem";
 import { IntervalItem } from "./IntervalItem";
+import { EditingState } from "./useActivityNameEditing";
 
 export const useRowData = (
   activityDetails: ActivityDetailsData,
   visibleStartIndex: number,
-  editingState: {
-    editMode: boolean;
-    name: string;
-    siblingNames: Set<string>;
-    validationError: string;
-  },
+  editingState: EditingState,
   onEditStart: () => void,
   onNameChange: (newName: string) => void,
+  onParentChange: (parentId: number) => void,
   onSave: () => void,
   onCancel: () => void,
 ) => {
@@ -30,6 +27,7 @@ export const useRowData = (
           editingState,
           onEditStart,
           onNameChange,
+          onParentChange,
           onSave,
           onCancel,
         },
@@ -64,6 +62,7 @@ export const useRowData = (
     editingState,
     onEditStart,
     onNameChange,
+    onParentChange,
     onSave,
     onCancel,
   ]);
