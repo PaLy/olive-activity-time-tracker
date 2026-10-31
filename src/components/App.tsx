@@ -1,6 +1,7 @@
 import Box from "@mui/material/Box";
 import Container from "@mui/material/Container";
 import CssBaseline from "@mui/material/CssBaseline";
+import GlobalStyles from "@mui/material/GlobalStyles";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { Suspense, use, useMemo } from "react";
 import { Outlet, ScrollRestoration } from "react-router";
@@ -29,6 +30,21 @@ function App() {
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       <ThemeProvider theme={theme}>
         <CssBaseline />
+        {window.Android && (
+          <GlobalStyles
+            styles={{
+              "html, body": {
+                userSelect: "none",
+                WebkitUserSelect: "none",
+                WebkitTouchCallout: "none",
+              },
+              "input, textarea": {
+                userSelect: "text",
+                WebkitUserSelect: "text",
+              },
+            }}
+          />
+        )}
         <ScrollRestoration />
         <ScrollMemoryContext value={scrollMemory}>
           <Box
