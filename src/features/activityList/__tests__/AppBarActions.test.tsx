@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, waitFor } from "@testing-library/react";
+import { act, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { AppBarActions } from "../AppBarActions";
 import * as activitiesModule from "../../../db/queries/activities";
@@ -145,6 +145,22 @@ describe("AppBarActions", () => {
 
     const expandAllItem = await screen.findByText("Expand All");
     await user.click(expandAllItem);
+
+    await waitFor(() => {
+      expect(screen.queryByText("Expand All")).not.toBeInTheDocument();
+    });
+  });
+
+  it("closes menu on popstate (system back) instead of navigating away", async () => {
+    const user = userEvent.setup();
+    render(<AppBarActions />);
+
+    await user.click(screen.getByLabelText("display more actions"));
+    expect(await screen.findByText("Expand All")).toBeInTheDocument();
+
+    act(() => {
+      window.dispatchEvent(new PopStateEvent("popstate"));
+    });
 
     await waitFor(() => {
       expect(screen.queryByText("Expand All")).not.toBeInTheDocument();

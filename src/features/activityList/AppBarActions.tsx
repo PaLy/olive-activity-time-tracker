@@ -8,6 +8,7 @@ import {
   expandAllActivities,
 } from "../../db/queries/activities";
 import { openErrorSnackbar } from "../../components/AppSnackbarStore";
+import { useBackButtonClose } from "../../utils/backButton";
 
 type AppBarStore = {
   menuAnchorEl: Element | null;
@@ -47,6 +48,7 @@ export const AppBarMenu = () => {
   const anchorEl = useAppBarStore((state) => state.menuAnchorEl);
   const open = useAppBarStore((state) => state.menuOpen);
   const closeMenu = useAppBarStore((state) => state.closeMenu);
+  useBackButtonClose(open, closeMenu);
 
   return (
     <Menu
