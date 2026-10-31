@@ -4,17 +4,14 @@ import { ActivityDetailsData } from "../../db/queries/activityDetails";
 import { useRowData } from "./useRowData";
 import { IntervalItem } from "./IntervalItem";
 import { StickySubheader } from "./StickySubheader";
+import { EditingState } from "./useActivityNameEditing";
 
 type ActivityDetailsContentProps = {
   activityDetails: ActivityDetailsData;
-  editingState: {
-    editMode: boolean;
-    name: string;
-    siblingNames: Set<string>;
-    validationError: string;
-  };
+  editingState: EditingState;
   onEditStart: () => void;
   onNameChange: (newName: string) => void;
+  onParentChange: (parentId: number) => void;
   onSave: () => void;
   onCancel: () => void;
 };
@@ -25,6 +22,7 @@ export const ActivityDetailsContent = (props: ActivityDetailsContentProps) => {
     editingState,
     onEditStart,
     onNameChange,
+    onParentChange,
     onSave,
     onCancel,
   } = props;
@@ -35,6 +33,7 @@ export const ActivityDetailsContent = (props: ActivityDetailsContentProps) => {
     editingState,
     onEditStart,
     onNameChange,
+    onParentChange,
     onSave,
     onCancel,
   );

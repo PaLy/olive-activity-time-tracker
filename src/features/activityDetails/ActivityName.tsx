@@ -7,6 +7,8 @@ import EditIcon from "@mui/icons-material/Edit";
 import CheckIcon from "@mui/icons-material/Check";
 import CloseIcon from "@mui/icons-material/Close";
 import { Activity } from "../../db/entities";
+import { ActivityOption } from "../../db/queries/activities";
+import { ActivityPicker } from "../../components/ActivityPicker";
 import { useActivityFullName } from "./hooks";
 
 type ActivityNameProps = {
@@ -14,9 +16,12 @@ type ActivityNameProps = {
   activities: Map<number, Activity>;
   editMode: boolean;
   name: string;
+  parentId: number;
+  parentOptions: ActivityOption[];
   validationError: string;
   onEditStart: () => void;
   onNameChange: (name: string) => void;
+  onParentChange: (parentId: number) => void;
   onSave: () => void;
   onCancel: () => void;
 };
@@ -27,9 +32,12 @@ export const ActivityName = (props: ActivityNameProps) => {
     activities,
     editMode,
     name,
+    parentId,
+    parentOptions,
     validationError,
     onEditStart,
     onNameChange,
+    onParentChange,
     onSave,
     onCancel,
   } = props;
@@ -47,6 +55,8 @@ export const ActivityName = (props: ActivityNameProps) => {
       onCancel();
     }
   };
+
+  const selectedParent = parentOptions.find((option) => option.id === parentId);
 
   return (
     <Box
@@ -67,6 +77,15 @@ export const ActivityName = (props: ActivityNameProps) => {
             error={!!validationError}
             helperText={validationError}
           />
+          {selectedParent && (
+            <ActivityPicker
+              options={parentOptions}
+              selected={selectedParent}
+              onChange={onParentChange}
+              label="Parent"
+              sx={{ mt: 2 }}
+            />
+          )}
         </Box>
       ) : (
         <Typography variant="h6" sx={{ flexGrow: 1 }}>

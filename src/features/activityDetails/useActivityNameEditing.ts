@@ -1,25 +1,36 @@
 import { useState } from "react";
 import {
-  editActivityName,
+  ActivityOption,
+  editActivity,
+  getChildNames,
+  getParentOptions,
   getSiblingActivities,
+  ROOT_ACTIVITY_ID,
 } from "../../db/queries/activities";
 import { openErrorSnackbar } from "../../components/AppSnackbarStore";
 import { ActivityDetailsData } from "../../db/queries/activityDetails";
 
-type EditingState = {
+export type EditingState = {
   editMode: boolean;
   name: string;
+  parentId: number;
+  parentOptions: ActivityOption[];
   siblingNames: Set<string>;
   validationError: string;
 };
 
+const createInitialState = (): EditingState => ({
+  editMode: false,
+  name: "",
+  parentId: ROOT_ACTIVITY_ID,
+  parentOptions: [],
+  siblingNames: new Set(),
+  validationError: "",
+});
+
 export const useActivityNameEditing = (activityId: number) => {
-  const [editingState, setEditingState] = useState<EditingState>(() => ({
-    editMode: false,
-    name: "",
-    siblingNames: new Set(),
-    validationError: "",
-  }));
+  const [editingState, setEditingState] =
+    useState<EditingState>(createInitialState);
 
   const validateName = (nameToValidate: string, siblingNames: Set<string>) => {
     if (nameToValidate.trim() === "") {
@@ -35,7 +46,10 @@ export const useActivityNameEditing = (activityId: number) => {
     if (!activityDetailsData) return;
 
     try {
-      const siblings = await getSiblingActivities(activityId);
+      const [siblings, parentOptions] = await Promise.all([
+        getSiblingActivities(activityId),
+        getParentOptions(activityId),
+      ]);
       const names = new Set(
         siblings.map((sibling) => sibling.name.toLowerCase()),
       );
@@ -44,6 +58,8 @@ export const useActivityNameEditing = (activityId: number) => {
       setEditingState({
         editMode: true,
         name: currentActivity?.name || "",
+        parentId: currentActivity?.parentId ?? ROOT_ACTIVITY_ID,
+        parentOptions,
         siblingNames: names,
         validationError: "",
       });
@@ -62,6 +78,21 @@ export const useActivityNameEditing = (activityId: number) => {
     }));
   };
 
+  const handleParentChange = async (newParentId: number) => {
+    try {
+      const siblingNames = await getChildNames(newParentId, activityId);
+      setEditingState((prev) => ({
+        ...prev,
+        parentId: newParentId,
+        siblingNames,
+        validationError: validateName(prev.name, siblingNames),
+      }));
+    } catch (err) {
+      console.error(err);
+      openErrorSnackbar("Failed to load activity data");
+    }
+  };
+
   const handleSave = () => {
     const trimmedName = editingState.name.trim();
     const validationError = validateName(
@@ -74,34 +105,25 @@ export const useActivityNameEditing = (activityId: number) => {
       return;
     }
 
-    editActivityName(activityId, trimmedName)
+    editActivity(activityId, trimmedName, editingState.parentId)
       .then(() => {
-        setEditingState({
-          editMode: false,
-          name: "",
-          siblingNames: new Set(),
-          validationError: "",
-        });
+        setEditingState(createInitialState());
       })
       .catch((err) => {
         console.error(err);
-        openErrorSnackbar("Failed to save activity name");
+        openErrorSnackbar("Failed to save activity");
       });
   };
 
   const handleCancel = () => {
-    setEditingState({
-      editMode: false,
-      name: "",
-      siblingNames: new Set(),
-      validationError: "",
-    });
+    setEditingState(createInitialState());
   };
 
   return {
     editingState,
     handleEditStart,
     handleNameChange,
+    handleParentChange,
     handleSave,
     handleCancel,
   };

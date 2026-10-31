@@ -199,11 +199,57 @@ export async function getSiblingActivities(
     .toArray();
 }
 
-export async function editActivityName(
+export async function editActivity(
   activityId: number,
-  newName: string,
+  name: string,
+  parentId: number,
 ): Promise<void> {
-  await db.activities.update(activityId, { name: newName });
+  await db.transaction("rw", db.activities, async () => {
+    const activity = await getActivity(activityId);
+    if (parentId !== activity.parentId) {
+      if (parentId !== ROOT_ACTIVITY_ID) {
+        await getActivity(parentId);
+      }
+      const descendants = await getDescendants(activity);
+      if (
+        parentId === activityId ||
+        descendants.some((descendant) => descendant.id === parentId)
+      ) {
+        throw new Error("Activity cannot be moved under itself.");
+      }
+      await expandSelfAndAncestors(parentId);
+    }
+    await db.activities.update(activityId, { name, parentId });
+  });
+}
+
+/** Lower-cased names of the activities directly under the parent, except the given activity. */
+export async function getChildNames(
+  parentId: number,
+  excludeActivityId: number,
+): Promise<Set<string>> {
+  const children = await db.activities
+    .where("parentId")
+    .equals(parentId)
+    .and((child) => child.id !== excludeActivityId)
+    .toArray();
+  return new Set(children.map((child) => child.name.toLowerCase()));
+}
+
+/** Activities the given activity can be moved under: all except itself and its descendants. The root comes first. */
+export async function getParentOptions(
+  activityId: number,
+): Promise<ActivityOption[]> {
+  const activity = await getActivity(activityId);
+  const excluded = new Set(
+    (await getDescendants(activity)).map((descendant) => descendant.id),
+  );
+  excluded.add(activityId);
+  const options = await getActivityOptions();
+  return [
+    { id: ROOT_ACTIVITY_ID, fullName: "No parent" },
+    ...options.filter((option) => !excluded.has(option.id)),
+  ];
 }
 
 export type ActivityOption = { id: number; fullName: string };
