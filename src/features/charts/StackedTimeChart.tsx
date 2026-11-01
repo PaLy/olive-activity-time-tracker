@@ -1,4 +1,5 @@
 import Box from "@mui/material/Box";
+import CircularProgress from "@mui/material/CircularProgress";
 import Typography from "@mui/material/Typography";
 import { useTheme } from "@mui/material/styles";
 import dayjs from "dayjs";
@@ -17,6 +18,12 @@ import { getPeriodRange, Period } from "./periods";
 
 const HOUR_MS = 3_600_000;
 
+const LABEL_FORMATS: Record<Period, string> = {
+  week: "ddd",
+  month: "D",
+  year: "MMM",
+};
+
 export const StackedTimeChart = ({
   activityId,
   period,
@@ -26,7 +33,6 @@ export const StackedTimeChart = ({
 }) => {
   const theme = useTheme();
   const { bucketUnit: unit } = getPeriodRange(period);
-  const format = period === "year" ? "MMM" : period === "week" ? "ddd" : "D";
 
   const data = useLiveQuery(async () => {
     const { start, end, bucketUnit } = getPeriodRange(period);
@@ -44,19 +50,47 @@ export const StackedTimeChart = ({
     // The current bucket runs until today, not until the end of the calendar unit.
     buckets[buckets.length - 1].end = end;
     try {
-      return await getTimePerBucket(buckets, activityId);
+      // Tag the result with its period: useLiveQuery keeps returning the
+      // previous result after a dependency change, which would otherwise be
+      // rendered with the new period's label format (e.g. day buckets labeled
+      // as months) until the new query resolves.
+      return {
+        period,
+        buckets: await getTimePerBucket(buckets, activityId),
+      };
     } catch (error) {
       openErrorSnackbar(error as Error);
-      return [];
+      return { period, buckets: [] };
     }
   }, [activityId, period]);
 
   if (!data) {
-    return null;
+    return (
+      <Box sx={{ mt: 3 }}>
+        <Typography variant="subtitle1">Time per {unit} (hours)</Typography>
+        <Box
+          sx={{
+            height: 220,
+            mt: 1,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <CircularProgress size={24} />
+        </Box>
+      </Box>
+    );
   }
 
+  // useLiveQuery keeps returning the previous result after a dependency
+  // change. Keep rendering it with its own labels while the new period loads,
+  // so the layout below the chart does not jump.
+  const isStale = data.period !== period;
+  const { bucketUnit: dataUnit } = getPeriodRange(data.period);
+
   const totals = new Map<number, { name: string; total: number }>();
-  data.forEach((bucket) =>
+  data.buckets.forEach((bucket) =>
     bucket.durations.forEach((item) => {
       const entry = totals.get(item.id) ?? { name: item.name, total: 0 };
       entry.total += item.duration;
@@ -92,9 +126,9 @@ export const StackedTimeChart = ({
       : []),
   ];
 
-  const rows = data.map((bucket) => {
+  const rows = data.buckets.map((bucket) => {
     const row: Record<string, number | string> = {
-      label: dayjs(bucket.start).format(format),
+      label: dayjs(bucket.start).format(LABEL_FORMATS[data.period]),
     };
     bucket.durations.forEach((item) => {
       const key = shownIds.has(item.id) ? `a${item.id}` : OTHER_KEY;
@@ -106,33 +140,65 @@ export const StackedTimeChart = ({
 
   return (
     <Box sx={{ mt: 3 }}>
-      <Typography variant="subtitle1">Time per {unit} (hours)</Typography>
-      <Box sx={{ height: 220, mt: 1 }}>
-        <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={rows}>
-            <XAxis dataKey="label" interval="preserveStartEnd" />
-            <YAxis width="auto" />
-            <Tooltip
-              formatter={(value) => `${Number(value).toFixed(1)} h`}
-              contentStyle={{
-                background: theme.palette.background.paper,
-                color: theme.palette.text.primary,
-              }}
-            />
-            {series.map((item) => (
-              <Bar
-                key={item.key}
-                dataKey={item.key}
-                name={item.name}
-                stackId="time"
-                fill={item.color}
-                isAnimationActive={false}
+      <Typography variant="subtitle1">Time per {dataUnit} (hours)</Typography>
+      <Box sx={{ height: 220, mt: 1, position: "relative" }}>
+        <Box
+          sx={{
+            height: "100%",
+            opacity: isStale ? 0.4 : 1,
+            transition: "opacity 150ms",
+            pointerEvents: isStale ? "none" : "auto",
+          }}
+        >
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={rows}>
+              <XAxis dataKey="label" interval="preserveStartEnd" />
+              <YAxis width="auto" />
+              <Tooltip
+                formatter={(value) => `${Number(value).toFixed(1)} h`}
+                contentStyle={{
+                  background: theme.palette.background.paper,
+                  color: theme.palette.text.primary,
+                }}
               />
-            ))}
-          </BarChart>
-        </ResponsiveContainer>
+              {series.map((item) => (
+                <Bar
+                  key={item.key}
+                  dataKey={item.key}
+                  name={item.name}
+                  stackId="time"
+                  fill={item.color}
+                  isAnimationActive={false}
+                />
+              ))}
+            </BarChart>
+          </ResponsiveContainer>
+        </Box>
+        {isStale && (
+          <Box
+            sx={{
+              position: "absolute",
+              inset: 0,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              pointerEvents: "none",
+            }}
+          >
+            <CircularProgress size={24} aria-label="Loading chart" />
+          </Box>
+        )}
       </Box>
-      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1.5, mt: 1 }}>
+      <Box
+        sx={{
+          display: "flex",
+          flexWrap: "wrap",
+          gap: 1.5,
+          mt: 1,
+          opacity: isStale ? 0.4 : 1,
+          transition: "opacity 150ms",
+        }}
+      >
         {series.map((item) => (
           <Box
             key={item.key}
