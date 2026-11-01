@@ -55,13 +55,29 @@ describe("AddActivityModal", () => {
     await userEvent.click(
       await screen.findByRole("button", { name: "start new activity" }),
     );
-    await userEvent.type(await screen.findByLabelText("Activity"), "Work");
+    await userEvent.type(
+      await screen.findByRole("combobox", { name: "Activity" }),
+      "Work",
+    );
     await userEvent.click(await screen.findByRole("option", { name: "Work" }));
     await userEvent.click(await screen.findByRole("button", { name: "Start" }));
 
     await waitFor(async () =>
       expect(await screen.findByLabelText("stop activity")).toBeVisible(),
     );
+  });
+
+  it("shows activity options when the selector receives focus", async () => {
+    await db.activities.bulkAdd([
+      { name: "Work", parentId: -1, expanded: 1, notificationsEnabled: 1 },
+    ]);
+    renderApp();
+
+    await userEvent.click(
+      await screen.findByRole("button", { name: "start new activity" }),
+    );
+
+    expect(await screen.findByRole("option", { name: "Work" })).toBeVisible();
   });
 
   it("can add finished activity which is currently in progress", async () => {
@@ -94,7 +110,10 @@ describe("AddActivityModal", () => {
     );
 
     // Type in the activity name to search for it
-    await userEvent.type(await screen.findByLabelText("Activity"), "Work");
+    await userEvent.type(
+      await screen.findByRole("combobox", { name: "Activity" }),
+      "Work",
+    );
 
     // The "Work" option should be available even though it's in progress
     // because we're adding it as a finished activity
