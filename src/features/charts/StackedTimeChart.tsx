@@ -13,7 +13,7 @@ import {
 } from "recharts";
 import { openErrorSnackbar } from "../../components/AppSnackbarStore";
 import { getTimePerBucket } from "../../db/queries/charts";
-import { Period } from "./periods";
+import { getPeriodRange, Period } from "./periods";
 
 const HOUR_MS = 3_600_000;
 
@@ -25,22 +25,24 @@ export const StackedTimeChart = ({
   period: Period;
 }) => {
   const theme = useTheme();
-  const unit = period === "year" ? "month" : "day";
+  const { bucketUnit: unit } = getPeriodRange(period);
   const format = period === "year" ? "MMM" : period === "week" ? "ddd" : "D";
 
   const data = useLiveQuery(async () => {
+    const { start, end, bucketUnit } = getPeriodRange(period);
     const buckets = [];
-    const end = dayjs().endOf(period);
     for (
-      let cursor = dayjs().startOf(period);
+      let cursor = dayjs(start);
       cursor.isBefore(end);
-      cursor = cursor.add(1, unit)
+      cursor = cursor.add(1, bucketUnit)
     ) {
       buckets.push({
         start: cursor.valueOf(),
-        end: cursor.add(1, unit).valueOf(),
+        end: cursor.add(1, bucketUnit).valueOf(),
       });
     }
+    // The current bucket runs until today, not until the end of the calendar unit.
+    buckets[buckets.length - 1].end = end;
     try {
       return await getTimePerBucket(buckets, activityId);
     } catch (error) {

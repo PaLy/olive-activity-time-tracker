@@ -4,7 +4,6 @@ import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import { useTheme } from "@mui/material/styles";
 import { useState } from "react";
-import dayjs from "dayjs";
 import { useLiveQuery } from "dexie-react-hooks";
 import {
   Bar,
@@ -16,7 +15,7 @@ import {
 } from "recharts";
 import { openErrorSnackbar } from "../../components/AppSnackbarStore";
 import { getSessionLengthHistogram } from "../../db/queries/charts";
-import { Period } from "./periods";
+import { getPeriodRange, Period } from "./periods";
 
 const MINUTE_MS = 60_000;
 const GAP_OPTIONS = [
@@ -72,10 +71,7 @@ const Histogram = ({
     () =>
       getSessionLengthHistogram(
         activityId,
-        {
-          start: dayjs().startOf(period).valueOf(),
-          end: dayjs().endOf(period).valueOf(),
-        },
+        getPeriodRange(period),
         maxGapMs,
       ).catch((error) => {
         openErrorSnackbar(error);
