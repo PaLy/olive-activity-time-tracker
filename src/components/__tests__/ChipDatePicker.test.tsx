@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
+import { userEvent } from "@testing-library/user-event";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { ChipDatePicker, ChipDatePickerProps } from "../ChipDatePicker";
@@ -125,5 +126,85 @@ describe("ChipDatePicker", () => {
     const buttons = screen.getAllByRole("button");
     // Last button should be the next button and should be disabled
     expect(buttons[buttons.length - 1]).toBeDisabled();
+  });
+
+  it("navigates to the previous date", async () => {
+    const value = dayjs("2024-01-15");
+    const onChange = vi.fn();
+
+    renderWithProvider(
+      <ChipDatePicker
+        value={value}
+        onChange={onChange}
+        onBefore={(d) => d.subtract(1, "day")}
+      />,
+    );
+
+    await userEvent.click(screen.getAllByRole("button")[0]);
+
+    expect(onChange).toHaveBeenCalledTimes(1);
+    expect(onChange.mock.calls[0][0].format("YYYY-MM-DD")).toBe("2024-01-14");
+  });
+
+  it("navigates to the next date", async () => {
+    const value = dayjs("2024-01-15");
+    const onChange = vi.fn();
+
+    renderWithProvider(
+      <ChipDatePicker
+        value={value}
+        onChange={onChange}
+        onNext={(d) => d.add(1, "day")}
+      />,
+    );
+
+    await userEvent.click(screen.getAllByRole("button")[1]);
+
+    expect(onChange).toHaveBeenCalledTimes(1);
+    expect(onChange.mock.calls[0][0].format("YYYY-MM-DD")).toBe("2024-01-16");
+  });
+
+  it("opens the picker when clicking the chip", async () => {
+    const value = dayjs("2024-01-15");
+    const onChange = vi.fn();
+
+    renderWithProvider(<ChipDatePicker value={value} onChange={onChange} />);
+
+    await userEvent.click(screen.getByText("01/15/2024"));
+
+    expect(
+      await screen.findByRole("dialog", { name: /select date/i }),
+    ).toBeVisible();
+  });
+
+  it("selects a date from the picker", async () => {
+    const value = dayjs("2024-01-15");
+    const onChange = vi.fn();
+
+    renderWithProvider(<ChipDatePicker value={value} onChange={onChange} />);
+
+    await userEvent.click(screen.getByText("01/15/2024"));
+    await userEvent.click(await screen.findByRole("gridcell", { name: "20" }));
+
+    expect(onChange).toHaveBeenCalled();
+    expect(onChange.mock.calls[0][0].format("YYYY-MM-DD")).toBe("2024-01-20");
+  });
+
+  it("does not navigate when there is no value", async () => {
+    const onChange = vi.fn();
+
+    renderWithProvider(
+      <ChipDatePicker
+        value={null as unknown as ChipDatePickerProps["value"]}
+        onChange={onChange}
+        onBefore={(d) => d.subtract(1, "day")}
+        onNext={(d) => d.add(1, "day")}
+      />,
+    );
+
+    await userEvent.click(screen.getAllByRole("button")[0]);
+    await userEvent.click(screen.getAllByRole("button")[2]);
+
+    expect(onChange).not.toHaveBeenCalled();
   });
 });

@@ -4,7 +4,7 @@ import { userEvent } from "@testing-library/user-event";
 import { screen, waitFor } from "@testing-library/react";
 import { storageModal } from "../__testutils__/storageModalTestUtils";
 import path from "path";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { db } from "../../../../db/db";
 import MockDate from "mockdate";
 
@@ -36,6 +36,27 @@ describe("StorageModal", () => {
         await screen.findByRole("button", { name: "back" }),
       );
       expect(screen.queryByText("Test")).not.toBeInTheDocument();
+    });
+
+    it("shows an error for an invalid file", async () => {
+      const consoleErrorSpy = vi
+        .spyOn(console, "error")
+        .mockImplementation(() => {});
+
+      renderApp({ route: "/storage" });
+      const fileText = "not a valid export";
+      const file = new File([new Blob([fileText])], "activities.json", {
+        type: "text/json",
+      });
+      File.prototype.text = vi.fn().mockResolvedValueOnce(fileText);
+      const input = (
+        await screen.findByRole("button", { name: "Import" })
+      ).querySelector('input[type="file"]')! as HTMLInputElement;
+
+      await userEvent.upload(input, file);
+
+      expect(await screen.findByText("Failed to import data.")).toBeVisible();
+      consoleErrorSpy.mockRestore();
     });
   });
 
@@ -113,6 +134,18 @@ describe("StorageModal", () => {
           "activities_202403050820.json",
         ),
       );
+    });
+
+    it("shows an error when the Android export fails", async () => {
+      await prepareData();
+      vi.mocked(window.Android!.export).mockReturnValueOnce("error");
+
+      renderApp({ route: "/storage" });
+      await userEvent.click(
+        await screen.findByRole("button", { name: /export/i }),
+      );
+
+      expect(await screen.findByText("Failed to export")).toBeVisible();
     });
   });
 });
