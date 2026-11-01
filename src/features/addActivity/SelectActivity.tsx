@@ -69,6 +69,7 @@ export const SelectActivity = (props: Props) => {
       }}
       filterOptions={filter}
       handleHomeEndKeys
+      openOnFocus
       options={options}
       isOptionEqualToValue={(option, value) => option.id === value.id}
       getOptionDisabled={getOptionDisabled}
