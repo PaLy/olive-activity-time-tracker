@@ -1,11 +1,10 @@
 import Box from "@mui/material/Box";
 import LinearProgress from "@mui/material/LinearProgress";
 import Typography from "@mui/material/Typography";
-import dayjs from "dayjs";
 import { useLiveQuery } from "dexie-react-hooks";
 import { openErrorSnackbar } from "../../components/AppSnackbarStore";
 import { getActivityBreakdown } from "../../db/queries/charts";
-import { Period } from "./periods";
+import { getPeriodRange, Period } from "./periods";
 
 export const TimePerActivityChart = ({
   activityId,
@@ -29,16 +28,12 @@ const Breakdown = ({
 }) => {
   const data = useLiveQuery(
     () =>
-      getActivityBreakdown(
-        {
-          start: dayjs().startOf(period).valueOf(),
-          end: dayjs().endOf(period).valueOf(),
+      getActivityBreakdown(getPeriodRange(period), activityId).catch(
+        (error) => {
+          openErrorSnackbar(error);
+          return null;
         },
-        activityId,
-      ).catch((error) => {
-        openErrorSnackbar(error);
-        return null;
-      }),
+      ),
     [activityId, period],
   );
 

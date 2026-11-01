@@ -1,11 +1,10 @@
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import { alpha, useTheme } from "@mui/material/styles";
-import dayjs from "dayjs";
 import { useLiveQuery } from "dexie-react-hooks";
 import { openErrorSnackbar } from "../../components/AppSnackbarStore";
 import { getTimeByWeekdayHour } from "../../db/queries/charts";
-import { Period } from "./periods";
+import { getPeriodRange, Period } from "./periods";
 
 const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 // Monday first
@@ -34,16 +33,12 @@ const Heatmap = ({
   const theme = useTheme();
   const data = useLiveQuery(
     () =>
-      getTimeByWeekdayHour(
-        {
-          start: dayjs().startOf(period).valueOf(),
-          end: dayjs().endOf(period).valueOf(),
+      getTimeByWeekdayHour(getPeriodRange(period), activityId).catch(
+        (error) => {
+          openErrorSnackbar(error);
+          return null;
         },
-        activityId,
-      ).catch((error) => {
-        openErrorSnackbar(error);
-        return null;
-      }),
+      ),
     [activityId, period],
   );
 
