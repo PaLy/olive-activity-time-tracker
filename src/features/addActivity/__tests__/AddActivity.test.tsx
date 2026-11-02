@@ -80,6 +80,31 @@ describe("AddActivityModal", () => {
     expect(await screen.findByRole("option", { name: "Work" })).toBeVisible();
   });
 
+  it("keeps the soft keyboard closed until the selector is tapped and closes it after selecting", async () => {
+    await db.activities.bulkAdd([
+      { name: "Work", parentId: -1, expanded: 1, notificationsEnabled: 1 },
+    ]);
+    renderApp();
+
+    await userEvent.click(
+      await screen.findByRole("button", { name: "start new activity" }),
+    );
+
+    const selector = await screen.findByRole("combobox", { name: "Activity" });
+    expect(selector).not.toHaveFocus();
+    expect(await screen.findByRole("option", { name: "Work" })).toBeVisible();
+
+    await userEvent.click(selector);
+
+    expect(selector).toHaveFocus();
+    expect(await screen.findByRole("option", { name: "Work" })).toBeVisible();
+
+    await userEvent.click(await screen.findByRole("option", { name: "Work" }));
+
+    expect(selector).not.toHaveFocus();
+    expect(selector).toHaveValue("Work");
+  });
+
   it("can add finished activity which is currently in progress", async () => {
     // Create an activity and start it (making it in progress)
     await db.activities.bulkAdd([
