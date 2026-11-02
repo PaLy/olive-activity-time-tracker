@@ -27,6 +27,44 @@ describe("AddActivityModal", () => {
     expect(await screen.findByText("Code Review")).toBeVisible();
   });
 
+  it("prioritizes activities that already have children as parent options", async () => {
+    await db.activities.bulkAdd([
+      { name: "Work", parentId: -1, expanded: 1, notificationsEnabled: 1 },
+      { name: "Home", parentId: -1, expanded: 1, notificationsEnabled: 1 },
+      {
+        name: "Code Review",
+        parentId: 1,
+        expanded: 1,
+        notificationsEnabled: 1,
+      },
+    ]);
+    renderApp();
+
+    await userEvent.click(
+      await screen.findByRole("button", { name: "start new activity" }),
+    );
+    await userEvent.click(await screen.findByRole("button", { name: "new" }));
+    await userEvent.click(
+      await screen.findByRole("combobox", { name: "As subactivity of..." }),
+    );
+
+    const options = await screen.findAllByRole("option");
+    expect(options[0].textContent).toBe("Work");
+
+    const workIndex = options.findIndex(
+      (option) => option.textContent === "Work",
+    );
+    const homeIndex = options.findIndex(
+      (option) => option.textContent === "Home",
+    );
+    const childIndex = options.findIndex(
+      (option) => option.textContent === "Work / Code Review",
+    );
+
+    expect(workIndex).toBeLessThan(homeIndex);
+    expect(workIndex).toBeLessThan(childIndex);
+  });
+
   it("can start first activity", async () => {
     renderApp();
     await userEvent.click(

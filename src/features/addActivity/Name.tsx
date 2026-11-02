@@ -87,6 +87,7 @@ export const Name = (props: NameProps) => {
               activity={parentActivity}
               setActivity={setParentActivity}
               label={"As subactivity of..."}
+              prioritizeParents
             />
           )}
         </>

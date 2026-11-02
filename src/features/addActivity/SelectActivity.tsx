@@ -20,6 +20,7 @@ type Props = {
   setActivity: (activity: AddActivityDataActivity | null) => void;
   label: string;
   openOnMount?: boolean;
+  prioritizeParents?: boolean;
   error?: {
     value: string;
     set: (error: string) => void;
@@ -35,6 +36,7 @@ export const SelectActivity = (props: Props) => {
     label,
     error: { value: error, set: setError } = {},
     openOnMount,
+    prioritizeParents,
     getOptionDisabled,
     onUserInputChange,
   } = props;
@@ -44,7 +46,7 @@ export const SelectActivity = (props: Props) => {
   );
 
   const activityFullNames = useActivityFullNames(addActivityData);
-  const options = useOptions(addActivityData);
+  const options = useOptions(addActivityData, prioritizeParents);
 
   // Open the options without focusing the input, so the soft keyboard stays
   // closed until the user taps the selector. Delay the initial opening until
@@ -187,18 +189,27 @@ export const SelectActivity = (props: Props) => {
 
 const filter = createFilterOptions<AddActivityDataActivity>({ trim: true });
 
-const useOptions = (addActivityData: AddActivityData | undefined) => {
+const useOptions = (
+  addActivityData: AddActivityData | undefined,
+  prioritizeParents = false,
+) => {
   const { activities = new Map() } = addActivityData ?? {};
   const activityFullNames = useActivityFullNames(addActivityData);
   const scores = useLiveQuery(() => getActivityScores(), []);
-  return useMemo(
-    () =>
-      sortByScore(
-        [...activities.values()].filter((a) => a.id !== -1), // Exclude root activity
-        scores ?? new Map(),
-        (activity) => activity.id,
-        (activity) => activityFullNames.get(activity.id) ?? activity.name,
-      ),
-    [activityFullNames, activities, scores],
-  );
+  return useMemo(() => {
+    const sorted = sortByScore(
+      [...activities.values()].filter((a) => a.id !== -1), // Exclude root activity
+      scores ?? new Map(),
+      (activity) => activity.id,
+      (activity) => activityFullNames.get(activity.id) ?? activity.name,
+    );
+    if (!prioritizeParents) {
+      return sorted;
+    }
+    // Activities that already have children are more likely to be picked as
+    // a parent again, so show them before leaf activities.
+    const parents = sorted.filter((activity) => activity.children.length > 0);
+    const leaves = sorted.filter((activity) => activity.children.length === 0);
+    return [...parents, ...leaves];
+  }, [activityFullNames, activities, prioritizeParents, scores]);
 };
