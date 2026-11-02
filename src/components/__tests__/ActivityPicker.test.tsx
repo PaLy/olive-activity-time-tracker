@@ -42,6 +42,26 @@ describe("ActivityPicker", () => {
     expect(onChange).toHaveBeenCalledWith(2);
   });
 
+  it("blurs the input after selecting an activity", async () => {
+    render(
+      <ActivityPicker
+        options={options}
+        selected={options[1]}
+        onChange={vi.fn()}
+      />,
+    );
+
+    const input = screen.getByRole("combobox", { name: "Activity" });
+    await userEvent.click(input);
+    expect(input).toHaveFocus();
+
+    await userEvent.click(
+      await screen.findByRole("option", { name: "Work / Code Review" }),
+    );
+
+    expect(input).not.toHaveFocus();
+  });
+
   it("supports a custom label", () => {
     render(
       <ActivityPicker

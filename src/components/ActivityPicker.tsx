@@ -26,6 +26,7 @@ export const ActivityPicker = ({
     options={options}
     value={selected}
     disableClearable
+    blurOnSelect
     getOptionLabel={(option) => option.fullName}
     isOptionEqualToValue={(a, b) => a.id === b.id}
     onChange={(_, option) => onChange(option.id)}
