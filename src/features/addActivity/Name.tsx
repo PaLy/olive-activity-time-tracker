@@ -94,7 +94,7 @@ export const Name = (props: NameProps) => {
       {toggle === "existing" && (
         <Box sx={{ mt: 2 }}>
           <SelectActivity
-            autoFocus
+            openOnMount
             activity={existingActivity}
             setActivity={setExistingActivity}
             label={"Activity"}
