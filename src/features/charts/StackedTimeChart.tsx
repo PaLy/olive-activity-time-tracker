@@ -155,6 +155,7 @@ export const StackedTimeChart = ({
               <XAxis dataKey="label" interval="preserveStartEnd" />
               <YAxis width="auto" />
               <Tooltip
+                cursor={false}
                 formatter={(value) => `${Number(value).toFixed(1)} h`}
                 contentStyle={{
                   background: theme.palette.background.paper,
