@@ -1,4 +1,5 @@
 import Box from "@mui/material/Box";
+import GlobalStyles from "@mui/material/GlobalStyles";
 import ToggleButton from "@mui/material/ToggleButton";
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import { FullScreenModal } from "../../components/FullScreenModal";
@@ -19,9 +20,21 @@ export const ChartsModal = () => {
   const { pathname } = useLocation();
   useCoversPreviousPage();
   return (
-    <FullScreenModal open={pathname.endsWith("/charts")}>
-      <Content />
-    </FullScreenModal>
+    <>
+      {/* Clicking a chart focuses Recharts' SVG or its internal bar layer,
+          which makes the browser draw a focus outline around it. Only hide
+          the outline for pointer focus so keyboard focus stays visible. */}
+      <GlobalStyles
+        styles={{
+          ".recharts-wrapper :is(svg, g):focus:not(:focus-visible)": {
+            outline: "none",
+          },
+        }}
+      />
+      <FullScreenModal open={pathname.endsWith("/charts")}>
+        <Content />
+      </FullScreenModal>
+    </>
   );
 };
 
