@@ -47,6 +47,14 @@ describe("ActivityListPage", () => {
     expect(await screen.findByText("1 week")).toBeVisible();
   });
 
+  it("does not show the empty placeholder before activities are loaded", async () => {
+    renderApp({ route: "/day" });
+
+    expect(screen.queryByText("No activities yet")).not.toBeInTheDocument();
+
+    expect(await screen.findByText("No activities yet")).toBeVisible();
+  });
+
   it("switches between the list intervals", async () => {
     renderApp();
 
