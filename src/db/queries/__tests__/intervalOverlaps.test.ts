@@ -24,6 +24,15 @@ describe("interval overlaps", () => {
     ).toEqual([]);
   });
 
+  it("subtractRanges ignores cuts outside the range", () => {
+    expect(
+      subtractRanges({ start: 5, end: 10 }, [
+        { start: 12, end: 15 },
+        { start: 0, end: 3 },
+      ]),
+    ).toEqual([{ start: 5, end: 10 }]);
+  });
+
   it("cuts ancestor intervals when editing a child interval", async () => {
     await db.activities.bulkAdd([act("P", -1), act("C", 1)]);
     await db.intervals.bulkAdd([
@@ -36,6 +45,31 @@ describe("interval overlaps", () => {
       [0, 40],
       [60, 100],
     ]);
+  });
+
+  it("removes an ancestor interval fully covered by the edited interval", async () => {
+    await db.activities.bulkAdd([act("P", -1), act("C", 1)]);
+    await db.intervals.bulkAdd([
+      { activityId: 1, start: 40, end: 60 },
+      { activityId: 2, start: 200, end: 300 },
+    ]);
+
+    await updateInterval(2, 0, 100);
+
+    expect(await db.intervals.where("activityId").equals(1).count()).toBe(0);
+  });
+
+  it("leaves ancestor intervals outside the edited interval untouched", async () => {
+    await db.activities.bulkAdd([act("P", -1), act("C", 1)]);
+    await db.intervals.bulkAdd([
+      { activityId: 1, start: 40, end: 60 },
+      { activityId: 2, start: 200, end: 300 },
+    ]);
+
+    await updateInterval(2, 400, 500);
+
+    const p = await db.intervals.where("activityId").equals(1).toArray();
+    expect(p.map((i) => [i.start, i.end])).toEqual([[40, 60]]);
   });
 
   it("cuts the edited interval by descendant intervals", async () => {
