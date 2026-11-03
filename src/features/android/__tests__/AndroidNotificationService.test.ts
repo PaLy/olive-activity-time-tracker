@@ -274,6 +274,27 @@ describe("AndroidNotificationService", () => {
         mockAndroid.updateNotification.mock.calls.length,
       ).toBeGreaterThanOrEqual(firstCallCount + 1);
     });
+
+    it("logs errors while updating from current activities", async () => {
+      const consoleSpy = vi
+        .spyOn(console, "error")
+        .mockImplementation(() => {});
+      vi.spyOn(service, "updateNotification").mockRejectedValueOnce(
+        new Error("update failed"),
+      );
+      service.setActivitiesData([{ fullName: "Task 1", start: Date.now() }]);
+
+      service.startAutoUpdate(5000);
+      await Promise.resolve();
+      await Promise.resolve();
+
+      expect(consoleSpy).toHaveBeenCalledWith(
+        "Error updating from current activities:",
+        expect.any(Error),
+      );
+      service.stopAutoUpdate();
+      consoleSpy.mockRestore();
+    });
   });
 
   describe("stopAutoUpdate", () => {

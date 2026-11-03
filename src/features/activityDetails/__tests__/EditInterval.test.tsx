@@ -18,6 +18,18 @@ describe("EditInterval", () => {
     vi.restoreAllMocks();
   });
 
+  it("shows an error when the interval does not exist", async () => {
+    const consoleErrorSpy = vi
+      .spyOn(console, "error")
+      .mockImplementation(() => {});
+
+    renderApp({ route: "/activities/1/interval/999" });
+
+    expect(await screen.findByText("Interval not found")).toBeVisible();
+    expect(consoleErrorSpy).toHaveBeenCalled();
+    consoleErrorSpy.mockRestore();
+  });
+
   it("moves an interval to another activity", async () => {
     await db.activities.bulkAdd([
       { name: "A", parentId: -1, expanded: 0, notificationsEnabled: 1 },

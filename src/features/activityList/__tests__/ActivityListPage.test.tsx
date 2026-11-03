@@ -9,6 +9,7 @@ import {
   useDayFilterStore,
   useMonthFilterStore,
 } from "../ActivityListFilterStore";
+import { db } from "../../../db/db";
 
 describe("ActivityListPage", () => {
   beforeEach(() => {
@@ -66,5 +67,54 @@ describe("ActivityListPage", () => {
 
     await userEvent.click(await screen.findByText("Date Range"));
     expect(await screen.findByText("1 week")).toBeVisible();
+  });
+
+  it("orders today's activities by their last end time", async () => {
+    await db.activities.bulkAdd([
+      { name: "First", parentId: -1, expanded: 0, notificationsEnabled: 1 },
+      { name: "Second", parentId: -1, expanded: 0, notificationsEnabled: 1 },
+    ]);
+    const start = dayjs().startOf("day").add(9, "hour");
+    await db.intervals.bulkAdd([
+      {
+        activityId: 1,
+        start: start.valueOf(),
+        end: start.add(1, "hour").valueOf(),
+      },
+      {
+        activityId: 2,
+        start: start.add(1, "hour").valueOf(),
+        end: start.add(2, "hour").valueOf(),
+      },
+    ]);
+
+    renderApp({ route: "/" });
+
+    expect(await screen.findByText("First")).toBeVisible();
+    expect(await screen.findByText("Second")).toBeVisible();
+  });
+
+  it("shows an empty state when the day filter matches nothing", async () => {
+    await db.activities.add({
+      name: "Today only",
+      parentId: -1,
+      expanded: 0,
+      notificationsEnabled: 1,
+    });
+    const start = dayjs().startOf("day").add(9, "hour");
+    await db.intervals.add({
+      activityId: 1,
+      start: start.valueOf(),
+      end: start.add(1, "hour").valueOf(),
+    });
+
+    renderApp({ route: "/day" });
+
+    expect(
+      await screen.findByText("No activities in this period"),
+    ).toBeVisible();
+    expect(
+      screen.getByText("Try selecting a different date or range."),
+    ).toBeVisible();
   });
 });

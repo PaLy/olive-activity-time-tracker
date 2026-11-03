@@ -102,6 +102,17 @@ describe("activities", () => {
         "Activity with ID 999 does not exist.",
       );
     });
+
+    it("stops at a missing ancestor", async () => {
+      await db.activities.add({
+        name: "Orphan",
+        parentId: 999,
+        expanded: 0,
+        notificationsEnabled: 1,
+      });
+
+      expect(await getAncestorsById(1)).toEqual([]);
+    });
   });
 
   describe("expandAllActivities", () => {
@@ -240,6 +251,10 @@ describe("activities", () => {
       expect(parent?.expanded).toBe(1);
       expect(child?.expanded).toBe(1);
     });
+
+    it("ignores a missing activity", async () => {
+      await expect(expandSelfAndAncestors(999)).resolves.toBeUndefined();
+    });
   });
 
   describe("getSiblingActivities", () => {
@@ -299,6 +314,15 @@ describe("activities", () => {
 
       expect((await db.activities.get(2))?.parentId).toBe(1);
       expect((await db.activities.get(1))?.expanded).toBe(1);
+    });
+
+    it("moves activity back to the root", async () => {
+      await add("A", -1);
+      await add("B", 1);
+
+      await editActivity(2, "B", -1);
+
+      expect((await db.activities.get(2))?.parentId).toBe(-1);
     });
 
     it("rejects moving under a descendant", async () => {

@@ -71,6 +71,28 @@ describe("useActivityNameEditing", () => {
       expect(result.current.editingState.editMode).toBe(false);
     });
 
+    it("starts editing with defaults when the activity is missing from the data", async () => {
+      await db.activities.add({
+        name: "Test",
+        parentId: -1,
+        expanded: 0,
+        notificationsEnabled: 1,
+      });
+      const activityDetailsData = {
+        activities: new Map(),
+      } as ActivityDetailsData;
+
+      const { result } = renderHook(() => useActivityNameEditing(1));
+
+      await act(async () => {
+        await result.current.handleEditStart(activityDetailsData);
+      });
+
+      expect(result.current.editingState.editMode).toBe(true);
+      expect(result.current.editingState.name).toBe("");
+      expect(result.current.editingState.parentId).toBe(-1);
+    });
+
     it("shows error snackbar when getSiblingActivities fails", async () => {
       const consoleErrorSpy = vi
         .spyOn(console, "error")
@@ -385,6 +407,34 @@ describe("useActivityNameEditing", () => {
       const moved = await db.activities.get(2);
       expect(moved?.parentId).toBe(1);
       expect(moved?.name).toBe("C");
+    });
+
+    it("shows an error when loading the new parent's children fails", async () => {
+      const consoleErrorSpy = vi
+        .spyOn(console, "error")
+        .mockImplementation(() => {});
+
+      await db.activities.bulkAdd([
+        { name: "A", parentId: -1, expanded: 0, notificationsEnabled: 1 },
+        { name: "B", parentId: 1, expanded: 0, notificationsEnabled: 1 },
+      ]);
+      const activities = new Map();
+      activities.set(2, { id: 2, name: "B", parentId: 1 });
+      const data = { activities } as ActivityDetailsData;
+
+      const { result } = renderHook(() => useActivityNameEditing(2));
+      await act(async () => {
+        await result.current.handleEditStart(data);
+      });
+
+      await db.close();
+      await act(async () => {
+        await result.current.handleParentChange(-1);
+      });
+
+      expect(consoleErrorSpy).toHaveBeenCalled();
+      consoleErrorSpy.mockRestore();
+      await db.open();
     });
   });
 

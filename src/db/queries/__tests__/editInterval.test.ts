@@ -4,6 +4,7 @@ import {
   getEditIntervalData,
   updateInterval,
   deleteInterval,
+  planUpdateInterval,
 } from "../editInterval";
 
 describe("editInterval", () => {
@@ -119,6 +120,31 @@ describe("editInterval", () => {
     it("throws error when interval does not exist", async () => {
       await expect(
         updateInterval(999, Date.now() - 1000, Date.now()),
+      ).rejects.toThrow("Interval with ID 999 does not exist.");
+    });
+
+    it("deletes the interval when it is fully covered by another one", async () => {
+      await db.activities.add({
+        name: "A",
+        parentId: -1,
+        expanded: 0,
+        notificationsEnabled: 1,
+      });
+      await db.intervals.bulkAdd([
+        { activityId: 1, start: 0, end: 100 },
+        { activityId: 1, start: 10, end: 20 },
+      ]);
+
+      await updateInterval(2, 10, 20);
+
+      expect(await db.intervals.get(2)).toBeUndefined();
+    });
+  });
+
+  describe("planUpdateInterval", () => {
+    it("throws error when interval does not exist", async () => {
+      await expect(
+        planUpdateInterval(999, Date.now() - 1000, Date.now()),
       ).rejects.toThrow("Interval with ID 999 does not exist.");
     });
   });
