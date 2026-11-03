@@ -98,7 +98,7 @@ const List = (props: ActivityListProps) => {
           style={{ paddingBottom: "64px" }}
         />
       </StyledFlipper>
-      {activities.length === 0 && (
+      {activities?.length === 0 && anyActivityExists !== undefined && (
         <EmptyPlaceholder filtered={!!props.filter && !!anyActivityExists} />
       )}
     </Box>
@@ -111,7 +111,7 @@ const StyledFlipper = styled(Flipper)`
 
 const useRowData = (
   props: ActivityListProps,
-  activities: ActivityTreeNode[],
+  activities: ActivityTreeNode[] | undefined,
 ) => {
   const { header, filter, interval } = props;
 
@@ -122,7 +122,7 @@ const useRowData = (
           RowComponent: Header,
           rowProps: { header, filter },
         } as SingleRowData<typeof Header>,
-        ...activities.map(
+        ...(activities ?? []).map(
           (activity) =>
             ({
               RowComponent: ActivityItem,
@@ -147,7 +147,8 @@ const useFilteredActivities = (orderBy: OrderBy, interval: SimpleInterval) => {
   const time = useClockStore((state) => state.time);
 
   return useMemo(
-    () => getOrderedActivities(activities, orderBy, interval, +time),
+    () =>
+      activities && getOrderedActivities(activities, orderBy, interval, +time),
     [activities, orderBy, time, interval],
   );
 };
